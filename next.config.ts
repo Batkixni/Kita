@@ -1,5 +1,8 @@
+import path from "path";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  outputFileTracingRoot: path.join(__dirname),
   // experimental: {
   //   turbopack: false,
   // },
