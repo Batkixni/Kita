@@ -1,4 +1,4 @@
-# Kita - Your Personal Bento Page
+# Kita
 
 [English](#english) | [中文](#chinese)
 

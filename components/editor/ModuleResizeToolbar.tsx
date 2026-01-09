@@ -75,7 +75,7 @@ export function ModuleResizeToolbar({ module }: ModuleResizeToolbarProps) {
 
     return (
         <div
-            className="absolute -top-12 left-1/2 -translate-x-1/2 bg-popover/60 backdrop-blur-xl text-popover-foreground rounded-full px-3 py-2 flex items-center gap-2 shadow-xl z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all scale-95 group-hover:scale-100 origin-bottom ring-1 ring-border/5"
+            className="absolute -top-12 left-1/2 -translate-x-1/2 bg-popover/60 backdrop-blur-xl text-popover-foreground rounded-full px-3 py-2 flex items-center gap-2 shadow-xl z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all scale-95 group-hover:scale-100 origin-bottom ring-1 ring-border/5 after:content-[''] after:absolute after:top-full after:left-0 after:w-full after:h-6"
             onClick={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
         >

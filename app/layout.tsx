@@ -9,8 +9,8 @@ import { ClientThemeProvider } from "@/components/providers/ClientThemeProvider"
 const fontSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Kita - Your Personal Bento",
-  description: "Create your own bento-like personal page.",
+  title: "Kita",
+  description: "Create your own personal page.",
   icons: {
     icon: '/icon.svg',
   },
