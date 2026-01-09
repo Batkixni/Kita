@@ -14,8 +14,6 @@ export const GET = async (req: Request, props: any) => {
 
 export const POST = async (req: Request, props: any) => {
     try {
-        const body = await req.clone().text();
-        console.log("AUTH POST BODY:", body);
         return await handlers.POST(req);
     } catch (error) {
         console.error("AUTH POST ERROR:", error);

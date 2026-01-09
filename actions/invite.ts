@@ -45,7 +45,7 @@ export async function registerWithInvite(data: z.infer<typeof registerSchema>) {
                 password,
                 name,
                 username // better-auth handles additional fields if configured
-            },
+            } as any,
             headers: await headers() // Pass headers for IP/UA
         });
 
@@ -76,7 +76,16 @@ export async function registerWithInvite(data: z.infer<typeof registerSchema>) {
         return { success: true };
 
     } catch (error: any) {
+        // Handle specific DB errors
+        const errorMessage = error.message || "";
+        if (errorMessage.includes("UNIQUE constraint failed: user.username")) {
+            throw new Error("Username is already taken. Please choose another one.");
+        }
+        if (errorMessage.includes("UNIQUE constraint failed: user.email")) {
+            throw new Error("Email is already registered. Please sign in instead.");
+        }
+
         // Better auth throws APIError
-        throw new Error(error.body?.message || error.message || "Registration failed");
+        throw new Error(error.body?.message || errorMessage || "Registration failed");
     }
 }

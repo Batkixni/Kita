@@ -42,3 +42,4 @@ next-env.d.ts
 local.db
 *.db
 unused-invites.txt
+local.db

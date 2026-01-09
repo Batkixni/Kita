@@ -1,4 +1,5 @@
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
+import { relations } from "drizzle-orm";
 
 export const users = sqliteTable("user", {
   id: text("id").primaryKey(),
@@ -77,3 +78,18 @@ export const invitations = sqliteTable("invitation", {
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
+
+export const pagesRelations = relations(pages, ({ one, many }) => ({
+  user: one(users, {
+    fields: [pages.userId],
+    references: [users.id],
+  }),
+  modules: many(modules),
+}));
+
+export const modulesRelations = relations(modules, ({ one }) => ({
+  page: one(pages, {
+    fields: [modules.pageId],
+    references: [pages.id],
+  }),
+}));
