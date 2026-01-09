@@ -1,0 +1,78 @@
+/* 
+ * CAFFEINE THEME CONFIGURATION
+ * This file is independent of globals.css to make customizations easier.
+ * 
+ * Instructions:
+ * - Light Mode: Paste your :root variables inside .theme-caffeine
+ * - Dark Mode: Paste your .dark variables inside .theme-caffeine.dark
+ */
+
+/* Light Mode (Caffeine) */
+.theme-caffeine {
+    --background: oklch(0.98 0 0);
+    --foreground: oklch(0.24 0 0);
+    --card: oklch(0.99 0 0);
+    --card-foreground: oklch(0.24 0 0);
+    --popover: oklch(0.99 0 0);
+    --popover-foreground: oklch(0.24 0 0);
+    --primary: oklch(0.43 0.04 42.00);
+    --primary-foreground: oklch(1.00 0 0);
+    --secondary: oklch(0.92 0.07 76.67);
+    --secondary-foreground: oklch(0.35 0.07 41.41);
+    --muted: oklch(0.95 0 0);
+    --muted-foreground: oklch(0.50 0 0);
+    --accent: oklch(0.93 0 0);
+    --accent-foreground: oklch(0.24 0 0);
+    --destructive: oklch(0.63 0.19 33.26);
+    --border: oklch(0.88 0 0);
+    --input: oklch(0.88 0 0);
+    --ring: oklch(0.43 0.04 42.00);
+    --chart-1: oklch(0.43 0.04 42.00);
+    --chart-2: oklch(0.92 0.07 76.67);
+    --chart-3: oklch(0.93 0 0);
+    --chart-4: oklch(0.94 0.05 75.02);
+    --chart-5: oklch(0.43 0.04 42.00);
+    --sidebar: oklch(0.99 0 0);
+    --sidebar-foreground: oklch(0.26 0 0);
+    --sidebar-primary: oklch(0.33 0 0);
+    --sidebar-primary-foreground: oklch(0.99 0 0);
+    --sidebar-accent: oklch(0.98 0 0);
+    --sidebar-accent-foreground: oklch(0.33 0 0);
+    --sidebar-border: oklch(0.94 0 0);
+    --sidebar-ring: oklch(0.77 0 0);
+}
+
+/* Dark Mode (Caffeine) */
+.theme-caffeine.dark {
+    --background: oklch(0.18 0 0);
+    --foreground: oklch(0.95 0 0);
+    --card: oklch(0.21 0 0);
+    --card-foreground: oklch(0.95 0 0);
+    --popover: oklch(0.21 0 0);
+    --popover-foreground: oklch(0.95 0 0);
+    --primary: oklch(0.92 0.05 67.14);
+    --primary-foreground: oklch(0.20 0.02 201.14);
+    --secondary: oklch(0.32 0.02 67.00);
+    --secondary-foreground: oklch(0.92 0.05 67.14);
+    --muted: oklch(0.25 0 0);
+    --muted-foreground: oklch(0.77 0 0);
+    --accent: oklch(0.29 0 0);
+    --accent-foreground: oklch(0.95 0 0);
+    --destructive: oklch(0.63 0.19 33.26);
+    --border: oklch(0.24 0.01 88.77);
+    --input: oklch(0.40 0 0);
+    --ring: oklch(0.92 0.05 67.14);
+    --chart-1: oklch(0.92 0.05 67.14);
+    --chart-2: oklch(0.32 0.02 67.00);
+    --chart-3: oklch(0.29 0 0);
+    --chart-4: oklch(0.35 0.02 67.11);
+    --chart-5: oklch(0.92 0.05 67.14);
+    --sidebar: oklch(0.21 0.01 285.56);
+    --sidebar-foreground: oklch(0.97 0 0);
+    --sidebar-primary: oklch(0.49 0.22 264.43);
+    --sidebar-primary-foreground: oklch(1.00 0 0);
+    --sidebar-accent: oklch(0.27 0.01 285.81);
+    --sidebar-accent-foreground: oklch(0.97 0 0);
+    --sidebar-border: oklch(0.27 0.01 285.81);
+    --sidebar-ring: oklch(0.87 0.01 286.27);
+}

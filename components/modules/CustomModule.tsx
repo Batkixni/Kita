@@ -72,11 +72,13 @@ const processShortcodes = (text: string) => {
         if (type === 'badge') {
             const { text = 'Badge', color = 'stone' } = args;
             // Map simple color names to tailwind classes
+            // Map simple color names to tailwind classes
+            // Using semantic/secondary colors to ensure contrast across all themes
             const colors: Record<string, string> = {
-                blue: 'bg-chart-3/10 text-chart-3 border-chart-3/20',
-                green: 'bg-chart-2/10 text-chart-2 border-chart-2/20',
-                yellow: 'bg-chart-4/10 text-chart-4 border-chart-4/20',
-                red: 'bg-chart-1/10 text-chart-1 border-chart-1/20',
+                blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+                green: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800',
+                yellow: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
+                red: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800',
                 stone: 'bg-secondary text-secondary-foreground border-border',
                 black: 'bg-primary text-primary-foreground border-primary',
             };

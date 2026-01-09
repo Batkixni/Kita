@@ -218,7 +218,16 @@ export default async function UserPage({ params }: { params: Promise<{ username:
     // Explicit color = check brightness.
     // Enhanced: Check if theme has a specific cssClass
     const themeClass = themeConfig.cssClass || "";
-    const isDarkMode = themeClass.includes('dark') || (!bgColor || isDark(bgColor));
+
+    // Improved Dark Mode Logic:
+    // 1. If a CSS Class is present, strictly follow 'dark' class presence.
+    // 2. If no CSS Class (Default Theme), fallback to legacy logic (null bg = dark, light bg = light).
+    let isDarkMode = false;
+    if (themeClass && themeClass.trim() !== '') {
+        isDarkMode = themeClass.includes('dark');
+    } else {
+        isDarkMode = !bgColor || isDark(bgColor);
+    }
 
     return (
         <div

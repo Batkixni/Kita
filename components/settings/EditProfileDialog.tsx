@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { ImageUpload } from "../editor/ImageUpload";
 import { Button } from "@/components/ui/button";
@@ -8,12 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { updateProfile, updatePageTheme } from "@/actions/settings";
-import { useRouter } from "next/navigation";
 import { Loader2, Palette, User } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { THEMES } from "@/lib/themes";
+import { getAvailableThemes, ThemeFile } from "@/actions/themes";
 
 interface EditProfileDialogProps {
     user: any;
@@ -21,24 +21,104 @@ interface EditProfileDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
-
 export function EditProfileDialog({ user, page, open, onOpenChange }: EditProfileDialogProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const [availableSchemes, setAvailableSchemes] = useState<ThemeFile[]>([{ id: 'default', name: 'Default (Monochrome)' }]);
 
     // Profile State
     const [name, setName] = useState(user.name);
     const [bio, setBio] = useState(user.bio || "");
     const [image, setImage] = useState(user.image || "");
 
-    // Theme State (Default fallback values)
-    const [bgColor, setBgColor] = useState<string | null>(page.themeConfig?.backgroundColor ?? null); // Use null for default/dark mode
-    const [textColor, setTextColor] = useState(page.themeConfig?.textColor || null); // null allows inherit
-    const [radius, setRadius] = useState(page.themeConfig?.radius || "3xl");
+    // Theme State Parsing
+    const currentCssClass = (page.themeConfig?.cssClass || "") as string;
+
+    // Extract initial scheme from class (e.g. "theme-caffeine" -> "caffeine")
+    const getInitialScheme = (cssClass: string) => {
+        const match = cssClass.match(/theme-([a-z0-9-]+)/);
+        return match ? match[1] : 'default';
+    };
+
+    const initialScheme = getInitialScheme(currentCssClass);
+    const initialMode = currentCssClass.includes('dark') || (!page.themeConfig?.backgroundColor && page.themeConfig?.cssClass?.includes('dark')) ? 'dark' : 'light';
+
+    const [mode, setMode] = useState<'light' | 'dark'>(initialMode);
+    const [colorScheme, setColorScheme] = useState<string>(initialScheme);
+
+    // Theme State
+    const [bgColor, setBgColor] = useState<string | null>(page.themeConfig?.backgroundColor ?? null);
+    const [textColor, setTextColor] = useState(page.themeConfig?.textColor || null);
+    const [radius, setRadius] = useState(page.themeConfig?.radius || "0.625rem");
+
+    // Fetch themes on mount
+    useEffect(() => {
+        const fetchThemes = async () => {
+            const themes = await getAvailableThemes();
+            setAvailableSchemes([
+                { id: 'default', name: 'Default (Monochrome)' },
+                ...themes.map(t => ({ id: t.id, name: t.name }))
+            ]);
+        };
+        if (open) {
+            fetchThemes();
+        }
+    }, [open]);
+
+    const handleSchemeChange = (schemeId: string) => {
+        setColorScheme(schemeId);
+        updatePresetValues(schemeId, mode);
+    };
+
+    const handleModeChange = (newMode: 'light' | 'dark') => {
+        setMode(newMode);
+        updatePresetValues(colorScheme, newMode);
+    };
+
+    const updatePresetValues = (schemeId: string, mode: 'light' | 'dark') => {
+        // This logic is a heuristic. Ideally, we read the CSS or just let CSS variables handle it.
+        // For now, we set explicit background only for consistency with previous behavior, 
+        // OR we can explicitly set it to NULL if we trust the class to handle it.
+        // The user seems to prefer strict colors.
+
+        // However, if we are using CSS classes, we might NOT need to set inline styles at all!
+        // Let's try setting default backgrounds based on "dark/light" assumption if not monochrome.
+
+        if (schemeId === 'default') {
+            if (mode === 'light') setBgColor('oklch(1.00 0 0)');
+            else setBgColor(null);
+        } else {
+            // For custom themes (caffeine, etc), we assume the CSS class handles the background
+            // unless the user overrides it.
+            // But to avoid "transparent" flash, maybe we should set null and let class take over?
+            // The previous logic for caffeine set specific colors.
+            // Let's settle on: Default bg is null (class driven) unless Default Monochrome Light (white).
+            // Actually, for consistency, let's try to set to null for custom themes so CSS values apply.
+            if (mode === 'light') {
+                // Try to guess or just set to null?
+                // If we set to null, the component renders <div className="... theme-caffeine">
+                // and the CSS variable --background applies. 
+                // The Page component uses style={bgColor ...}. If bgColor is null, it uses class.
+                setBgColor(null);
+            } else {
+                setBgColor(null);
+            }
+        }
+        setRadius('0.625rem');
+    };
 
     const handleSave = async () => {
         setIsLoading(true);
         try {
+            // Construct CSS Class
+            let cssClass = "";
+            if (colorScheme !== 'default') {
+                cssClass += `theme-${colorScheme}`;
+            }
+            if (mode === 'dark') {
+                cssClass += (cssClass ? " " : "") + "dark";
+            }
+
             // Save Profile
             await updateProfile(user.id, { name, bio, image });
 
@@ -46,7 +126,8 @@ export function EditProfileDialog({ user, page, open, onOpenChange }: EditProfil
             await updatePageTheme(page.id, {
                 backgroundColor: bgColor,
                 textColor,
-                radius
+                radius,
+                cssClass
             });
 
             router.refresh();
@@ -58,9 +139,15 @@ export function EditProfileDialog({ user, page, open, onOpenChange }: EditProfil
         }
     };
 
+    // Compute preview class to apply strictly to this dialog's content
+    const previewCssClass = cn(
+        colorScheme !== 'default' ? `theme-${colorScheme}` : "",
+        mode === 'dark' ? "dark" : ""
+    );
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className={cn("sm:max-w-[425px]", previewCssClass)}>
                 <DialogHeader>
                     <DialogTitle>Edit Profile & Design</DialogTitle>
                 </DialogHeader>
@@ -88,38 +175,31 @@ export function EditProfileDialog({ user, page, open, onOpenChange }: EditProfil
 
                     <TabsContent value="design" className="space-y-6 py-4">
 
-                        {/* Pre-built Themes */}
-                        <div className="space-y-3">
-                            <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Pre-Built Themes</Label>
-                            {/* Pre-built Themes */}
-                            <div className="space-y-3">
-                                <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Pre-Built Themes</Label>
-                                <Select
-                                    value={THEMES.find(t => t.colors.background === bgColor && t.radius === radius)?.id || "custom"}
-                                    onValueChange={(value) => {
-                                        const theme = THEMES.find(t => t.id === value);
-                                        if (theme) {
-                                            setBgColor(theme.colors.background);
-                                            setRadius(theme.radius);
-                                        }
-                                    }}
-                                >
-                                    <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Select a theme" />
+                        {/* Theme Settings */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Theme Mode</Label>
+                                <Select value={mode} onValueChange={(v: 'light' | 'dark') => handleModeChange(v)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select mode" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="custom" disabled className="text-muted-foreground italic">
-                                            Custom
-                                        </SelectItem>
-                                        {THEMES.map(theme => (
-                                            <SelectItem key={theme.id} value={theme.id}>
-                                                <div className="flex items-center gap-2">
-                                                    <div
-                                                        className="w-4 h-4 rounded-full border border-border/50 shadow-sm"
-                                                        style={theme.colors.background ? { backgroundColor: theme.colors.background } : { background: 'var(--background)' }}
-                                                    />
-                                                    <span>{theme.name}</span>
-                                                </div>
+                                        <SelectItem value="light">Light Mode</SelectItem>
+                                        <SelectItem value="dark">Dark Mode</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Color Scheme</Label>
+                                <Select value={colorScheme} onValueChange={handleSchemeChange}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select scheme" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {availableSchemes.map(scheme => (
+                                            <SelectItem key={scheme.id} value={scheme.id}>
+                                                {scheme.name}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -148,7 +228,7 @@ export function EditProfileDialog({ user, page, open, onOpenChange }: EditProfil
                                         value={bgColor || ""}
                                         onChange={e => setBgColor(e.target.value)}
                                         className="flex-1 font-mono text-xs uppercase"
-                                        placeholder="#FFFFFF"
+                                        placeholder="Inherit (CSS Variable)"
                                     />
                                 </div>
                             </div>
@@ -168,7 +248,7 @@ export function EditProfileDialog({ user, page, open, onOpenChange }: EditProfil
                                             )}
                                             title={`Radius: ${r}`}
                                         >
-                                            {r === 'none' ? '0' : r.replace('xl', '')}
+                                            {r === 'none' ? '0' : r === 'xl' ? 'xl' : r.replace('xl', '')}
                                         </button>
                                     ))}
                                 </div>
