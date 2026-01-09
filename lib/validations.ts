@@ -27,7 +27,7 @@ export const profileSchema = z.object({
 export const themeConfigSchema = z.object({
     mode: z.enum(['light', 'dark', 'system']).optional(),
     color: z.string().optional(),
-    radius: z.number().optional(),
+    radius: z.string().optional(),
     font: z.string().optional(),
     layoutMode: z.enum(['center', 'left', 'right', 'minimal']).optional(),
 }).passthrough(); // Allow extra theme props
