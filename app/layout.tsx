@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Nunito } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const nunito = Nunito({ subsets: ["latin"] });
+const fontSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Kita - Your Personal Bento",
@@ -16,8 +16,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={cn(nunito.className, "antialiased bg-[#FDFCF8] min-h-screen text-stone-800")}>
+    <html lang="en" className="dark">
+      <body className={cn(fontSans.className, "antialiased bg-background min-h-screen text-foreground")}>
         {children}
       </body>
     </html>

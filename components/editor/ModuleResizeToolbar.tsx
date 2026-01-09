@@ -46,29 +46,27 @@ export function ModuleResizeToolbar({ module }: ModuleResizeToolbarProps) {
     // Large 3x4 (Grid 6x8)
     // Wide 4x4 (Grid 8x8)
     const LayoutIcon = ({ type, active }: { type: 'square' | 'wide' | 'tall' | 'large', active?: boolean }) => {
-        const fillColor = active ? "white" : "#78716c"; // stone-500
-
         return (
             <div className={cn(
                 "w-7 h-7 rounded flex items-center justify-center transition-all",
-                active ? "" : "hover:bg-white/10"
+                active ? "bg-accent" : "hover:bg-muted"
             )}>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className={cn("transition-colors", active ? "fill-foreground" : "fill-muted-foreground")}>
                     {/* Square 1:1 (Visual) */}
                     {type === 'square' && (
-                        <rect x="5" y="5" width="6" height="6" rx="1" fill={fillColor} />
+                        <rect x="5" y="5" width="6" height="6" rx="1" />
                     )}
                     {/* Tall 1:2 */}
                     {type === 'tall' && (
-                        <rect x="5" y="2" width="6" height="12" rx="1" fill={fillColor} />
+                        <rect x="5" y="2" width="6" height="12" rx="1" />
                     )}
                     {/* Large 3:4 */}
                     {type === 'large' && (
-                        <rect x="3" y="1" width="10" height="14" rx="1" fill={fillColor} />
+                        <rect x="3" y="1" width="10" height="14" rx="1" />
                     )}
                     {/* Wide 4:4 (Full) */}
                     {type === 'wide' && (
-                        <rect x="1" y="1" width="14" height="14" rx="1" fill={fillColor} />
+                        <rect x="1" y="1" width="14" height="14" rx="1" />
                     )}
                 </svg>
             </div>
@@ -77,7 +75,7 @@ export function ModuleResizeToolbar({ module }: ModuleResizeToolbarProps) {
 
     return (
         <div
-            className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#1a1a1a] text-white rounded-full px-3 py-2 flex items-center gap-2 shadow-xl z-50 opacity-0 group-hover:opacity-100 transition-all scale-95 group-hover:scale-100 origin-bottom"
+            className="absolute -top-12 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground border border-border rounded-full px-3 py-2 flex items-center gap-2 shadow-xl z-50 opacity-0 group-hover:opacity-100 transition-all scale-95 group-hover:scale-100 origin-bottom"
             onClick={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
         >
@@ -94,9 +92,9 @@ export function ModuleResizeToolbar({ module }: ModuleResizeToolbarProps) {
                 <LayoutIcon type="wide" active={module.w === 4 && module.h === 4} />
             </button>
 
-            <div className="w-px h-4 bg-stone-700 mx-1" />
+            <div className="w-px h-4 bg-border mx-1" />
 
-            <button onClick={handleDelete} className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10 text-stone-400 hover:text-red-400 transition-colors">
+            <button onClick={handleDelete} className="w-7 h-7 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-destructive transition-colors">
                 <Trash2 className="w-4 h-4" />
             </button>
         </div>

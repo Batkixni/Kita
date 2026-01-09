@@ -56,11 +56,11 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
     // Fallback while loading (only if no custom data provided)
     if (loading && !customTitle && !customImage) {
         return (
-            <div className="flex flex-col h-full w-full bg-stone-50 animate-pulse rounded-3xl overflow-hidden">
-                <div className="h-2/3 bg-stone-200" />
-                <div className="flex-1 bg-white p-3 space-y-2">
-                    <div className="h-3 bg-stone-200 rounded w-3/4" />
-                    <div className="h-2 bg-stone-100 rounded w-1/2" />
+            <div className="flex flex-col h-full w-full bg-accent/50 animate-pulse rounded-3xl overflow-hidden">
+                <div className="h-2/3 bg-muted" />
+                <div className="flex-1 bg-card p-3 space-y-2">
+                    <div className="h-3 bg-muted rounded w-3/4" />
+                    <div className="h-2 bg-muted/50 rounded w-1/2" />
                 </div>
             </div>
         );
@@ -73,26 +73,26 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
             rel="noopener noreferrer"
             onClick={handleClick}
             className={cn(
-                "flex flex-col h-full w-full group bg-white overflow-hidden text-left decoration-0 relative p-4 transition-colors hover:bg-stone-50",
+                "flex flex-col h-full w-full group bg-card overflow-hidden text-left decoration-0 relative p-4 transition-colors hover:bg-accent/50",
                 isEditable && "cursor-grab active:cursor-grabbing pointer-events-none"
             )}
         >
             {/* Header: Favicon + Domain */}
             <div className="flex items-center gap-2 mb-2">
-                <img src={favicon} alt="" className="w-5 h-5 rounded-full bg-stone-100" />
-                <span className="text-xs text-stone-500 font-medium truncate">
+                <img src={favicon} alt="" className="w-5 h-5 rounded-full bg-muted" />
+                <span className="text-xs text-muted-foreground font-medium truncate">
                     {new URL(url).hostname.replace('www.', '')}
                 </span>
             </div>
 
             {/* Title */}
-            <h3 className="font-bold text-stone-900 text-sm leading-snug line-clamp-3 mb-3 group-hover:text-black">
+            <h3 className="font-bold text-card-foreground text-sm leading-snug line-clamp-3 mb-3 group-hover:text-primary transition-colors">
                 {title}
             </h3>
 
             {/* Image (Bottom) */}
             {image && (
-                <div className="flex-1 w-full relative overflow-hidden rounded-xl bg-stone-100 border border-stone-100/50">
+                <div className="flex-1 w-full relative overflow-hidden rounded-xl bg-muted border border-border/50">
                     <img
                         src={image}
                         alt={title}
@@ -105,9 +105,10 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
                 If no image, the flex-1 will just be empty space or we can conditionally render.
                 For now, let's keep it consistent.
             */}
+            {/* Fallback if no image */}
             {!image && (
-                <div className="flex-1 w-full bg-stone-50 rounded-xl flex items-center justify-center border border-dashed border-stone-200">
-                    <span className="text-stone-300">No Image</span>
+                <div className="flex-1 w-full bg-muted/50 rounded-xl flex items-center justify-center border border-dashed border-border">
+                    <span className="text-muted-foreground">No Image</span>
                 </div>
             )}
         </a>

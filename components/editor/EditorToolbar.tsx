@@ -98,7 +98,7 @@ export function EditorToolbar({ pageId }: EditorToolbarProps) {
 
             {/* Input Bubble */}
             <div className={cn(
-                "bg-white rounded-2xl shadow-xl p-3 flex gap-2 transition-all duration-300 origin-bottom transform",
+                "bg-popover border border-border rounded-2xl shadow-xl p-3 flex gap-2 transition-all duration-300 origin-bottom transform",
                 activeTool === 'custom' ? "items-start" : "items-center",
                 activeTool ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4 pointer-events-none absolute bottom-full mb-4"
             )}>
@@ -106,9 +106,9 @@ export function EditorToolbar({ pageId }: EditorToolbarProps) {
                     {activeTool === 'custom' ? (
                         <div className="flex flex-col gap-2">
                             <div className="flex justify-between items-center pl-1">
-                                <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Custom Code</span>
+                                <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Custom Code</span>
                                 <select
-                                    className="text-xs h-6 rounded border border-stone-200 bg-stone-50 px-2 text-stone-600 focus:outline-none focus:ring-2 focus:ring-stone-400 cursor-pointer hover:bg-stone-100 transition-colors"
+                                    className="text-xs h-6 rounded border border-border bg-muted px-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer hover:bg-muted/80 transition-colors"
                                     onChange={(e) => {
                                         const t = TEMPLATES.find(t => t.label === e.target.value);
                                         if (t) setInputValue(prev => (prev ? prev + "\n\n" : "") + t.content);
@@ -122,7 +122,7 @@ export function EditorToolbar({ pageId }: EditorToolbarProps) {
                             <textarea
                                 ref={inputRef as any}
                                 placeholder={`{{project title="My Project" desc="..."}}\n{{metric label="Revenue" value="$1K"}}`}
-                                className="w-[400px] h-48 p-3 text-xs font-mono border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-400 bg-stone-50 resize-none leading-relaxed shadow-inner"
+                                className="w-[400px] h-48 p-3 text-xs font-mono border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring bg-muted resize-none leading-relaxed shadow-inner text-foreground placeholder:text-muted-foreground"
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyDown={(e) => {
@@ -132,7 +132,7 @@ export function EditorToolbar({ pageId }: EditorToolbarProps) {
                                 }}
                             />
                             <div className="flex justify-end pr-1">
-                                <span className="text-[10px] text-stone-400 font-medium px-1.5 py-0.5 bg-stone-100 rounded border border-stone-200">Ctrl + Enter</span>
+                                <span className="text-[10px] text-muted-foreground font-medium px-1.5 py-0.5 bg-muted rounded border border-border">Ctrl + Enter</span>
                             </div>
                         </div>
                     ) : (
@@ -143,7 +143,7 @@ export function EditorToolbar({ pageId }: EditorToolbarProps) {
                                     activeTool === 'image' ? "Image URL..." :
                                         "Enter text..."
                             }
-                            className="w-96 border-stone-200 focus-visible:ring-stone-400 bg-stone-50"
+                            className="w-96 border-border focus-visible:ring-ring bg-muted text-foreground"
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleAddModule()}
@@ -152,19 +152,19 @@ export function EditorToolbar({ pageId }: EditorToolbarProps) {
                 </div>
                 <Button
                     size="icon"
-                    className="rounded-xl bg-black hover:bg-stone-800 text-white shadow-md shrink-0"
+                    className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shrink-0"
                     onClick={handleAddModule}
                     disabled={isLoading || !inputValue.trim()}
                 >
-                    {isLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <ArrowUp className="w-4 h-4" />}
+                    {isLoading ? <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" /> : <ArrowUp className="w-4 h-4" />}
                 </Button>
             </div>
 
             <div className="flex items-center gap-3">
                 {/* Main Toolbar */}
-                <div className="bg-white/90 backdrop-blur-xl border border-white/20 p-2 pl-4 rounded-full shadow-2xl flex items-center gap-2 ring-1 ring-black/5">
-                    <Button className="rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-6 shadow-lg shadow-emerald-500/20">
-                        Share my Bento
+                <div className="bg-popover/90 backdrop-blur-xl border border-border p-2 pl-4 rounded-full shadow-2xl flex items-center gap-2 ring-1 ring-border/5">
+                    <Button className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6 shadow-md transition-all">
+                        Share my Kita
                     </Button>
 
                     <div className="w-px h-8 bg-stone-200 mx-2" />
@@ -179,7 +179,7 @@ export function EditorToolbar({ pageId }: EditorToolbarProps) {
                 </div>
 
                 {/* Independent Custom Button */}
-                <div className="bg-white/90 backdrop-blur-xl border border-white/20 p-2 rounded-full shadow-2xl flex items-center ring-1 ring-black/5">
+                <div className="bg-popover/90 backdrop-blur-xl border border-border p-2 rounded-full shadow-2xl flex items-center ring-1 ring-border/5">
                     <ToolbarButton icon={Code} active={activeTool === 'custom'} onClick={() => toggleTool('custom')} label="Custom Code" />
                 </div>
             </div>
@@ -193,7 +193,7 @@ function ToolbarButton({ icon: Icon, active, onClick, label }: { icon: any, acti
             onClick={onClick}
             className={cn(
                 "p-3 rounded-full transition-all duration-200 group relative",
-                active ? "bg-stone-100 text-black scale-110" : "hover:bg-stone-50 text-stone-500 hover:text-stone-900"
+                active ? "bg-accent text-accent-foreground scale-110" : "hover:bg-muted text-muted-foreground hover:text-foreground"
             )}
             title={label}
         >
@@ -209,7 +209,7 @@ function ToolbarButton({ icon: Icon, active, onClick, label }: { icon: any, acti
 
             {/* Active Indicator dot */}
             {active && (
-                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-black rounded-full" />
+                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-foreground rounded-full" />
             )}
         </button>
     )

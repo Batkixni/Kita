@@ -44,11 +44,10 @@ const processShortcodes = (text: string) => {
 
             if (image) {
                 // Image: Full size, no radius
-                contentHtml = `<img src="${image}" class="${boxSize} rounded-none bg-stone-100 object-cover border border-stone-200/50 dark:border-stone-700 block my-0" alt="${title}" />`;
+                contentHtml = `<img src="${image}" class="${boxSize} rounded-none bg-secondary object-cover border border-border block my-0" alt="${title}" />`;
             } else {
                 // Arrow: Full size container, centered arrow, no background
-                // User requested no background for arrow, just the unified size
-                contentHtml = `<div class="${boxSize} flex items-center justify-center rounded-none text-stone-400 dark:text-stone-500 group-hover/item:text-stone-600 dark:group-hover/item:text-stone-300 text-2xl">→</div>`;
+                contentHtml = `<div class="${boxSize} flex items-center justify-center rounded-none text-muted-foreground group-hover/item:text-foreground text-2xl">→</div>`;
             }
 
             const rightSideHtml = finalLink !== '#'
@@ -56,11 +55,10 @@ const processShortcodes = (text: string) => {
                 : `<div class="${linkWrapperClass}">${contentHtml}</div>`;
 
             // Container (Text is static, only right side is link if applicable)
-            // Added overflow-hidden to outer class just in case, but flex-1 min-w-0 in text div is key.
-            return `<div class="flex items-center justify-between p-3 -mx-2 rounded-xl transition-colors group/item hover:bg-stone-50/50 dark:hover:bg-stone-900/50 border border-transparent hover:border-stone-100/50 dark:hover:border-stone-800 my-1 overflow-hidden">
+            return `<div class="flex items-center justify-between p-3 -mx-2 rounded-xl transition-colors group/item hover:bg-accent/50 border border-transparent hover:border-border my-1 overflow-hidden">
                 <div class="flex-1 min-w-0 pr-2">
-                    <h3 class="font-bold text-stone-800 dark:text-stone-100 text-sm truncate leading-snug m-0">${title}</h3>
-                    <p class="text-xs text-stone-500 dark:text-stone-400 truncate m-0 mt-0.5">${desc}</p>
+                    <h3 class="font-bold text-foreground text-sm truncate leading-snug m-0">${title}</h3>
+                    <p class="text-xs text-muted-foreground truncate m-0 mt-0.5">${desc}</p>
                 </div>
                 ${rightSideHtml}
             </div>`;
@@ -68,19 +66,19 @@ const processShortcodes = (text: string) => {
 
         if (type === 'metric') {
             const { label = 'Label', value = '0', unit = '' } = args;
-            return `<div class="flex flex-col"><p class="text-[10px] uppercase tracking-wider text-stone-500 font-bold m-0 mb-1">${label}</p><div class="flex items-baseline gap-1"><h2 class="text-4xl font-black text-stone-900 tracking-tight m-0 leading-none">${value}</h2>${unit ? `<span class="text-sm text-stone-400 font-medium">${unit}</span>` : ''}</div></div>`;
+            return `<div class="flex flex-col"><p class="text-[10px] uppercase tracking-wider text-muted-foreground font-bold m-0 mb-1">${label}</p><div class="flex items-baseline gap-1"><h2 class="text-4xl font-black text-foreground tracking-tight m-0 leading-none">${value}</h2>${unit ? `<span class="text-sm text-muted-foreground font-medium">${unit}</span>` : ''}</div></div>`;
         }
 
         if (type === 'badge') {
             const { text = 'Badge', color = 'stone' } = args;
             // Map simple color names to tailwind classes
             const colors: Record<string, string> = {
-                blue: 'bg-blue-50 text-blue-600 border-blue-100',
-                green: 'bg-green-50 text-green-600 border-green-100',
-                yellow: 'bg-yellow-50 text-yellow-600 border-yellow-100',
-                red: 'bg-red-50 text-red-600 border-red-100',
-                stone: 'bg-stone-100 text-stone-800 border-stone-200',
-                black: 'bg-stone-900 text-stone-50 border-stone-800',
+                blue: 'bg-chart-3/10 text-chart-3 border-chart-3/20',
+                green: 'bg-chart-2/10 text-chart-2 border-chart-2/20',
+                yellow: 'bg-chart-4/10 text-chart-4 border-chart-4/20',
+                red: 'bg-chart-1/10 text-chart-1 border-chart-1/20',
+                stone: 'bg-secondary text-secondary-foreground border-border',
+                black: 'bg-primary text-primary-foreground border-primary',
             };
             const colorClass = colors[color] || colors.stone;
 
@@ -89,7 +87,7 @@ const processShortcodes = (text: string) => {
 
         if (type === 'tip') {
             const { count = '0', label = 'Tips' } = args;
-            return `<div class="flex items-center justify-between p-2"><div><p class="text-[10px] uppercase tracking-widest text-stone-500 font-bold m-0 mb-1">Total View</p><h2 class="text-3xl font-black text-stone-900 m-0 leading-none">${count}</h2><p class="text-xs text-stone-400 m-0 mt-1">${label}</p></div><button class="bg-black text-white px-4 py-2 rounded-full text-xs font-bold hover:scale-105 transition-transform">Support ▼</button></div>`;
+            return `<div class="flex items-center justify-between p-2"><div><p class="text-[10px] uppercase tracking-widest text-muted-foreground font-bold m-0 mb-1">Total View</p><h2 class="text-3xl font-black text-foreground m-0 leading-none">${count}</h2><p class="text-xs text-muted-foreground m-0 mt-1">${label}</p></div><button class="bg-primary text-primary-foreground px-4 py-2 rounded-full text-xs font-bold hover:scale-105 transition-transform">Support ▼</button></div>`;
         }
 
         return match;

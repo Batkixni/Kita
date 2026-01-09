@@ -35,7 +35,7 @@ export const GridItem = ({ children, className, transparent, radius = '3xl', ...
         <div
             className={cn(
                 "h-full w-full overflow-hidden transition-all duration-300",
-                !transparent && `bg-white shadow-sm border border-stone-200/60 hover:shadow-md ${radiusClass}`,
+                !transparent && `bg-card text-card-foreground shadow-xs border border-border hover:shadow-sm hover:border-primary/20 ${radiusClass}`,
                 transparent && "rounded-none", // Transparent modules don't need radius usually, or handled internally
                 className
             )}

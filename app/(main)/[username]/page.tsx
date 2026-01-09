@@ -5,6 +5,7 @@ import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { pages, users, modules } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
+import { ThemeSynchronizer } from "@/components/ThemeSynchronizer";
 import { headers } from "next/headers";
 import { DraggableGrid } from "@/components/grid/DraggableGrid";
 import { EditorToolbar } from "@/components/editor/EditorToolbar";
@@ -211,17 +212,21 @@ export default async function UserPage({ params }: { params: Promise<{ username:
     };
 
     const themeConfig = (page?.themeConfig || {}) as any;
-    const bgColor = themeConfig.backgroundColor || '#fafaf9';
-    const isDarkMode = isDark(bgColor);
+    const bgColor = themeConfig.backgroundColor;
+    // If bgColor is null/empty, we assume it's the specific "Dark Mode" preset (or any preset requesting CSS defaults).
+    // In our simplified logic, null = Dark Mode.
+    // Explicit color = check brightness.
+    const isDarkMode = !bgColor || isDark(bgColor);
 
     return (
         <div
             className={cn(
-                "min-h-screen p-4 sm:p-8 flex flex-col items-center transition-colors duration-500",
+                "min-h-screen p-4 sm:p-8 flex flex-col items-center transition-colors duration-500 bg-background text-foreground",
                 isDarkMode ? "dark" : ""
             )}
-            style={{ backgroundColor: bgColor }}
+            style={bgColor ? { backgroundColor: bgColor } : undefined}
         >
+            <ThemeSynchronizer isDarkMode={isDarkMode} />
             <main className="w-full max-w-3xl space-y-8">
                 <ProfileHeader
                     user={user}

@@ -221,7 +221,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, theme
                                                     router.refresh();
                                                 }
                                             }}
-                                            className="p-2 bg-white/80 hover:bg-red-50 hover:text-red-600 rounded-full shadow-sm backdrop-blur-sm cursor-pointer"
+                                            className="p-2 bg-secondary/80 hover:bg-destructive/20 hover:text-destructive rounded-full shadow-sm backdrop-blur-sm cursor-pointer text-muted-foreground transition-colors"
                                             title="Delete Module"
                                         >
                                             <Trash2 className="w-4 h-4" />
@@ -233,10 +233,10 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, theme
                                                 e.stopPropagation();
                                                 setEditingModule(item);
                                             }}
-                                            className="p-2 bg-white/80 hover:bg-white rounded-full shadow-sm backdrop-blur-sm cursor-pointer"
+                                            className="p-2 bg-secondary/80 hover:bg-secondary rounded-full shadow-sm backdrop-blur-sm cursor-pointer text-foreground transition-colors"
                                             title="Edit Module"
                                         >
-                                            <Pencil className="w-4 h-4 text-stone-700" />
+                                            <Pencil className="w-4 h-4" />
                                         </button>
                                     </div>
                                 )}
