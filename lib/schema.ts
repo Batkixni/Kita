@@ -68,3 +68,12 @@ export const modules = sqliteTable("module", {
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
+
+export const invitations = sqliteTable("invitation", {
+  id: text("id").primaryKey(),
+  code: text("code").notNull().unique(),
+  isUsed: integer("is_used", { mode: "boolean" }).default(false).notNull(),
+  usedBy: text("used_by").references(() => users.id),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});

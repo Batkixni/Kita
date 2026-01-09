@@ -15,7 +15,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import { deleteModule } from "@/actions/modules";
+
 
 // Custom WidthProvider
 function withWidth(ComposedComponent: any) {
@@ -74,7 +74,10 @@ const ResponsiveReactGridLayout = ResponsiveGridLayout ? withWidth(ResponsiveGri
 interface DraggableGridProps {
     items: any[];
     isEditable?: boolean;
-    onLayoutChange?: (layout: any[]) => void;
+    // Actions are now passed in to support both Server (Real) and Demo (Local) modes
+    onLayoutChange: (layout: any[]) => void;
+    onDelete?: (id: string) => Promise<void>;
+    onUpdateContent?: (id: string, content: any) => Promise<void>;
     theme?: any;
 }
 
@@ -108,17 +111,18 @@ const ModuleRenderer = ({ item, isEditable }: { item: any, isEditable: boolean }
     }
 };
 
-export function DraggableGrid({ items, isEditable = false, onLayoutChange, theme }: DraggableGridProps) {
+export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDelete, onUpdateContent, theme }: DraggableGridProps) {
     const [editingModule, setEditingModule] = useState<any>(null);
     const [width, setWidth] = useState(1200);
     const containerRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
 
-    // Grid Configuration
-    // Using 8 columns for finer control, but mapping "1x1" user unit = 2x2 grid units.
-    const cols = { lg: 8, md: 8, sm: 8, xs: 4, xxs: 2 };
+    // ... (keep grid config logic: cols, getCols, rowHeight, etc.) ...
+    // Note: Since I'm essentially replacing the whole component logic block, I need to be careful to include the existing grid logic code or rely on 'unchanged'.
+    // The replace block covers the whole function body basically.
 
-    // Calculate current column count based on width
+    // Grid Configuration
+    const cols = { lg: 8, md: 8, sm: 8, xs: 4, xxs: 2 };
     const getCols = (w: number) => {
         if (w >= 1200) return cols.lg;
         if (w >= 996) return cols.md;
@@ -128,10 +132,6 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, theme
     };
 
     const currentCols = getCols(width);
-    // RGL width calculation logic:
-    // colWidth = (containerWidth - margin[0] * (cols - 1) - containerPadding[0] * 2) / cols
-    // We assume containerPadding = margin = [16, 16]
-    // So total deducted space = 16 * (cols - 1) + 16 * 2 = 16 * (cols + 1)
     const rowHeight = (width - (currentCols + 1) * 16) / currentCols;
 
     // Width Observer
@@ -146,43 +146,26 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, theme
         return () => resizeObserver.disconnect();
     }, []);
 
-    // Debug logging
-    useEffect(() => {
-        if (!ResponsiveGridLayout) {
-            console.error("React-Grid-Layout 'Responsive' component failed to load. Exports:", RGL);
-        }
-    }, []);
-
-    // Sort items by Y then X to ensure animation order follows visual order (Top -> Bottom)
+    // Sort items
     const sortedItems = [...items].sort((a, b) => {
         if (a.y !== b.y) return a.y - b.y;
         return a.x - b.x;
     });
 
-    // Map items to layout format
     const layout = sortedItems.map(item => ({
         i: item.id,
         x: item.x,
         y: item.y,
-        w: item.w || 2, // Default to 2 if 0 or null
-        h: item.h || 2, // Default to 2 if 0 or null
+        w: item.w || 2,
+        h: item.h || 2,
         minW: 1,
         minH: 1,
         isDraggable: isEditable,
         isResizable: isEditable && item.type !== 'section-title',
     }));
 
-    // Server Action Integration
-    const handleLayoutChange = async (currentLayout: any[]) => {
-        if (!isEditable) return;
-        const { updateModulePosition } = await import("@/actions/modules");
-        currentLayout.forEach(l => {
-            updateModulePosition(l.i, l.x, l.y, l.w, l.h);
-        });
-    };
-
     if (!ResponsiveGridLayout) {
-        return <div className="p-4 text-red-500">Error: Grid layout library could not be loaded. Please check console for export details.</div>;
+        return <div className="p-4 text-red-500">Error: Grid layout library could not be loaded.</div>;
     }
 
     return (
@@ -195,7 +178,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, theme
                 cols={cols}
                 rowHeight={rowHeight}
                 width={width}
-                onLayoutChange={handleLayoutChange}
+                onLayoutChange={onLayoutChange}
                 isDraggable={isEditable}
                 isResizable={isEditable}
                 margin={[16, 16]}
@@ -216,8 +199,8 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, theme
                                             onClick={async (e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
-                                                if (confirm("Delete this module?")) {
-                                                    await deleteModule(item.id);
+                                                if (onDelete) {
+                                                    await onDelete(item.id);
                                                     router.refresh();
                                                 }
                                             }}
@@ -254,6 +237,14 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, theme
                     open={!!editingModule}
                     onOpenChange={(open) => !open && setEditingModule(null)}
                     themeConfig={theme}
+                    onSave={async (id, content) => {
+                        if (onUpdateContent) await onUpdateContent(id, content);
+                        router.refresh();
+                    }}
+                    onDelete={async (id) => {
+                        if (onDelete) await onDelete(id);
+                        router.refresh();
+                    }}
                 />
             )}
         </div>

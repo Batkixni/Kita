@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { updateModuleContent, deleteModule } from "@/actions/modules";
 import { SyntaxGuideDialog } from "./SyntaxGuideDialog";
 
 interface EditModuleDialogProps {
@@ -17,6 +16,8 @@ interface EditModuleDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     themeConfig?: any;
+    onSave: (id: string, content: any) => Promise<void>;
+    onDelete: (id: string) => Promise<void>;
 }
 
 const TEMPLATES = [
@@ -43,13 +44,17 @@ const TEMPLATES = [
     }
 ];
 
-export function EditModuleDialog({ module, open, onOpenChange, themeConfig }: EditModuleDialogProps) {
+export function EditModuleDialog({ module, open, onOpenChange, themeConfig, onSave, onDelete }: EditModuleDialogProps) {
     const [isLoading, setIsLoading] = useState(false);
     // Initialize state based on module type
     const [text, setText] = useState(module.content?.text || "");
     const [url, setUrl] = useState(module.content?.url || "");
     const [src, setSrc] = useState(module.content?.src || "");
     const [alt, setAlt] = useState(module.content?.alt || "");
+    const [customTitle, setCustomTitle] = useState(module.content?.customTitle || "");
+    const [customDesc, setCustomDesc] = useState(module.content?.customDesc || "");
+    const [customImage, setCustomImage] = useState(module.content?.customImage || "");
+    const [customFavicon, setCustomFavicon] = useState(module.content?.customFavicon || "");
 
     const handleSave = async () => {
         setIsLoading(true);
@@ -58,12 +63,12 @@ export function EditModuleDialog({ module, open, onOpenChange, themeConfig }: Ed
             if (module.type === 'text' || module.type === 'portfolio' || module.type === 'section-title' || module.type === 'custom') {
                 newContent = { text };
             } else if (module.type === 'link') {
-                newContent = { url };
+                newContent = { url, customTitle, customDesc, customImage, customFavicon };
             } else if (module.type === 'image') {
                 newContent = { src, alt };
             }
 
-            await updateModuleContent(module.id, newContent);
+            await onSave(module.id, newContent);
             onOpenChange(false);
         } catch (error) {
             console.error("Failed to update module", error);
@@ -77,7 +82,7 @@ export function EditModuleDialog({ module, open, onOpenChange, themeConfig }: Ed
         if (!confirm("Are you sure you want to delete this module?")) return;
         setIsLoading(true);
         try {
-            await deleteModule(module.id);
+            await onDelete(module.id);
             onOpenChange(false);
         } catch (error) {
             console.error("Failed to delete module", error);
@@ -193,16 +198,16 @@ export function EditModuleDialog({ module, open, onOpenChange, themeConfig }: Ed
                             <div className="grid w-full gap-2">
                                 <Label>Custom Title (Optional)</Label>
                                 <Input
-                                    value={module.content?.customTitle || ""}
-                                    onChange={(e) => updateModuleContent(module.id, { ...module.content, url, customTitle: e.target.value })}
+                                    value={customTitle}
+                                    onChange={(e) => setCustomTitle(e.target.value)}
                                     placeholder="Override title..."
                                 />
                             </div>
                             <div className="grid w-full gap-2">
                                 <Label>Custom Description (Optional)</Label>
                                 <Textarea
-                                    value={module.content?.customDesc || ""}
-                                    onChange={(e) => updateModuleContent(module.id, { ...module.content, url, customDesc: e.target.value })}
+                                    value={customDesc}
+                                    onChange={(e) => setCustomDesc(e.target.value)}
                                     placeholder="Override description..."
                                     className="h-20"
                                 />
@@ -210,15 +215,15 @@ export function EditModuleDialog({ module, open, onOpenChange, themeConfig }: Ed
                             <div className="grid w-full gap-2">
                                 <Label>Custom Cover Image (Optional)</Label>
                                 <ImageUpload
-                                    value={module.content?.customImage || ""}
-                                    onChange={(val) => updateModuleContent(module.id, { ...module.content, url, customImage: val })}
+                                    value={customImage}
+                                    onChange={setCustomImage}
                                 />
                             </div>
                             <div className="grid w-full gap-2">
                                 <Label>Custom Favicon URL (Optional)</Label>
                                 <Input
-                                    value={module.content?.customFavicon || ""}
-                                    onChange={(e) => updateModuleContent(module.id, { ...module.content, url, customFavicon: e.target.value })}
+                                    value={customFavicon}
+                                    onChange={(e) => setCustomFavicon(e.target.value)}
                                     placeholder="https://example.com/favicon.ico"
                                 />
                             </div>

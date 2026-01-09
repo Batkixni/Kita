@@ -10,7 +10,7 @@ import { headers } from "next/headers";
 import { DraggableGrid } from "@/components/grid/DraggableGrid";
 import { EditorToolbar } from "@/components/editor/EditorToolbar";
 import { randomUUID } from "node:crypto";
-import { createModule } from "@/actions/modules";
+import { createModule, deleteModule, updateModuleContent, updateModulePosition } from "@/actions/modules";
 import { UserFooter } from "@/components/layout/UserFooter";
 
 export default async function UserPage({ params }: { params: Promise<{ username: string }> }) {
@@ -290,6 +290,21 @@ export default async function UserPage({ params }: { params: Promise<{ username:
                         items={pageModules as any[]}
                         isEditable={isOwner}
                         theme={page?.themeConfig}
+                        onLayoutChange={async (layout) => {
+                            'use server';
+                            // Bulk update all modules that moved
+                            await Promise.all(layout.map(item =>
+                                updateModulePosition(item.i, item.x, item.y, item.w, item.h)
+                            ));
+                        }}
+                        onDelete={async (id) => {
+                            'use server';
+                            await deleteModule(id);
+                        }}
+                        onUpdateContent={async (id, content) => {
+                            'use server';
+                            await updateModuleContent(id, content);
+                        }}
                     />
                 </div>
             </main>
