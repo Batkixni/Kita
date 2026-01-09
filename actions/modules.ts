@@ -7,6 +7,7 @@ import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { moduleSchema, updateModulePosSchema } from "@/lib/validations";
 
 async function getSession() {
     return await auth.api.getSession({
@@ -53,17 +54,25 @@ async function verifyModuleOwnership(moduleId: string) {
 }
 
 export async function createModule(pageId: string, type: string, x: number, y: number, content: any, w: number = 2, h: number = 2) {
+    // Validate Input
+    const data = moduleSchema.parse({
+        pageId,
+        type,
+        x, y, w, h,
+        content
+    });
+
     await verifyPageOwnership(pageId);
 
     await db.insert(modules).values({
         id: randomUUID(),
         pageId,
-        type,
-        x,
-        y,
-        w,
-        h,
-        content,
+        type: data.type,
+        x: data.x,
+        y: data.y,
+        w: data.w,
+        h: data.h,
+        content: data.content,
         createdAt: new Date(),
         updatedAt: new Date(),
     });
@@ -73,10 +82,17 @@ export async function createModule(pageId: string, type: string, x: number, y: n
 }
 
 export async function updateModulePosition(id: string, x: number, y: number, w: number, h: number) {
+    const data = updateModulePosSchema.parse({ id, x, y, w, h });
     const { session } = await verifyModuleOwnership(id);
 
     await db.update(modules)
-        .set({ x, y, w, h, updatedAt: new Date() })
+        .set({
+            x: data.x,
+            y: data.y,
+            w: data.w,
+            h: data.h,
+            updatedAt: new Date()
+        })
         .where(eq(modules.id, id));
 
     revalidatePath(`/${session.user.username}`);

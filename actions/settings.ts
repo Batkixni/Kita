@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { profileSchema, themeConfigSchema, heroConfigSchema } from "@/lib/validations";
 
 async function getSession() {
     return await auth.api.getSession({
@@ -14,19 +15,23 @@ async function getSession() {
 }
 
 export async function updateProfile(userId: string, data: { name?: string, bio?: string, image?: string }) {
+    const validatedData = profileSchema.parse(data);
+
     const session = await getSession();
     if (!session || session.user.id !== userId) {
         throw new Error("Unauthorized");
     }
 
     await db.update(users)
-        .set({ ...data, updatedAt: new Date() })
+        .set({ ...validatedData, updatedAt: new Date() })
         .where(eq(users.id, userId));
 
     revalidatePath(`/${session.user.username}`);
 }
 
 export async function updatePageTheme(pageId: string, theme: any) {
+    const validatedTheme = themeConfigSchema.parse(theme);
+
     const session = await getSession();
     if (!session) throw new Error("Unauthorized");
 
@@ -41,13 +46,15 @@ export async function updatePageTheme(pageId: string, theme: any) {
     }
 
     await db.update(pages)
-        .set({ themeConfig: theme, updatedAt: new Date() })
+        .set({ themeConfig: validatedTheme, updatedAt: new Date() })
         .where(eq(pages.id, pageId));
 
     revalidatePath(`/${session.user.username}`);
 }
 
 export async function updatePageHero(pageId: string, heroConfig: any) {
+    const validatedHero = heroConfigSchema.parse(heroConfig);
+
     const session = await getSession();
     if (!session) throw new Error("Unauthorized");
 
@@ -62,7 +69,7 @@ export async function updatePageHero(pageId: string, heroConfig: any) {
     }
 
     await db.update(pages)
-        .set({ heroConfig: heroConfig, updatedAt: new Date() })
+        .set({ heroConfig: validatedHero, updatedAt: new Date() })
         .where(eq(pages.id, pageId));
 
     revalidatePath(`/${session.user.username}`);

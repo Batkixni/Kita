@@ -17,6 +17,16 @@ interface CustomModuleProps {
 const processShortcodes = (text: string, w?: number) => {
     if (!text) return "";
 
+    const escapeHtml = (unsafe: string) => {
+        if (!unsafe) return "";
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    };
+
     // Regex to match {{type key="value" key2="value"}}
     // This is a simple parser, might be fragile with complex nested quotes, but sufficient for this use case.
     return text.replace(/\{\{(\w+)\s+([^}]+)\}\}/g, (match, type, argsString) => {
@@ -26,8 +36,10 @@ const processShortcodes = (text: string, w?: number) => {
         const attrRegex = /(\w+)="([^"]*)"/g;
         let attrMatch;
         while ((attrMatch = attrRegex.exec(argsString)) !== null) {
-            args[attrMatch[1]] = attrMatch[2];
+            // CRITICAL: Escape values to prevent injection of tags via shortcodes
+            args[attrMatch[1]] = escapeHtml(attrMatch[2]);
         }
+
 
         if (type === 'project') {
             const { title = 'Project Name', desc = 'Description', link = '#', image = '' } = args;
@@ -173,7 +185,7 @@ export function CustomModule({ content, className, isEditable, w, h }: CustomMod
                     rehypeRaw,
                     [rehypeSanitize, {
                         attributes: {
-                            '*': ['className', 'class', 'style'],
+                            '*': ['className', 'class'],
                             a: ['href', 'target', 'rel'],
                             img: ['src', 'alt', 'width', 'height'],
                         },
