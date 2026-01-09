@@ -2,6 +2,7 @@
 
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
 import { cn } from '@/lib/utils';
 
@@ -168,7 +169,17 @@ export function CustomModule({ content, className, isEditable, w, h }: CustomMod
             )}
 
             <ReactMarkdown
-                rehypePlugins={[rehypeRaw]}
+                rehypePlugins={[
+                    rehypeRaw,
+                    [rehypeSanitize, {
+                        attributes: {
+                            '*': ['className', 'class', 'style'],
+                            a: ['href', 'target', 'rel'],
+                            img: ['src', 'alt', 'width', 'height'],
+                        },
+                        tagNames: ['div', 'span', 'p', 'a', 'img', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'strong', 'em', 'del', 'br', 'hr', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'svg', 'path', 'rect', 'circle', 'line', 'button'], // Allow SVG for icons and button for tip
+                    }]
+                ]}
                 remarkPlugins={[remarkGfm]}
                 components={{
                     // Override default element styles if needed, or rely on Tailwind utility classes in HTML
