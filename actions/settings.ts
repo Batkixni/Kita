@@ -18,3 +18,10 @@ export async function updatePageTheme(pageId: string, theme: any) {
         .where(eq(pages.id, pageId));
     revalidatePath('/[username]', 'page');
 }
+
+export async function updatePageHero(pageId: string, heroConfig: any) {
+    await db.update(pages)
+        .set({ heroConfig: heroConfig, updatedAt: new Date() })
+        .where(eq(pages.id, pageId));
+    revalidatePath('/[username]', 'page');
+}

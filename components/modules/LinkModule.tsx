@@ -91,25 +91,23 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
             </h3>
 
             {/* Image (Bottom) */}
-            {image && (
-                <div className="flex-1 w-full relative overflow-hidden rounded-xl bg-muted border border-border/50">
-                    <img
-                        src={image}
-                        alt={title}
-                        className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
-                    />
-                </div>
-            )}
-
-            {/* Fallback if no image (Optional: keep empty space or expand text?) 
-                If no image, the flex-1 will just be empty space or we can conditionally render.
-                For now, let's keep it consistent.
-            */}
-            {/* Fallback if no image */}
-            {!image && (
-                <div className="flex-1 w-full bg-muted/50 rounded-xl flex items-center justify-center border border-dashed border-border">
-                    <span className="text-muted-foreground">No Image</span>
-                </div>
+            {/* Image (Bottom) - Only show if module is larger than 2x2 (Grid Units) */}
+            {(w && h && (w > 2 || h > 2)) && (
+                <>
+                    {image ? (
+                        <div className="flex-1 w-full relative overflow-hidden rounded-xl bg-muted border border-border/50">
+                            <img
+                                src={image}
+                                alt={title}
+                                className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
+                            />
+                        </div>
+                    ) : (
+                        <div className="flex-1 w-full bg-muted/50 rounded-xl flex items-center justify-center border border-dashed border-border">
+                            <span className="text-muted-foreground">No Image</span>
+                        </div>
+                    )}
+                </>
             )}
         </a>
     );

@@ -7,7 +7,33 @@ import { Code, Copy } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-export function SyntaxGuideDialog() {
+export function SyntaxGuideDialog({ themeConfig }: { themeConfig?: any }) {
+    // Theme logic derived from themeConfig
+    const themeClass = themeConfig?.cssClass || "";
+    // Re-derive darkness logic or just trust simple class inheritance if setup right, but Portal needs explicit class.
+    const isDark = (color?: string) => {
+        if (!color) return false;
+        try {
+            const hex = color.replace('#', '');
+            const r = parseInt(hex.substring(0, 2), 16);
+            const g = parseInt(hex.substring(2, 4), 16);
+            const b = parseInt(hex.substring(4, 6), 16);
+            return (r * 0.299 + g * 0.587 + b * 0.114) < 186;
+        } catch (e) { return false; }
+    };
+    const bgColor = themeConfig?.backgroundColor;
+    let isDarkMode = false;
+    if (themeClass && themeClass.trim() !== '') {
+        isDarkMode = themeClass.includes('dark');
+    } else {
+        isDarkMode = !bgColor || isDark(bgColor);
+    }
+
+    const previewCssClass = cn(
+        themeClass,
+        isDarkMode ? "dark" : ""
+    );
+
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -16,7 +42,7 @@ export function SyntaxGuideDialog() {
                     Syntax Guide
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogContent className={cn("max-w-2xl max-h-[80vh] overflow-y-auto", previewCssClass)}>
                 <DialogHeader>
                     <DialogTitle>Custom Module Syntax Guide</DialogTitle>
                     <DialogDescription>
@@ -93,7 +119,7 @@ export function SyntaxGuideDialog() {
 function Section({ title, children }: { title: string, children: React.ReactNode }) {
     return (
         <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-stone-900">{title}</h3>
+            <h3 className="text-sm font-semibold text-foreground/80">{title}</h3>
             {children}
         </div>
     );
@@ -101,7 +127,7 @@ function Section({ title, children }: { title: string, children: React.ReactNode
 
 function Preview({ children }: { children: React.ReactNode }) {
     return (
-        <div className="p-4 border border-stone-100 rounded-lg bg-stone-50/50">
+        <div className="p-4 border border-border rounded-lg bg-secondary/50">
             {children}
         </div>
     );
@@ -117,18 +143,22 @@ function CodeBlock({ label, code }: { label?: string, code: string }) {
     };
 
     return (
-        <div className="relative group">
-            {label && <div className="text-xs text-stone-500 mb-1">{label}</div>}
-            <pre className="bg-stone-900 text-stone-100 p-3 rounded-lg text-xs overflow-x-auto font-mono">
-                {code}
-            </pre>
-            <button
-                onClick={copy}
-                className="absolute top-2 right-2 p-1.5 bg-white/10 hover:bg-white/20 rounded text-white opacity-0 group-hover:opacity-100 transition"
-                title="Copy code"
-            >
-                {copied ? <span className="text-[10px]">Copied!</span> : <Copy className="w-3 h-3" />}
-            </button>
+        <div className="w-full min-w-0 max-w-full group">
+            {label && <div className="text-xs text-muted-foreground mb-1">{label}</div>}
+            <div className="relative rounded-lg border border-stone-800 bg-stone-950 dark:bg-stone-900 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <pre className="p-3 text-xs text-stone-100 font-mono whitespace-pre w-full">
+                        {code}
+                    </pre>
+                </div>
+                <button
+                    onClick={copy}
+                    className="absolute top-2 right-2 p-1.5 bg-white/10 hover:bg-white/20 rounded text-white opacity-0 group-hover:opacity-100 transition backdrop-blur-sm"
+                    title="Copy code"
+                >
+                    {copied ? <span className="text-[10px]">Copied!</span> : <Copy className="w-3 h-3" />}
+                </button>
+            </div>
         </div>
     );
 }

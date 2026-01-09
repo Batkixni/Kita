@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { updateProfile, updatePageTheme } from "@/actions/settings";
-import { Loader2, Palette, User } from "lucide-react";
+import { updateProfile, updatePageTheme, updatePageHero } from "@/actions/settings";
+import { Loader2, Palette, User, Link as LinkIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -30,6 +30,7 @@ export function EditProfileDialog({ user, page, open, onOpenChange }: EditProfil
     const [name, setName] = useState(user.name);
     const [bio, setBio] = useState(user.bio || "");
     const [image, setImage] = useState(user.image || "");
+    const [socials, setSocials] = useState(page.heroConfig?.socials || "");
 
     // Theme State Parsing
     const currentCssClass = (page.themeConfig?.cssClass || "") as string;
@@ -50,6 +51,11 @@ export function EditProfileDialog({ user, page, open, onOpenChange }: EditProfil
     const [bgColor, setBgColor] = useState<string | null>(page.themeConfig?.backgroundColor ?? null);
     const [textColor, setTextColor] = useState(page.themeConfig?.textColor || null);
     const [radius, setRadius] = useState(page.themeConfig?.radius || "0.625rem");
+    const [avatarRadius, setAvatarRadius] = useState(page.themeConfig?.avatarRadius || "full");
+    const [layoutMode, setLayoutMode] = useState(page.themeConfig?.layoutMode || "center");
+    // Mobile State
+    const [mobileAlign, setMobileAlign] = useState(page.themeConfig?.mobileAlign || "center"); // center, left
+    const [mobileOrder, setMobileOrder] = useState(page.themeConfig?.mobileOrder || "top"); // top, bottom
 
     // Fetch themes on mount
     useEffect(() => {
@@ -122,11 +128,18 @@ export function EditProfileDialog({ user, page, open, onOpenChange }: EditProfil
             // Save Profile
             await updateProfile(user.id, { name, bio, image });
 
+            // Save Hero Config (Socials)
+            await updatePageHero(page.id, { ...(page.heroConfig || {}), socials });
+
             // Save Theme
             await updatePageTheme(page.id, {
                 backgroundColor: bgColor,
                 textColor,
                 radius,
+                avatarRadius,
+                layoutMode,
+                mobileAlign,
+                mobileOrder,
                 cssClass
             });
 
@@ -153,7 +166,7 @@ export function EditProfileDialog({ user, page, open, onOpenChange }: EditProfil
                 </DialogHeader>
 
                 <Tabs defaultValue="profile" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2">
+                    <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 rounded-xl">
                         <TabsTrigger value="profile"><User className="w-4 h-4 mr-2" /> Profile</TabsTrigger>
                         <TabsTrigger value="design"><Palette className="w-4 h-4 mr-2" /> Design</TabsTrigger>
                     </TabsList>
@@ -168,8 +181,45 @@ export function EditProfileDialog({ user, page, open, onOpenChange }: EditProfil
                             <Textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="Tell us about yourself..." />
                         </div>
                         <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <Label>Social Links</Label>
+                                <span className="text-[10px] text-muted-foreground">comma separated URLs</span>
+                            </div>
+                            <Input
+                                value={socials}
+                                onChange={e => setSocials(e.target.value)}
+                                placeholder="twitter.com/user, github.com/user"
+                                className="font-mono text-xs"
+                            />
+                        </div>
+                        <div className="space-y-2">
                             <Label>Avatar Image</Label>
                             <ImageUpload value={image} onChange={setImage} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Avatar Shape</Label>
+                            <div className="flex gap-2 p-1 bg-muted rounded-xl border border-border w-fit">
+                                {[
+                                    { id: 'full', label: 'Circle', class: 'rounded-full' },
+                                    { id: 'xl', label: 'Squircle', class: 'rounded-xl' },
+                                    { id: 'lg', label: 'Rounded', class: 'rounded-lg' },
+                                    { id: 'none', label: 'Square', class: 'rounded-none' }
+                                ].map(s => (
+                                    <button
+                                        key={s.id}
+                                        onClick={() => setAvatarRadius(s.id)}
+                                        className={cn(
+                                            "px-3 py-1.5 text-[10px] font-medium transition-all rounded-lg flex items-center gap-2",
+                                            avatarRadius === s.id
+                                                ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+                                                : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                                        )}
+                                    >
+                                        <div className={cn("w-3 h-3 bg-current opacity-50", s.class)} />
+                                        {s.label}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </TabsContent>
 
@@ -206,6 +256,62 @@ export function EditProfileDialog({ user, page, open, onOpenChange }: EditProfil
                                 </Select>
                             </div>
                         </div>
+
+                        <div className="h-px bg-border w-full" />
+
+                        {/* Layout */}
+                        <div className="space-y-4">
+                            <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Page Layout</Label>
+                            <div className="grid grid-cols-3 gap-2">
+                                <button
+                                    onClick={() => setLayoutMode('center')}
+                                    className={cn(
+                                        "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all",
+                                        layoutMode === 'center'
+                                            ? "border-foreground bg-muted text-foreground"
+                                            : "border-border text-muted-foreground hover:bg-muted/50"
+                                    )}
+                                >
+                                    <div className="flex flex-col gap-1 w-8 h-8 opacity-50">
+                                        <div className="w-full h-3 bg-current rounded-[1px]" />
+                                        <div className="w-full h-full bg-current rounded-[1px]" />
+                                    </div>
+                                    <span className="text-[10px] font-medium">Center</span>
+                                </button>
+                                <button
+                                    onClick={() => setLayoutMode('left')}
+                                    className={cn(
+                                        "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all",
+                                        layoutMode === 'left'
+                                            ? "border-foreground bg-muted text-foreground"
+                                            : "border-border text-muted-foreground hover:bg-muted/50"
+                                    )}
+                                >
+                                    <div className="flex gap-1 w-8 h-8 opacity-50">
+                                        <div className="w-1/3 h-full bg-current rounded-[1px]" />
+                                        <div className="w-2/3 h-full bg-current rounded-[1px]" />
+                                    </div>
+                                    <span className="text-[10px] font-medium">Right Stack</span>
+                                </button>
+                                <button
+                                    onClick={() => setLayoutMode('right')}
+                                    className={cn(
+                                        "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all",
+                                        layoutMode === 'right'
+                                            ? "border-foreground bg-muted text-foreground"
+                                            : "border-border text-muted-foreground hover:bg-muted/50"
+                                    )}
+                                >
+                                    <div className="flex gap-1 w-8 h-8 opacity-50">
+                                        <div className="w-2/3 h-full bg-current rounded-[1px]" />
+                                        <div className="w-1/3 h-full bg-current rounded-[1px]" />
+                                    </div>
+                                    <span className="text-[10px] font-medium">Left Stack</span>
+                                </button>
+                            </div>
+                        </div>
+
+
 
                         <div className="h-px bg-border w-full" />
 

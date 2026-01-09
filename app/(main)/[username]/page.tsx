@@ -229,32 +229,64 @@ export default async function UserPage({ params }: { params: Promise<{ username:
         isDarkMode = !bgColor || isDark(bgColor);
     }
 
+    // Layout Mode Logic
+    const layoutMode = themeConfig.layoutMode || 'center';
+
+    // Main Container Classes
+    const containerClasses = cn(
+        "w-full transition-all duration-300",
+        layoutMode === 'center' ? "max-w-3xl mx-auto space-y-8" :
+            "max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 p-4 lg:p-8"
+    );
+
+    // Profile & Grid Classes based on Layout
+    // For Side Layouts: Profile is 3-4 cols, Grid is 8-9 cols.
+    // Sticky positioning for profile.
+
+    const isSideLayout = layoutMode === 'left' || layoutMode === 'right';
+
     return (
         <div
             className={cn(
-                "min-h-screen p-4 sm:p-8 flex flex-col items-center transition-colors duration-500 bg-background text-foreground",
+                "min-h-screen p-4 sm:p-8 flex flex-col md:block transition-colors duration-500 bg-background text-foreground",
                 isDarkMode ? "dark" : "",
                 themeClass // Apply optional theme class (e.g., 'theme-claude')
             )}
             style={bgColor ? { backgroundColor: bgColor } : undefined}
         >
             <ThemeSynchronizer isDarkMode={isDarkMode} />
-            <main className="w-full max-w-3xl space-y-8">
-                <ProfileHeader
-                    user={user}
-                    page={page}
-                    isOwner={isOwner}
-                />
+            <main id="main-content" className={containerClasses}>
+                {/* Profile Section */}
+                <div className={cn(
+                    isSideLayout ? "lg:col-span-4 xl:col-span-3" : "w-full",
+                    layoutMode === 'right' && "lg:order-2" // If right layout, move profile to the right
+                )}>
+                    <div className={cn(
+                        isSideLayout && "lg:sticky lg:top-8"
+                    )}>
+                        <ProfileHeader
+                            user={user}
+                            page={page}
+                            isOwner={isOwner}
+                            layoutMode={isSideLayout ? 'side' : 'center'}
+                        />
+                    </div>
+                </div>
 
-                <DraggableGrid
-                    items={pageModules as any[]}
-                    isEditable={isOwner}
-                    theme={page?.themeConfig}
-                />
+                {/* Grid Section */}
+                <div className={cn(
+                    isSideLayout ? "lg:col-span-8 xl:col-span-9" : "w-full"
+                )}>
+                    <DraggableGrid
+                        items={pageModules as any[]}
+                        isEditable={isOwner}
+                        theme={page?.themeConfig}
+                    />
+                </div>
             </main>
 
             {isOwner && (
-                <EditorToolbar pageId={page!.id} />
+                <EditorToolbar pageId={page!.id} themeConfig={page?.themeConfig} />
             )}
         </div>
     );

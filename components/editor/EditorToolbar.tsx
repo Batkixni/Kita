@@ -1,82 +1,48 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Type, Link as LinkIcon, Image as ImageIcon, Briefcase, X, Check, ArrowUp, Heading, Code } from "lucide-react";
+import { Link as LinkIcon, Image as ImageIcon, Plus, X, Type, Heading, List, Hash, Tag, Lightbulb, Code, Smartphone } from "lucide-react";
 import { createModule } from "@/actions/modules";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { ProjectForm, ImageForm, LinkForm, TextForm, MetricForm, BadgeForm, TipForm, SectionForm, CustomForm } from "./ModuleForms";
 
 interface EditorToolbarProps {
     pageId: string;
+    themeConfig?: any;
 }
 
-type ToolType = 'text' | 'link' | 'image' | 'portfolio' | 'section-title' | 'custom' | null;
+type ToolType = 'text' | 'link' | 'image' | 'section-title' | 'project' | 'metric' | 'badge' | 'tip' | 'custom' | null;
 
-const TEMPLATES = [
-    {
-        label: "Project List",
-        content: `{{project title="New Project" desc="Description goes here" link="#"}}
-{{project title="Another Project" desc="With custom image" link="#" image="https://github.com/shadcn.png"}}`
-    },
-    {
-        label: "Metrics / Counters",
-        content: `{{metric label="Revenue" value="$9,383"}}
-<div class="h-4"></div>
-{{metric label="Active Users" value="2.6k" unit="+12%"}}`
-    },
-    {
-        label: "Badges / Pills",
-        content: `{{badge text="Compact" color="yellow"}}
-{{badge text="Customizable" color="stone"}}
-{{badge text="API-Ready" color="blue"}}`
-    },
-    {
-        label: "Tips / Stat Card",
-        content: `{{tip count="13" label="tips received"}}`
-    }
-];
-
-export function EditorToolbar({ pageId }: EditorToolbarProps) {
+export function EditorToolbar({ pageId, themeConfig }: EditorToolbarProps) {
     const router = useRouter();
     const [activeTool, setActiveTool] = useState<ToolType>(null);
-    const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const inputRef = useRef<HTMLInputElement>(null);
+    const inputWrapperRef = useRef<HTMLDivElement>(null);
 
-    // Focus input when tool opens
+    // Close on click outside
     useEffect(() => {
-        if (activeTool && inputRef.current) {
-            inputRef.current.focus();
+        function handleClickOutside(event: MouseEvent) {
+            if (inputWrapperRef.current && !inputWrapperRef.current.contains(event.target as Node)) {
+                // Check if click was on a toolbar button (which toggles it), if so let toggle handle it
+                // We can't easily check that here without more refs, but toggle logic handles "if active == tool -> null".
+                // So if we click outside the bubble but ON the toolbar, we might want to let the button handle it.
+                // For now, let's strictly close if clicking "background".
+                // Actually, let's NOT close on click outside immediately, let the user close it explicitly or via toggle.
+                // It's less annoying.
+            }
         }
-    }, [activeTool]);
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
-    const handleAddModule = async () => {
-        if (!activeTool) return;
-        if (!inputValue.trim()) return;
-
+    const handleCreateModule = async (type: string, content: any, w: number = 2, h: number = 2) => {
         setIsLoading(true);
         try {
-            // For link modules, we pass the URL as content
-            // For text/portfolio, pass text
-            // For image, pass src
-            const content = activeTool === 'link' ? { url: inputValue } :
-                activeTool === 'image' ? { src: inputValue, alt: 'Image' } :
-                    activeTool === 'custom' ? { text: inputValue } :
-                        { text: inputValue };
-
-            const w = activeTool === 'section-title' ? 4 : 0; // Default full width (or 4 units which is half in 8-col grid, let's see. User said "entire row" usually implies full width. But 8 cols... let's check grid default. A "row" might be activeTool w/h logic).
-            // Actually createModule default takes 0,0 and backend handles defaults. 
-            // But for section title, we want it explicitly wide and short.
-            // Let's pass 8 for width (full width) and 1 for height.
-            const initialW = activeTool === 'section-title' ? 8 : activeTool === 'custom' ? 4 : 0;
-            const initialH = activeTool === 'section-title' ? 1 : activeTool === 'custom' ? 2 : 0;
-
-            await createModule(pageId, activeTool, 0, 0, content, initialW, initialH);
+            await createModule(pageId, type, 0, 0, content, w, h);
             router.refresh();
             setActiveTool(null);
-            setInputValue("");
         } catch (error) {
             console.error("Failed to create module:", error);
         } finally {
@@ -85,105 +51,109 @@ export function EditorToolbar({ pageId }: EditorToolbarProps) {
     };
 
     const toggleTool = (tool: ToolType) => {
-        if (activeTool === tool) {
-            setActiveTool(null);
-        } else {
-            setActiveTool(tool);
-            setInputValue("");
+        setActiveTool(prev => prev === tool ? null : tool);
+    };
+
+    // Map tools to their form components
+    const renderForm = () => {
+        const props = { onAdd: handleCreateModule, isLoading, themeConfig };
+        switch (activeTool) {
+            case 'project': return <ProjectForm {...props} />;
+            case 'metric': return <MetricForm {...props} />;
+            case 'badge': return <BadgeForm {...props} />;
+            case 'tip': return <TipForm {...props} />;
+            case 'image': return <ImageForm {...props} />;
+            case 'link': return <LinkForm {...props} />;
+            case 'text': return <TextForm {...props} />;
+            case 'section-title': return <SectionForm {...props} />;
+            case 'custom': return <CustomForm {...props} />;
+            default: return null;
         }
     };
 
-    return (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-4">
+    const themeClass = themeConfig?.cssClass || "";
+    const isDarkMode = themeClass.includes('dark') || (!themeConfig?.backgroundColor && themeClass.includes('dark')); // heuristic
 
-            {/* Input Bubble */}
-            <div className={cn(
-                "bg-popover border border-border rounded-2xl shadow-xl p-3 flex gap-2 transition-all duration-300 origin-bottom transform",
-                activeTool === 'custom' ? "items-start" : "items-center",
-                activeTool ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4 pointer-events-none absolute bottom-full mb-4"
-            )}>
-                <div className="relative">
-                    {activeTool === 'custom' ? (
-                        <div className="flex flex-col gap-2">
-                            <div className="flex justify-between items-center pl-1">
-                                <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Custom Code</span>
-                                <select
-                                    className="text-xs h-6 rounded border border-border bg-muted px-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer hover:bg-muted/80 transition-colors"
-                                    onChange={(e) => {
-                                        const t = TEMPLATES.find(t => t.label === e.target.value);
-                                        if (t) setInputValue(prev => (prev ? prev + "\n\n" : "") + t.content);
-                                        e.target.value = "";
-                                    }}
-                                >
-                                    <option value="">+ Add Template</option>
-                                    {TEMPLATES.map(t => <option key={t.label} value={t.label}>{t.label}</option>)}
-                                </select>
-                            </div>
-                            <textarea
-                                ref={inputRef as any}
-                                placeholder={`{{project title="My Project" desc="..."}}\n{{metric label="Revenue" value="$1K"}}`}
-                                className="w-[400px] h-48 p-3 text-xs font-mono border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring bg-muted resize-none leading-relaxed shadow-inner text-foreground placeholder:text-muted-foreground"
-                                value={inputValue}
-                                onChange={(e) => setInputValue(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-                                        handleAddModule();
-                                    }
-                                }}
-                            />
-                            <div className="flex justify-end pr-1">
-                                <span className="text-[10px] text-muted-foreground font-medium px-1.5 py-0.5 bg-muted rounded border border-border">Ctrl + Enter</span>
-                            </div>
-                        </div>
-                    ) : (
-                        <Input
-                            ref={inputRef}
-                            placeholder={
-                                activeTool === 'link' ? "Paste link here..." :
-                                    activeTool === 'image' ? "Image URL..." :
-                                        "Enter text..."
-                            }
-                            className="w-96 border-border focus-visible:ring-ring bg-muted text-foreground"
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleAddModule()}
-                        />
-                    )}
-                </div>
-                <Button
-                    size="icon"
-                    className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shrink-0"
-                    onClick={handleAddModule}
-                    disabled={isLoading || !inputValue.trim()}
-                >
-                    {isLoading ? <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" /> : <ArrowUp className="w-4 h-4" />}
-                </Button>
+    // We wrap the internal parts with the theme class so variables allow the colors to change
+    const toolbarThemeClass = cn(themeClass, isDarkMode ? "dark" : "");
+
+    return (
+        <div className={cn("fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-4", toolbarThemeClass)}>
+
+            {/* Input Bubble / Popover */}
+            <div
+                ref={inputWrapperRef}
+                className={cn(
+                    "bg-popover/60 backdrop-blur-xl rounded-3xl shadow-2xl p-2 transition-all duration-300 origin-bottom transform absolute bottom-full mb-4 ring-1 ring-border/5",
+                    activeTool ? "opacity-100 scale-100 translate-y-0 pointer-events-auto" : "opacity-0 scale-95 translate-y-4 pointer-events-none"
+                )}
+            >
+                {activeTool && renderForm()}
             </div>
 
             <div className="flex items-center gap-3">
                 {/* Main Toolbar */}
-                <div className="bg-popover/90 backdrop-blur-xl border border-border p-2 pl-4 rounded-full shadow-2xl flex items-center gap-2 ring-1 ring-border/5">
+                <div className="bg-popover/50 backdrop-blur-2xl p-2 pl-4 rounded-full shadow-2xl flex items-center gap-2 ring-1 ring-border/5">
                     <Button className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6 shadow-md transition-all">
                         Share my Kita
                     </Button>
 
-                    <div className="w-px h-8 bg-stone-200 mx-2" />
+                    <div className="w-px h-8 bg-border/50 mx-2" />
 
                     <div className="flex items-center gap-1">
                         <ToolbarButton icon={LinkIcon} active={activeTool === 'link'} onClick={() => toggleTool('link')} label="Link" />
                         <ToolbarButton icon={ImageIcon} active={activeTool === 'image'} onClick={() => toggleTool('image')} label="Image" />
                         <ToolbarButton icon={Type} active={activeTool === 'text'} onClick={() => toggleTool('text')} label="Text" />
+                    </div>
+
+                    <div className="w-px h-6 bg-border/50 mx-1" />
+
+                    <div className="flex items-center gap-1">
+                        <ToolbarButton icon={List} active={activeTool === 'project'} onClick={() => toggleTool('project')} label="Project List" />
+                        <ToolbarButton icon={Hash} active={activeTool === 'metric'} onClick={() => toggleTool('metric')} label="Metric" />
+                        <ToolbarButton icon={Tag} active={activeTool === 'badge'} onClick={() => toggleTool('badge')} label="Badge" />
+                        <ToolbarButton icon={Lightbulb} active={activeTool === 'tip'} onClick={() => toggleTool('tip')} label="Tip Card" />
+                    </div>
+
+                    <div className="w-px h-6 bg-border/50 mx-1" />
+
+                    <div className="flex items-center gap-1">
                         <ToolbarButton icon={Heading} active={activeTool === 'section-title'} onClick={() => toggleTool('section-title')} label="Section Title" />
-                        <ToolbarButton icon={Briefcase} active={activeTool === 'portfolio'} onClick={() => toggleTool('portfolio')} label="Portfolio" />
                     </div>
                 </div>
 
-                {/* Independent Custom Button */}
-                <div className="bg-popover/90 backdrop-blur-xl border border-border p-2 rounded-full shadow-2xl flex items-center ring-1 ring-border/5">
+                <div className="bg-popover/50 backdrop-blur-2xl p-2 rounded-full shadow-2xl flex items-center ring-1 ring-border/5">
                     <ToolbarButton icon={Code} active={activeTool === 'custom'} onClick={() => toggleTool('custom')} label="Custom Code" />
+                </div>
+
+                {/* Mobile Preview Toggle */}
+                <div className="bg-popover/50 backdrop-blur-2xl p-2 rounded-full shadow-2xl flex items-center ring-1 ring-border/5">
+                    <MobilePreviewToggle />
                 </div>
             </div>
         </div>
+    );
+}
+
+function MobilePreviewToggle() {
+    const [isActive, setIsActive] = useState(false);
+
+    useEffect(() => {
+        if (isActive) {
+            document.body.classList.add('mobile-preview-active');
+        } else {
+            document.body.classList.remove('mobile-preview-active');
+        }
+        return () => document.body.classList.remove('mobile-preview-active');
+    }, [isActive]);
+
+    return (
+        <ToolbarButton
+            icon={Smartphone}
+            active={isActive}
+            onClick={() => setIsActive(!isActive)}
+            label="Mobile Preview"
+        />
     );
 }
 

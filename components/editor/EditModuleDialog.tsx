@@ -16,6 +16,7 @@ interface EditModuleDialogProps {
     module: any;
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    themeConfig?: any;
 }
 
 const TEMPLATES = [
@@ -42,7 +43,7 @@ const TEMPLATES = [
     }
 ];
 
-export function EditModuleDialog({ module, open, onOpenChange }: EditModuleDialogProps) {
+export function EditModuleDialog({ module, open, onOpenChange, themeConfig }: EditModuleDialogProps) {
     const [isLoading, setIsLoading] = useState(false);
     // Initialize state based on module type
     const [text, setText] = useState(module.content?.text || "");
@@ -86,9 +87,40 @@ export function EditModuleDialog({ module, open, onOpenChange }: EditModuleDialo
         }
     };
 
+    // Calculate theme classes for the dialog content
+    // This replicates the logic in page.tsx to ensure the dialog matches the page theme
+    const themeClass = themeConfig?.cssClass || "";
+    // Helper to determine if color is dark (copied from page.tsx logic roughly, or just rely on class)
+    // Actually, simpler: just pass the classes.
+    // If usage in page.tsx: className={cn(..., isDarkMode ? "dark" : "", themeClass)}
+    // We need to know if it's dark mode.
+    // Let's re-derive isDarkMode from themeConfig same as page.tsx
+    const isDark = (color?: string) => {
+        if (!color) return false;
+        try {
+            const hex = color.replace('#', '');
+            const r = parseInt(hex.substring(0, 2), 16);
+            const g = parseInt(hex.substring(2, 4), 16);
+            const b = parseInt(hex.substring(4, 6), 16);
+            return (r * 0.299 + g * 0.587 + b * 0.114) < 186;
+        } catch (e) { return false; }
+    };
+    const bgColor = themeConfig?.backgroundColor;
+    let isDarkMode = false;
+    if (themeClass && themeClass.trim() !== '') {
+        isDarkMode = themeClass.includes('dark');
+    } else {
+        isDarkMode = !bgColor || isDark(bgColor);
+    }
+
+    const previewCssClass = cn(
+        themeClass,
+        isDarkMode ? "dark" : ""
+    );
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className={cn("sm:max-w-md", previewCssClass)}>
                 <DialogHeader>
                     <DialogTitle>Edit Module</DialogTitle>
                     <DialogDescription>
@@ -104,10 +136,10 @@ export function EditModuleDialog({ module, open, onOpenChange }: EditModuleDialo
                                 <div className="flex gap-2 items-center">
                                     {module.type === 'custom' && (
                                         <select
-                                            className="text-xs h-8 rounded-md border border-stone-200 bg-white px-2 py-1 text-stone-600 focus:outline-none focus:ring-2 focus:ring-stone-400"
+                                            className="text-xs h-8 rounded-md border border-border bg-background/50 backdrop-blur-sm px-2 py-1 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                                             onChange={(e) => {
                                                 const t = TEMPLATES.find(t => t.label === e.target.value);
-                                                if (t) setText(prev => (prev ? prev + "\n\n" : "") + t.content);
+                                                if (t) setText((prev: string) => (prev ? prev + "\n\n" : "") + t.content);
                                                 e.target.value = "";
                                             }}
                                         >
@@ -154,7 +186,7 @@ export function EditModuleDialog({ module, open, onOpenChange }: EditModuleDialo
                                     <span className="w-full border-t border-stone-200" />
                                 </div>
                                 <div className="relative flex justify-center text-xs uppercase">
-                                    <span className="bg-white px-2 text-stone-500">Manual Overrides</span>
+                                    <span className="bg-background px-2 text-muted-foreground">Manual Overrides</span>
                                 </div>
                             </div>
 

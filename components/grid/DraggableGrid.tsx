@@ -98,11 +98,11 @@ const ModuleRenderer = ({ item, isEditable }: { item: any, isEditable: boolean }
         case 'text':
             return <TextModule text={item.content?.text} />;
         case 'portfolio':
-            return <PortfolioModule content={item.content?.text} />;
+            return <PortfolioModule content={item.content?.text} w={item.w} h={item.h} />;
         case 'section-title':
             return <SectionTitleModule title={item.content?.text} />;
         case 'custom':
-            return <CustomModule content={item.content?.text} isEditable={isEditable} />;
+            return <CustomModule content={item.content?.text} isEditable={isEditable} w={item.w} h={item.h} />;
         default:
             return <div className="p-4 rounded-xl bg-red-50 text-red-500">Unknown module</div>;
     }
@@ -253,6 +253,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, theme
                     module={editingModule}
                     open={!!editingModule}
                     onOpenChange={(open) => !open && setEditingModule(null)}
+                    themeConfig={theme}
                 />
             )}
         </div>
