@@ -216,13 +216,16 @@ export default async function UserPage({ params }: { params: Promise<{ username:
     // If bgColor is null/empty, we assume it's the specific "Dark Mode" preset (or any preset requesting CSS defaults).
     // In our simplified logic, null = Dark Mode.
     // Explicit color = check brightness.
-    const isDarkMode = !bgColor || isDark(bgColor);
+    // Enhanced: Check if theme has a specific cssClass
+    const themeClass = themeConfig.cssClass || "";
+    const isDarkMode = themeClass.includes('dark') || (!bgColor || isDark(bgColor));
 
     return (
         <div
             className={cn(
                 "min-h-screen p-4 sm:p-8 flex flex-col items-center transition-colors duration-500 bg-background text-foreground",
-                isDarkMode ? "dark" : ""
+                isDarkMode ? "dark" : "",
+                themeClass // Apply optional theme class (e.g., 'theme-claude')
             )}
             style={bgColor ? { backgroundColor: bgColor } : undefined}
         >

@@ -1,10 +1,22 @@
-// This component is now deprecated or should be used differently. 
-// For now, we disable its global side-effect to prevent it from incorrectly stripping 'dark' class from html
-// when the user chooses a light background for their PROFILE page.
-// The Profile Page should handle its own local theme isolation.
+'use client';
+
+import { useEffect } from 'react';
+
 export function ThemeSynchronizer({ isDarkMode }: { isDarkMode?: boolean }) {
-    // Intentionally doing nothing to avoid global state pollution.
-    // The App is Dark Mode by default (layout.tsx).
-    // User pages will override variables locally / inline.
+    useEffect(() => {
+        const root = window.document.documentElement;
+
+        if (isDarkMode) {
+            root.classList.add('dark');
+        } else {
+            root.classList.remove('dark');
+        }
+
+        // Cleanup isn't strictly necessary as this runs on every render/change,
+        // but decent practice to avoid stale state if component unmounts? 
+        // Actually, if we navigate away, we might want to reset to default (Dark), 
+        // but for now let's just let the next page handle it.
+    }, [isDarkMode]);
+
     return null;
 }
