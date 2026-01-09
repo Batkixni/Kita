@@ -134,58 +134,7 @@ export function BadgeForm({ onAdd, isLoading }: FormProps) {
     );
 }
 
-export function TipForm({ onAdd, isLoading }: FormProps) {
-    const [name, setName] = useState("");
-    const [badges, setBadges] = useState("");
-    const [desc, setDesc] = useState("");
-    const [socials, setSocials] = useState("");
-    const [link, setLink] = useState("");
-    const [linkText, setLinkText] = useState("Play at forward.is");
 
-    const handleSubmit = () => {
-        const shortcode = `{{profile name="${name}" badges="${badges}" desc="${desc}" socials="${socials}" link="${link}" linkText="${linkText}"}}`;
-        onAdd('custom', { text: shortcode }, 4, 3);
-    };
-
-    return (
-        <div className="w-[320px] p-1 flex flex-col gap-3">
-            <div className="flex justify-between items-center">
-                <Label className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Profile Card</Label>
-            </div>
-            <div className="space-y-1">
-                <Label className="text-xs">Name / Title</Label>
-                <Input value={name} onChange={e => setName(e.target.value)} placeholder="Bax" className="h-8 text-xs font-bold" />
-            </div>
-            <div className="space-y-1">
-                <Label className="text-xs">Badges (comma separated)</Label>
-                <Input value={badges} onChange={e => setBadges(e.target.value)} placeholder="NO.0117, Pro" className="h-8 text-xs" />
-            </div>
-            <div className="space-y-1">
-                <Label className="text-xs">Social Links (comma separated URLs)</Label>
-                <Input value={socials} onChange={e => setSocials(e.target.value)} placeholder="twitter.com/user, github.com/user" className="h-8 text-xs" />
-            </div>
-            <div className="space-y-1">
-                <Label className="text-xs">Description</Label>
-                <Textarea value={desc} onChange={e => setDesc(e.target.value)} placeholder="Composer, designer..." className="h-16 text-xs resize-none" />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                    <Label className="text-xs">Link URL</Label>
-                    <Input value={link} onChange={e => setLink(e.target.value)} placeholder="https://..." className="h-8 text-xs" />
-                </div>
-                <div className="space-y-1">
-                    <Label className="text-xs">Link Text</Label>
-                    <Input value={linkText} onChange={e => setLinkText(e.target.value)} placeholder="View Profile" className="h-8 text-xs" />
-                </div>
-            </div>
-            <div className="flex justify-end pt-2">
-                <Button size="sm" onClick={handleSubmit} disabled={isLoading || !name}>
-                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Add Profile"}
-                </Button>
-            </div>
-        </div>
-    );
-}
 
 export function ImageForm({ onAdd, isLoading }: FormProps) {
     const [url, setUrl] = useState("");
@@ -316,6 +265,55 @@ export function CustomForm({ onAdd, isLoading, themeConfig }: FormProps) {
                 <span className="text-[10px] text-muted-foreground">Ctrl + Enter to submit</span>
                 <Button size="sm" onClick={handleSubmit} disabled={isLoading || !text}>
                     {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Add Code"}
+                </Button>
+            </div>
+        </div>
+    );
+}
+
+export function InfoCardForm({ onAdd, isLoading }: FormProps) {
+    const [name, setName] = useState("Kita User");
+    const [bio, setBio] = useState("Digital creator building cool things.");
+    const [twitter, setTwitter] = useState("");
+    const [github, setGithub] = useState("");
+    const [portfolio, setPortfolio] = useState("");
+
+    const handleSubmit = () => {
+        if (!name) return;
+
+        let socials = "";
+        if (twitter) socials += `${twitter},`;
+        if (github) socials += `${github},`;
+
+        // We use the {{profile}} shortcode which maps to our new design in CustomModule
+        const shortcode = `{{profile name="${name}" bio="${bio}" badges="Pro,Dev" socials="${socials}" link="${portfolio}" linkText="${portfolio ? 'kita.zone/me' : ''}"}}`;
+        onAdd('custom', { text: shortcode }, 4, 3); // 4x3 Grid (Large Card)
+    };
+
+    return (
+        <div className="w-[320px] p-1 flex flex-col gap-3">
+            <div className="space-y-1">
+                <Label className="text-xs">Name</Label>
+                <Input value={name} onChange={e => setName(e.target.value)} placeholder="Your Name" className="h-8 text-xs" />
+            </div>
+            <div className="space-y-1">
+                <Label className="text-xs">Bio</Label>
+                <Textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="Short bio..." className="h-16 text-xs resize-none" />
+            </div>
+            <div className="space-y-1">
+                <Label className="text-xs">Twitter / GitHub (URLs)</Label>
+                <div className="flex gap-2">
+                    <Input value={twitter} onChange={e => setTwitter(e.target.value)} placeholder="Twitter URL" className="h-8 text-xs" />
+                    <Input value={github} onChange={e => setGithub(e.target.value)} placeholder="GitHub URL" className="h-8 text-xs" />
+                </div>
+            </div>
+            <div className="space-y-1">
+                <Label className="text-xs">Portfolio Link</Label>
+                <Input value={portfolio} onChange={e => setPortfolio(e.target.value)} placeholder="https://..." className="h-8 text-xs" />
+            </div>
+            <div className="flex justify-end pt-2">
+                <Button size="sm" onClick={handleSubmit} disabled={isLoading || !name}>
+                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Add Info Card"}
                 </Button>
             </div>
         </div>

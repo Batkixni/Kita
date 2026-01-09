@@ -308,6 +308,22 @@ export function EditProfileDialog({ user, page, open, onOpenChange }: EditProfil
                                     </div>
                                     <span className="text-[10px] font-medium">Left Stack</span>
                                 </button>
+                                <button
+                                    onClick={() => setLayoutMode('minimal')}
+                                    className={cn(
+                                        "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all",
+                                        layoutMode === 'minimal'
+                                            ? "border-foreground bg-muted text-foreground"
+                                            : "border-border text-muted-foreground hover:bg-muted/50"
+                                    )}
+                                >
+                                    <div className="flex flex-col gap-1 w-8 h-8 opacity-50 justify-center">
+                                        <div className="w-full h-1 bg-current rounded-[1px]" />
+                                        <div className="w-full h-1 bg-current rounded-[1px]" />
+                                        <div className="w-full h-1 bg-current rounded-[1px]" />
+                                    </div>
+                                    <span className="text-[10px] font-medium">Modules Only</span>
+                                </button>
                             </div>
                         </div>
 

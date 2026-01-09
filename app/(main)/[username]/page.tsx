@@ -11,6 +11,7 @@ import { DraggableGrid } from "@/components/grid/DraggableGrid";
 import { EditorToolbar } from "@/components/editor/EditorToolbar";
 import { randomUUID } from "node:crypto";
 import { createModule } from "@/actions/modules";
+import { UserFooter } from "@/components/layout/UserFooter";
 
 export default async function UserPage({ params }: { params: Promise<{ username: string }> }) {
     const { username } = await params;
@@ -236,7 +237,8 @@ export default async function UserPage({ params }: { params: Promise<{ username:
     const containerClasses = cn(
         "w-full transition-all duration-300",
         layoutMode === 'center' ? "max-w-3xl mx-auto space-y-8" :
-            "max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 p-4 lg:p-8"
+            layoutMode === 'minimal' ? "max-w-7xl mx-auto p-4 lg:p-8" : // Minimal: full width, no grid-cols on container
+                "max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 p-4 lg:p-8"
     );
 
     // Profile & Grid Classes based on Layout
@@ -245,33 +247,40 @@ export default async function UserPage({ params }: { params: Promise<{ username:
 
     const isSideLayout = layoutMode === 'left' || layoutMode === 'right';
 
+    // REMOVED IMPORT FROM HERE
+
     return (
         <div
             className={cn(
-                "min-h-screen p-4 sm:p-8 flex flex-col md:block transition-colors duration-500 bg-background text-foreground",
+                "min-h-screen p-4 sm:p-8 flex flex-col transition-colors duration-500 bg-background text-foreground relative",
+                // Removed md:block to ensure flex column layout for footer positioning always, unless grid requires block?
+                // Actually the main container classes are complex.
+                // Let's keep flex col. It's safer for footer.
                 isDarkMode ? "dark" : "",
-                themeClass // Apply optional theme class (e.g., 'theme-claude')
+                themeClass
             )}
             style={bgColor ? { backgroundColor: bgColor } : undefined}
         >
             <ThemeSynchronizer isDarkMode={isDarkMode} />
-            <main id="main-content" className={containerClasses}>
-                {/* Profile Section */}
-                <div className={cn(
-                    isSideLayout ? "lg:col-span-4 xl:col-span-3" : "w-full",
-                    layoutMode === 'right' && "lg:order-2" // If right layout, move profile to the right
-                )}>
+            <main id="main-content" className={cn(containerClasses, "flex-1")}>
+                {/* Profile Section - Hidden in minimal mode */}
+                {layoutMode !== 'minimal' && (
                     <div className={cn(
-                        isSideLayout && "lg:sticky lg:top-8"
+                        isSideLayout ? "lg:col-span-4 xl:col-span-3" : "w-full",
+                        layoutMode === 'right' && "lg:order-2" // If right layout, move profile to the right
                     )}>
-                        <ProfileHeader
-                            user={user}
-                            page={page}
-                            isOwner={isOwner}
-                            layoutMode={isSideLayout ? 'side' : 'center'}
-                        />
+                        <div className={cn(
+                            isSideLayout && "lg:sticky lg:top-8"
+                        )}>
+                            <ProfileHeader
+                                user={user}
+                                page={page}
+                                isOwner={isOwner}
+                                layoutMode={isSideLayout ? 'side' : 'center'}
+                            />
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Grid Section */}
                 <div className={cn(
@@ -284,6 +293,8 @@ export default async function UserPage({ params }: { params: Promise<{ username:
                     />
                 </div>
             </main>
+
+            <UserFooter />
 
             {isOwner && (
                 <EditorToolbar pageId={page!.id} themeConfig={page?.themeConfig} />

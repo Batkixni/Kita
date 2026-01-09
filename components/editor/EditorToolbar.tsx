@@ -6,14 +6,14 @@ import { createModule } from "@/actions/modules";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { ProjectForm, ImageForm, LinkForm, TextForm, MetricForm, BadgeForm, TipForm, SectionForm, CustomForm } from "./ModuleForms";
+import { ProjectForm, ImageForm, LinkForm, TextForm, MetricForm, BadgeForm, SectionForm, CustomForm, InfoCardForm } from "./ModuleForms";
 
 interface EditorToolbarProps {
     pageId: string;
     themeConfig?: any;
 }
 
-type ToolType = 'text' | 'link' | 'image' | 'section-title' | 'project' | 'metric' | 'badge' | 'tip' | 'custom' | null;
+type ToolType = 'text' | 'link' | 'image' | 'section-title' | 'project' | 'metric' | 'badge' | 'custom' | 'info-card' | null;
 
 export function EditorToolbar({ pageId, themeConfig }: EditorToolbarProps) {
     const router = useRouter();
@@ -61,12 +61,13 @@ export function EditorToolbar({ pageId, themeConfig }: EditorToolbarProps) {
             case 'project': return <ProjectForm {...props} />;
             case 'metric': return <MetricForm {...props} />;
             case 'badge': return <BadgeForm {...props} />;
-            case 'tip': return <TipForm {...props} />;
+
             case 'image': return <ImageForm {...props} />;
             case 'link': return <LinkForm {...props} />;
             case 'text': return <TextForm {...props} />;
             case 'section-title': return <SectionForm {...props} />;
             case 'custom': return <CustomForm {...props} />;
+            case 'info-card': return <InfoCardForm {...props} />;
             default: return null;
         }
     };
@@ -94,8 +95,18 @@ export function EditorToolbar({ pageId, themeConfig }: EditorToolbarProps) {
             <div className="flex items-center gap-3">
                 {/* Main Toolbar */}
                 <div className="bg-popover/50 backdrop-blur-2xl p-2 pl-4 rounded-full shadow-2xl flex items-center gap-2 ring-1 ring-border/5">
-                    <Button className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6 shadow-md transition-all">
-                        Share my Kita
+                    <Button
+                        onClick={() => {
+                            navigator.clipboard.writeText(window.location.href);
+                            const btn = document.getElementById('share-btn-text');
+                            if (btn) btn.innerText = "Copied!";
+                            setTimeout(() => {
+                                if (btn) btn.innerText = "Share my Kita";
+                            }, 2000);
+                        }}
+                        className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6 shadow-md transition-all active:scale-95"
+                    >
+                        <span id="share-btn-text">Share my Kita</span>
                     </Button>
 
                     <div className="w-px h-8 bg-border/50 mx-2" />
@@ -109,10 +120,11 @@ export function EditorToolbar({ pageId, themeConfig }: EditorToolbarProps) {
                     <div className="w-px h-6 bg-border/50 mx-1" />
 
                     <div className="flex items-center gap-1">
+                        <ToolbarButton icon={Smartphone} active={activeTool === 'info-card'} onClick={() => toggleTool('info-card')} label="Info Card" />
                         <ToolbarButton icon={List} active={activeTool === 'project'} onClick={() => toggleTool('project')} label="Project List" />
                         <ToolbarButton icon={Hash} active={activeTool === 'metric'} onClick={() => toggleTool('metric')} label="Metric" />
                         <ToolbarButton icon={Tag} active={activeTool === 'badge'} onClick={() => toggleTool('badge')} label="Badge" />
-                        <ToolbarButton icon={Lightbulb} active={activeTool === 'tip'} onClick={() => toggleTool('tip')} label="Tip Card" />
+
                     </div>
 
                     <div className="w-px h-6 bg-border/50 mx-1" />
