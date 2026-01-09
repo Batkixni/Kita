@@ -178,7 +178,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
                 cols={cols}
                 rowHeight={rowHeight}
                 width={width}
-                onLayoutChange={(layout) => {
+                onLayoutChange={(layout: any[]) => {
                     // Prevent saving layout changes when in mobile view (compacted columns)
                     // We only want to persist the "Desktop" arrangement.
                     if (width >= 768) {
