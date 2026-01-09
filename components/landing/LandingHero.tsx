@@ -50,7 +50,7 @@ export function LandingHero() {
                     <div className="w-10 h-10 bg-primary/20 text-primary border border-primary/20 rounded-xl flex items-center justify-center">
                         <div className="w-4 h-4 bg-current rounded-sm" />
                     </div>
-                    Kita
+                    kita
                 </div>
                 <div className="flex items-center gap-4">
 
@@ -78,7 +78,7 @@ export function LandingHero() {
                 >
                     <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-muted/30 text-xs font-semibold uppercase tracking-wider mb-8 text-muted-foreground">
                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        v2.0 is now live
+                        alpha is now live
                     </motion.div>
 
                     <motion.h1 variants={fadeInUp} className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] text-foreground mb-8">
