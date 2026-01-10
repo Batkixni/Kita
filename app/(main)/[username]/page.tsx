@@ -13,6 +13,19 @@ import { randomUUID } from "node:crypto";
 import { createModule, deleteModule, updateModuleContent, updateModulePosition } from "@/actions/modules";
 import { UserFooter } from "@/components/layout/UserFooter";
 
+import { type Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
+    const { username } = await params;
+    // We could fetch user here for title, but simplicity:
+    return {
+        title: `${username} | Kita`,
+        openGraph: {
+            images: [`/api/og?username=${username}`],
+        },
+    };
+}
+
 export default async function UserPage({ params }: { params: Promise<{ username: string }> }) {
     const { username } = await params;
     let session = await auth.api.getSession({

@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   icons: {
     icon: '/icon.svg',
   },
+  openGraph: {
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Kita' }],
+  },
 };
 
 export default function RootLayout({
