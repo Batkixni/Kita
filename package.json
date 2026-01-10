@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:reset": "npx tsx scripts/reset-db.ts",
+    "db:seed": "npx tsx scripts/seed-admin.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.965.0",
