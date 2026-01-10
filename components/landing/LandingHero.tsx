@@ -12,6 +12,7 @@ import { LandingModeToggle } from "@/components/landing/LandingModeToggle";
 import { cn } from "@/lib/utils";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 
+
 const fontSerif = Playfair_Display({ subsets: ["latin"], weight: ["400", "900"], style: ["normal", "italic"] });
 
 export function LandingHero() {
@@ -59,13 +60,9 @@ export function LandingHero() {
 
                     <div className="w-px h-6 bg-border mx-2 hidden md:block" />
 
-                    <form action={async () => {
-                        'use server';
-                        const { startDemo } = await import('@/actions/demo');
-                        await startDemo();
-                    }}>
+                    <Link href="/demo">
                         <Button variant="ghost" className="rounded-full font-semibold text-muted-foreground hover:text-foreground text-sm md:text-base px-2 md:px-4">Try Demo</Button>
-                    </form>
+                    </Link>
 
                     <div className="hidden md:block">
                         <AuthDialog mode="signin">

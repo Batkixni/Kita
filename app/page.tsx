@@ -80,15 +80,9 @@ export default async function Home() {
                 Claim Username <ArrowRight className="w-5 h-5" />
               </Link>
 
-              <form action={async () => {
-                'use server';
-                const { startDemo } = await import('@/actions/demo');
-                await startDemo();
-              }}>
-                <button type="submit" className="inline-flex items-center gap-2 h-14 px-8 rounded-full bg-secondary text-secondary-foreground font-bold text-lg border border-border hover:bg-secondary/80 transition-colors">
-                  <Play className="w-4 h-4 fill-current" /> Try Demo
-                </button>
-              </form>
+              <Link href="/demo" className="inline-flex items-center gap-2 h-14 px-8 rounded-full bg-secondary text-secondary-foreground font-bold text-lg border border-border hover:bg-secondary/80 transition-colors">
+                <Play className="w-4 h-4 fill-current" /> Try Demo
+              </Link>
             </div>
 
           </div>

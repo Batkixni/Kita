@@ -93,3 +93,10 @@ export const modulesRelations = relations(modules, ({ one }) => ({
     references: [pages.id],
   }),
 }));
+
+export const analytics = sqliteTable("analytics", {
+  id: text("id").primaryKey(),
+  pageId: text("page_id").notNull().references(() => pages.id),
+  type: text("type").notNull(), // 'view'
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+});

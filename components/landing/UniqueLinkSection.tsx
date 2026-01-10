@@ -28,7 +28,7 @@ export function UniqueLinkSection() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-6xl md:text-8xl font-black tracking-tighter mb-4"
+                    className="text-4xl md:text-6xl lg:text-8xl font-black tracking-tighter mb-4"
                 >
                     Your <span className={`${fontSerif.className} italic font-normal text-muted-foreground`}>unique</span> link.
                 </motion.h2>
@@ -37,16 +37,16 @@ export function UniqueLinkSection() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.1 }}
-                    className="text-2xl text-muted-foreground font-medium"
+                    className="text-lg md:text-2xl text-muted-foreground font-medium"
                 >
                     And btw, the good ones are still free.
                 </motion.p>
             </div>
 
             {/* Central Focus (Animated) */}
-            <div className="relative z-10 flex items-center justify-center gap-1 text-5xl md:text-[7rem] font-bold select-none leading-none">
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-center gap-1 text-4xl sm:text-5xl md:text-[7rem] font-bold select-none leading-tight md:leading-none">
                 <span className="text-muted-foreground/30">kita.zone/</span>
-                <div className={`relative min-w-[300px] text-left ${fontSerif.className}`}>
+                <div className={`relative min-w-[150px] md:min-w-[300px] text-center md:text-left ${fontSerif.className}`}>
                     <AnimatePresence mode="wait">
                         <motion.span
                             key={MAIN_NAMES[nameIndex]}
@@ -62,7 +62,7 @@ export function UniqueLinkSection() {
                     {/* Underline decoration */}
                     <motion.div
                         layoutId="underline"
-                        className="absolute bottom-4 left-0 w-full h-3 bg-primary/20 rounded-full"
+                        className="absolute bottom-2 md:bottom-4 left-0 w-full h-2 md:h-3 bg-primary/20 rounded-full"
                     />
                 </div>
             </div>

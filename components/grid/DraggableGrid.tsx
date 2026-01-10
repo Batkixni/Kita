@@ -81,7 +81,7 @@ interface DraggableGridProps {
     theme?: any;
 }
 
-const ModuleRenderer = ({ item, isEditable }: { item: any, isEditable: boolean }) => {
+const ModuleRenderer = ({ item, isEditable, theme }: { item: any, isEditable: boolean, theme: any }) => {
     switch (item.type) {
         case 'link':
             return (
@@ -94,6 +94,7 @@ const ModuleRenderer = ({ item, isEditable }: { item: any, isEditable: boolean }
                     customImage={item.content?.customImage}
                     customFavicon={item.content?.customFavicon}
                     isEditable={isEditable}
+                    theme={theme}
                 />
             );
         case 'image':
@@ -181,7 +182,8 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
                 onLayoutChange={(layout: any[]) => {
                     // Prevent saving layout changes when in mobile view (compacted columns)
                     // We only want to persist the "Desktop" arrangement.
-                    if (width >= 768) {
+                    // Only save if editable (owner)
+                    if (width >= 768 && isEditable) {
                         onLayoutChange(layout);
                     }
                 }}
@@ -229,7 +231,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
                                         </button>
                                     </div>
                                 )}
-                                <ModuleRenderer item={item} isEditable={isEditable} />
+                                <ModuleRenderer item={item} isEditable={isEditable} theme={theme} />
                             </GridItem>
                             {isEditable && item.type !== 'section-title' && <ModuleResizeToolbar module={item} />}
                         </div>

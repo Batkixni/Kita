@@ -14,53 +14,128 @@ interface FormProps {
     onAdd: (type: string, content: any, w?: number, h?: number) => void;
     isLoading?: boolean;
     themeConfig?: any;
+    initialData?: any;
 }
 
-export function ProjectForm({ onAdd, isLoading }: FormProps) {
-    const [title, setTitle] = useState("");
-    const [desc, setDesc] = useState("");
-    const [link, setLink] = useState("");
-    const [image, setImage] = useState("");
+
+export function ProjectForm({ onAdd, isLoading, initialData }: FormProps) {
+    // Default to at least one empty project if none provided
+    const [projects, setProjects] = useState<any[]>(initialData?.projects || [{ title: "", desc: "", link: "", image: "" }]);
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    const updateProject = (index: number, field: string, value: string) => {
+        const newProjects = [...projects];
+        newProjects[index] = { ...newProjects[index], [field]: value };
+        setProjects(newProjects);
+    };
+
+    const addProject = () => {
+        setProjects([...projects, { title: "", desc: "", link: "", image: "" }]);
+        setActiveIndex(projects.length);
+    };
+
+    const removeProject = (index: number) => {
+        const newProjects = projects.filter((_, i) => i !== index);
+        setProjects(newProjects.length ? newProjects : [{ title: "", desc: "", link: "", image: "" }]);
+        setActiveIndex(0);
+    };
 
     const handleSubmit = () => {
-        if (!title) return;
-        const shortcode = `{{project title="${title}" desc="${desc}" link="${link || '#'}" image="${image}"}}`;
-        onAdd('custom', { text: shortcode }, 4, 1);
+        if (projects.some(p => !p.title)) return; // Simple validation: all must have titles
+
+        const shortcode = projects.map(p =>
+            `{{project title="${p.title}" desc="${p.desc}" link="${p.link || '#'}" image="${p.image}"}}`
+        ).join('\n');
+
+        onAdd('custom', { text: shortcode }, 4, (projects.length > 2) ? 2 : 1);
     };
 
     return (
-        <div className="w-[320px] p-1 flex flex-col gap-3">
-            <div className="space-y-1">
-                <Label className="text-xs">Project Title</Label>
-                <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="My Cool Project" className="h-8 text-xs" />
+        <div className="w-[340px] p-1 flex flex-col gap-3">
+            <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 snap-x">
+                {projects.map((p, i) => (
+                    <button
+                        key={i}
+                        onClick={() => setActiveIndex(i)}
+                        className={`flex-shrink-0 snap-start px-3 py-1 text-xs rounded-full border transition-all ${activeIndex === i ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-border text-muted-foreground hover:border-primary/50'}`}
+                    >
+                        {p.title || `Project ${i + 1}`}
+                    </button>
+                ))}
+                <button
+                    onClick={addProject}
+                    className="flex-shrink-0 px-2 py-1 text-xs rounded-full border border-dashed border-muted-foreground/50 text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+                    title="Add another project"
+                >
+                    +
+                </button>
             </div>
-            <div className="space-y-1">
-                <Label className="text-xs">Description</Label>
-                <Textarea value={desc} onChange={e => setDesc(e.target.value)} placeholder="Short description..." className="h-16 text-xs resize-none" />
-            </div>
-            <div className="space-y-1">
-                <Label className="text-xs">Link (Optional)</Label>
-                <Input value={link} onChange={e => setLink(e.target.value)} placeholder="https://..." className="h-8 text-xs" />
-            </div>
-            <div className="space-y-1">
-                <Label className="text-xs">Thumbnail (Optional)</Label>
-                <div className="h-24">
-                    <ImageUpload value={image} onChange={setImage} className="h-full" />
+
+            {projects[activeIndex] && (
+                <div className="space-y-3 border p-3 rounded-xl bg-secondary/20 relative animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <div className="absolute top-2 right-2">
+                        {projects.length > 1 && (
+                            <button onClick={() => removeProject(activeIndex)} className="text-muted-foreground hover:text-destructive transition-colors">
+                                <span className="sr-only">Delete</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="space-y-1">
+                        <Label className="text-xs">Project Title</Label>
+                        <Input
+                            value={projects[activeIndex].title}
+                            onChange={e => updateProject(activeIndex, 'title', e.target.value)}
+                            placeholder="My Cool Project"
+                            className="h-8 text-xs"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-xs">Description</Label>
+                        <Textarea
+                            value={projects[activeIndex].desc}
+                            onChange={e => updateProject(activeIndex, 'desc', e.target.value)}
+                            placeholder="Short description..."
+                            className="h-16 text-xs resize-none"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-xs">Link (Optional)</Label>
+                        <Input
+                            value={projects[activeIndex].link}
+                            onChange={e => updateProject(activeIndex, 'link', e.target.value)}
+                            placeholder="https://..."
+                            className="h-8 text-xs"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-xs">Thumbnail (Optional)</Label>
+                        <div className="h-24">
+                            <ImageUpload
+                                value={projects[activeIndex].image}
+                                onChange={(val) => updateProject(activeIndex, 'image', val)}
+                                className="h-full"
+                            />
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div className="flex justify-end pt-2">
-                <Button size="sm" onClick={handleSubmit} disabled={isLoading || !title}>
-                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Add Project"}
+            )}
+
+            <div className="flex justify-between items-center pt-2">
+                <span className="text-[10px] text-muted-foreground">{projects.length} project{projects.length > 1 ? 's' : ''}</span>
+                <Button size="sm" onClick={handleSubmit} disabled={isLoading || projects.some(p => !p.title)}>
+                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : initialData ? "Save All Changes" : "Create List"}
                 </Button>
             </div>
         </div>
     );
 }
 
-export function MetricForm({ onAdd, isLoading }: FormProps) {
-    const [label, setLabel] = useState("");
-    const [value, setValue] = useState("");
-    const [unit, setUnit] = useState("");
+export function MetricForm({ onAdd, isLoading, initialData }: FormProps) {
+    const [label, setLabel] = useState(initialData?.label || "");
+    const [value, setValue] = useState(initialData?.value || "");
+    const [unit, setUnit] = useState(initialData?.unit || "");
 
     const handleSubmit = () => {
         if (!label || !value) return;
@@ -86,16 +161,16 @@ export function MetricForm({ onAdd, isLoading }: FormProps) {
             </div>
             <div className="flex justify-end pt-2">
                 <Button size="sm" onClick={handleSubmit} disabled={isLoading || !label || !value}>
-                    Add Metric
+                    {initialData ? "Save Changes" : "Add Metric"}
                 </Button>
             </div>
         </div>
     );
 }
 
-export function BadgeForm({ onAdd, isLoading }: FormProps) {
-    const [text, setText] = useState("");
-    const [color, setColor] = useState("stone");
+export function BadgeForm({ onAdd, isLoading, initialData }: FormProps) {
+    const [text, setText] = useState(initialData?.text || "");
+    const [color, setColor] = useState(initialData?.color || "stone");
 
     const handleSubmit = () => {
         if (!text) return;
@@ -127,7 +202,7 @@ export function BadgeForm({ onAdd, isLoading }: FormProps) {
             </div>
             <div className="flex justify-end pt-2">
                 <Button size="sm" onClick={handleSubmit} disabled={isLoading || !text}>
-                    Add Badge
+                    {initialData ? "Save Changes" : "Add Badge"}
                 </Button>
             </div>
         </div>
@@ -136,8 +211,8 @@ export function BadgeForm({ onAdd, isLoading }: FormProps) {
 
 
 
-export function ImageForm({ onAdd, isLoading }: FormProps) {
-    const [url, setUrl] = useState("");
+export function ImageForm({ onAdd, isLoading, initialData }: FormProps) {
+    const [url, setUrl] = useState(initialData?.url || "");
 
     const handleSubmit = () => {
         if (!url) return;
@@ -152,15 +227,15 @@ export function ImageForm({ onAdd, isLoading }: FormProps) {
             </div>
             <div className="flex justify-end pt-2">
                 <Button size="sm" onClick={handleSubmit} disabled={isLoading || !url}>
-                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Add Image"}
+                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : initialData ? "Save Changes" : "Add Image"}
                 </Button>
             </div>
         </div>
     );
 }
 
-export function LinkForm({ onAdd, isLoading }: FormProps) {
-    const [url, setUrl] = useState("");
+export function LinkForm({ onAdd, isLoading, initialData }: FormProps) {
+    const [url, setUrl] = useState(initialData?.url || "");
 
     const handleSubmit = () => {
         if (!url) return;
@@ -184,8 +259,8 @@ export function LinkForm({ onAdd, isLoading }: FormProps) {
     );
 }
 
-export function TextForm({ onAdd, isLoading }: FormProps) {
-    const [text, setText] = useState("");
+export function TextForm({ onAdd, isLoading, initialData }: FormProps) {
+    const [text, setText] = useState(initialData?.text || "");
 
     const handleSubmit = () => {
         if (!text) return;
@@ -209,8 +284,8 @@ export function TextForm({ onAdd, isLoading }: FormProps) {
     );
 }
 
-export function SectionForm({ onAdd, isLoading }: FormProps) {
-    const [text, setText] = useState("");
+export function SectionForm({ onAdd, isLoading, initialData }: FormProps) {
+    const [text, setText] = useState(initialData?.text || "");
 
     const handleSubmit = () => {
         if (!text) return;
@@ -234,8 +309,8 @@ export function SectionForm({ onAdd, isLoading }: FormProps) {
     );
 }
 
-export function CustomForm({ onAdd, isLoading, themeConfig }: FormProps) {
-    const [text, setText] = useState("");
+export function CustomForm({ onAdd, isLoading, themeConfig, initialData }: FormProps) {
+    const [text, setText] = useState(initialData?.text || "");
 
     const handleSubmit = () => {
         if (!text) return;
@@ -264,19 +339,33 @@ export function CustomForm({ onAdd, isLoading, themeConfig }: FormProps) {
             <div className="flex justify-between items-center pt-1">
                 <span className="text-[10px] text-muted-foreground">Ctrl + Enter to submit</span>
                 <Button size="sm" onClick={handleSubmit} disabled={isLoading || !text}>
-                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Add Code"}
+                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : initialData ? "Save Changes" : "Add Code"}
                 </Button>
             </div>
         </div>
     );
 }
 
-export function InfoCardForm({ onAdd, isLoading }: FormProps) {
-    const [name, setName] = useState("Kita User");
-    const [bio, setBio] = useState("Digital creator building cool things.");
-    const [twitter, setTwitter] = useState("");
-    const [github, setGithub] = useState("");
-    const [portfolio, setPortfolio] = useState("");
+
+export function InfoCardForm({ onAdd, isLoading, initialData }: FormProps) {
+    const [name, setName] = useState(initialData?.name || "Kita User");
+    const [bio, setBio] = useState(initialData?.bio || "Digital creator building cool things.");
+    const [badges, setBadges] = useState(initialData?.badges || "Pro, Dev");
+    const [twitter, setTwitter] = useState(initialData?.twitter || "");
+    const [github, setGithub] = useState(initialData?.github || "");
+    const [portfolio, setPortfolio] = useState(initialData?.link || "");
+    const [linkText, setLinkText] = useState(initialData?.linkText || "View Portfolio");
+
+    // Initialize twitter/github from socials if editing and not explicitly passed separate
+    useState(() => {
+        if (initialData?.socials) {
+            const parts = initialData.socials.split(",").map((s: string) => s.trim());
+            const tw = parts.find((s: string) => s.includes("twitter") || s.includes("x.com"));
+            const gh = parts.find((s: string) => s.includes("github"));
+            if (tw && !initialData.twitter) setTwitter(tw);
+            if (gh && !initialData.github) setGithub(gh);
+        }
+    });
 
     const handleSubmit = () => {
         if (!name) return;
@@ -285,8 +374,7 @@ export function InfoCardForm({ onAdd, isLoading }: FormProps) {
         if (twitter) socials += `${twitter},`;
         if (github) socials += `${github},`;
 
-        // We use the {{profile}} shortcode which maps to our new design in CustomModule
-        const shortcode = `{{profile name="${name}" bio="${bio}" badges="Pro,Dev" socials="${socials}" link="${portfolio}" linkText="${portfolio ? 'kita.zone/me' : ''}"}}`;
+        const shortcode = `{{profile name="${name}" bio="${bio}" badges="${badges}" socials="${socials}" link="${portfolio}" linkText="${linkText}"}}`;
         onAdd('custom', { text: shortcode }, 4, 3); // 4x3 Grid (Large Card)
     };
 
@@ -295,6 +383,10 @@ export function InfoCardForm({ onAdd, isLoading }: FormProps) {
             <div className="space-y-1">
                 <Label className="text-xs">Name</Label>
                 <Input value={name} onChange={e => setName(e.target.value)} placeholder="Your Name" className="h-8 text-xs" />
+            </div>
+            <div className="space-y-1">
+                <Label className="text-xs">Badges (comma separated)</Label>
+                <Input value={badges} onChange={e => setBadges(e.target.value)} placeholder="Pro, Designer, Indie" className="h-8 text-xs" />
             </div>
             <div className="space-y-1">
                 <Label className="text-xs">Bio</Label>
@@ -308,12 +400,91 @@ export function InfoCardForm({ onAdd, isLoading }: FormProps) {
                 </div>
             </div>
             <div className="space-y-1">
-                <Label className="text-xs">Portfolio Link</Label>
-                <Input value={portfolio} onChange={e => setPortfolio(e.target.value)} placeholder="https://..." className="h-8 text-xs" />
+                <Label className="text-xs">Portfolio Link & Text</Label>
+                <div className="flex gap-2">
+                    <Input value={portfolio} onChange={e => setPortfolio(e.target.value)} placeholder="https://..." className="h-8 text-xs flex-[2]" />
+                    <Input value={linkText} onChange={e => setLinkText(e.target.value)} placeholder="Label" className="h-8 text-xs flex-1" />
+                </div>
             </div>
             <div className="flex justify-end pt-2">
                 <Button size="sm" onClick={handleSubmit} disabled={isLoading || !name}>
-                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Add Info Card"}
+                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : initialData ? "Save Changes" : "Add Info Card"}
+                </Button>
+            </div>
+        </div>
+    );
+}
+
+export function SocialForm({ onAdd, isLoading, initialData }: FormProps) {
+    const [platform, setPlatform] = useState(initialData?.platform || "github");
+
+    // Github Props
+    const [user, setUser] = useState(initialData?.user || "");
+    const [title, setTitle] = useState(initialData?.title || "");
+
+    // YouTube Props
+    const [channel, setChannel] = useState(initialData?.user || "");
+    const [subs, setSubs] = useState(initialData?.subs || "100k");
+    const [videos, setVideos] = useState(initialData?.videos || "");
+
+    const handleSubmit = () => {
+        if (platform === 'github') {
+            if (!user) return;
+            const shortcode = `{{social platform="github" user="${user}" title="${title}"}}`;
+            onAdd('custom', { text: shortcode }, 4, 2);
+        } else if (platform === 'youtube') {
+            if (!channel) return;
+            const shortcode = `{{social platform="youtube" user="${channel}" subs="${subs}" videos="${videos}"}}`;
+            onAdd('custom', { text: shortcode }, 4, 2);
+        }
+    };
+
+    return (
+        <div className="w-[300px] p-1 flex flex-col gap-3">
+            <div className="space-y-1">
+                <Label className="text-xs">Platform</Label>
+                <Select value={platform} onValueChange={setPlatform}>
+                    <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="github">GitHub Contribution Graph</SelectItem>
+                        <SelectItem value="youtube">YouTube Channel Loop</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+
+            {platform === 'github' && (
+                <>
+                    <div className="space-y-1">
+                        <Label className="text-xs">GitHub Username</Label>
+                        <Input value={user} onChange={e => setUser(e.target.value)} placeholder="shadcn" className="h-8 text-xs" />
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-xs">Custom Title (Optional)</Label>
+                        <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="My Contributions" className="h-8 text-xs" />
+                    </div>
+                </>
+            )}
+
+            {platform === 'youtube' && (
+                <>
+                    <div className="space-y-1">
+                        <Label className="text-xs">Channel Name</Label>
+                        <Input value={channel} onChange={e => setChannel(e.target.value)} placeholder="My Channel" className="h-8 text-xs" />
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-xs">Subscribers</Label>
+                        <Input value={subs} onChange={e => setSubs(e.target.value)} placeholder="2.5M" className="h-8 text-xs" />
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-xs">Video Thumbnails (Comma sep URLs)</Label>
+                        <Textarea value={videos} onChange={e => setVideos(e.target.value)} placeholder="https://img1..., https://img2..." className="h-16 text-xs resize-none" />
+                    </div>
+                </>
+            )}
+
+            <div className="flex justify-end pt-2">
+                <Button size="sm" onClick={handleSubmit} disabled={isLoading || (platform === 'github' ? !user : !channel)}>
+                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : initialData ? "Save Changes" : "Add Embed"}
                 </Button>
             </div>
         </div>

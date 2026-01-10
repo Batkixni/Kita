@@ -6,7 +6,7 @@ interface LinkModuleProps {
     url: string;
 }
 
-export function LinkModule({ url, w, h, customTitle, customDesc, customImage, customFavicon, isEditable }: {
+export function LinkModule({ url, w, h, customTitle, customDesc, customImage, customFavicon, isEditable, theme }: {
     url: string,
     w?: number,
     h?: number,
@@ -14,18 +14,14 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
     customDesc?: string,
     customImage?: string,
     customFavicon?: string,
-    isEditable?: boolean
+    isEditable?: boolean,
+    theme?: any
 }) {
     const [metadata, setMetadata] = useState<LinkMetadata | null>(null);
     const [loading, setLoading] = useState(true);
 
-    // Responsive Logic:
-    // User requested: "Compact mode if side <= 2 (User Units)"
-    // User Unit 1 = Grid 2
-    // User Unit 2 = Grid 4
-    // So if w <= 4 OR h <= 4, use "Compact Mode" (Full image, text overlay).
-    // Specifically, if it is Square (2x2), it is definitely Compact.
-    const isCompact = (w && w <= 4) || (h && h <= 4);
+    // Responsive Logic: Show image if module is essentially 2x1 or larger (or 1x2)
+    const showImage = w && h && (w >= 2 || h >= 2);
 
     useEffect(() => {
         let mounted = true;
@@ -44,7 +40,6 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
     const title = customTitle || metadata?.title || url;
     const desc = customDesc || metadata?.description;
     const image = customImage || metadata?.image;
-    // Favicon: Use custom if provided, else use Google S2
     const favicon = customFavicon || `https://www.google.com/s2/favicons?domain=${url}&sz=32`;
 
     const handleClick = (e: React.MouseEvent) => {
@@ -79,7 +74,9 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
         >
             {/* Header: Favicon + Domain */}
             <div className="flex items-center gap-2 mb-2">
-                <img src={favicon} alt="" className="w-5 h-5 rounded-full bg-muted" />
+                <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                    <img src={favicon} alt="" className="w-full h-full object-cover" onError={(e) => e.currentTarget.style.display = 'none'} />
+                </div>
                 <span className="text-xs text-muted-foreground font-medium truncate">
                     {new URL(url).hostname.replace('www.', '')}
                 </span>
@@ -91,8 +88,7 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
             </h3>
 
             {/* Image (Bottom) */}
-            {/* Image (Bottom) - Only show if module is larger than 2x2 (Grid Units) */}
-            {(w && h && (w > 2 || h > 2)) && (
+            {showImage && (
                 <>
                     {image ? (
                         <div className="flex-1 w-full relative overflow-hidden rounded-xl bg-muted border border-border/50">
@@ -103,8 +99,8 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
                             />
                         </div>
                     ) : (
-                        <div className="flex-1 w-full bg-muted/50 rounded-xl flex items-center justify-center border border-dashed border-border">
-                            <span className="text-muted-foreground">No Image</span>
+                        <div className="flex-1 w-full bg-muted/50 rounded-xl flex items-center justify-center border border-dashed border-border/50">
+                            <span className="text-muted-foreground text-xs">No Preview</span>
                         </div>
                     )}
                 </>

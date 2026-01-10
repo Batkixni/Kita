@@ -18,7 +18,11 @@ async function getSession() {
 // Helper: Verify User Owns Page
 async function verifyPageOwnership(pageId: string) {
     const session = await getSession();
-    if (!session?.user) throw new Error("Unauthorized");
+    // console.log("verifyPageOwnership session:", session?.user?.id);
+    if (!session?.user) {
+        console.error("verifyPageOwnership: No session found");
+        throw new Error("Unauthorized");
+    }
 
     const page = await db.query.pages.findFirst({
         where: eq(pages.id, pageId),
@@ -34,7 +38,11 @@ async function verifyPageOwnership(pageId: string) {
 // Helper: Verify User Owns Module (via Page)
 async function verifyModuleOwnership(moduleId: string) {
     const session = await getSession();
-    if (!session?.user) throw new Error("Unauthorized");
+    // console.log("verifyModuleOwnership session:", session?.user?.id);
+    if (!session?.user) {
+        console.error("verifyModuleOwnership: No session found. Headers cookie:", (await headers()).get('cookie'));
+        throw new Error("Unauthorized");
+    }
 
     const module = await db.query.modules.findFirst({
         where: eq(modules.id, moduleId),
