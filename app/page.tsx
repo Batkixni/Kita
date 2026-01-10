@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { Suspense } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ArrowRight, Layers, Palette, Zap, Play } from "lucide-react";
@@ -21,7 +22,9 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <LandingHero />
+      <Suspense fallback={<div className="min-h-screen bg-background" />}>
+        <LandingHero />
+      </Suspense>
 
       <UniqueLinkSection />
 
@@ -73,13 +76,19 @@ export default async function Home() {
             <h2 className={`text-8xl font-normal mb-12 ${fontSerif.className} italic text-primary`}>Ready?</h2>
 
             <div className="flex flex-col sm:flex-row gap-4 items-center">
-              <Link href="/sign-up" className="inline-flex items-center gap-2 h-14 px-8 rounded-full bg-primary text-primary-foreground font-bold text-lg hover:translate-y-[-2px] hover:shadow-lg hover:shadow-primary/25 transition-all">
+              <Link href="/?auth=signup" className="inline-flex items-center gap-2 h-14 px-8 rounded-full bg-primary text-primary-foreground font-bold text-lg hover:translate-y-[-2px] hover:shadow-lg hover:shadow-primary/25 transition-all">
                 Claim Username <ArrowRight className="w-5 h-5" />
               </Link>
 
-              <Link href="/demo" className="inline-flex items-center gap-2 h-14 px-8 rounded-full bg-secondary text-secondary-foreground font-bold text-lg border border-border hover:bg-secondary/80 transition-colors">
-                <Play className="w-4 h-4 fill-current" /> View Demo
-              </Link>
+              <form action={async () => {
+                'use server';
+                const { startDemo } = await import('@/actions/demo');
+                await startDemo();
+              }}>
+                <button type="submit" className="inline-flex items-center gap-2 h-14 px-8 rounded-full bg-secondary text-secondary-foreground font-bold text-lg border border-border hover:bg-secondary/80 transition-colors">
+                  <Play className="w-4 h-4 fill-current" /> Try Demo
+                </button>
+              </form>
             </div>
 
           </div>

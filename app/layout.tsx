@@ -9,8 +9,11 @@ import { ClientThemeProvider } from "@/components/providers/ClientThemeProvider"
 const fontSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Kita",
-  description: "Create your own personal page.",
+  title: {
+    default: "Kita | Your Corner of the Internet",
+    template: "%s | Kita"
+  },
+  description: "Create your own personal page. A modular, bento-grid style website builder for your portfolio, links, and everything in between.",
   icons: {
     icon: '/icon.svg',
   },

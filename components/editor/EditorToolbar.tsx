@@ -79,7 +79,7 @@ export function EditorToolbar({ pageId, themeConfig }: EditorToolbarProps) {
     const toolbarThemeClass = cn(themeClass, isDarkMode ? "dark" : "");
 
     return (
-        <div className={cn("fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-4", toolbarThemeClass)}>
+        <div className={cn("fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-4 max-w-[calc(100vw-2rem)]", toolbarThemeClass)}>
 
             {/* Input Bubble / Popover */}
             <div
@@ -94,7 +94,7 @@ export function EditorToolbar({ pageId, themeConfig }: EditorToolbarProps) {
 
             <div className="flex items-center gap-3">
                 {/* Main Toolbar */}
-                <div className="bg-popover/50 backdrop-blur-2xl p-2 pl-4 rounded-full shadow-2xl flex items-center gap-2 ring-1 ring-border/5">
+                <div className="bg-popover/50 backdrop-blur-2xl p-2 pl-4 rounded-full shadow-2xl flex items-center gap-2 ring-1 ring-border/5 overflow-x-auto max-w-full no-scrollbar">
                     <Button
                         onClick={() => {
                             navigator.clipboard.writeText(window.location.href);

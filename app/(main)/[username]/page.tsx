@@ -264,23 +264,22 @@ export default async function UserPage({ params }: { params: Promise<{ username:
             <ThemeSynchronizer isDarkMode={isDarkMode} />
             <main id="main-content" className={cn(containerClasses, "flex-1")}>
                 {/* Profile Section - Hidden in minimal mode */}
-                {layoutMode !== 'minimal' && (
+                {/* Profile Section - Visible for controls, content hidden in minimal inside component */}
+                <div className={cn(
+                    isSideLayout ? "lg:col-span-4 xl:col-span-3" : "w-full",
+                    layoutMode === 'right' && "lg:order-2"
+                )}>
                     <div className={cn(
-                        isSideLayout ? "lg:col-span-4 xl:col-span-3" : "w-full",
-                        layoutMode === 'right' && "lg:order-2" // If right layout, move profile to the right
+                        isSideLayout && "lg:sticky lg:top-8"
                     )}>
-                        <div className={cn(
-                            isSideLayout && "lg:sticky lg:top-8"
-                        )}>
-                            <ProfileHeader
-                                user={user}
-                                page={page}
-                                isOwner={isOwner}
-                                layoutMode={isSideLayout ? 'side' : 'center'}
-                            />
-                        </div>
+                        <ProfileHeader
+                            user={user}
+                            page={page}
+                            isOwner={isOwner}
+                            layoutMode={layoutMode as any}
+                        />
                     </div>
-                )}
+                </div>
 
                 {/* Grid Section */}
                 <div className={cn(

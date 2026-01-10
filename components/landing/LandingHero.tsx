@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LandingModeToggle } from "@/components/landing/LandingModeToggle";
 import { cn } from "@/lib/utils";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 
 const fontSerif = Playfair_Display({ subsets: ["latin"], weight: ["400", "900"], style: ["normal", "italic"] });
 
@@ -52,19 +53,28 @@ export function LandingHero() {
                     </div>
                     kita
                 </div>
-                <div className="flex items-center gap-4">
-
+                <div className="flex items-center gap-2 md:gap-4">
                     <LandingModeToggle />
                     <LandingThemeSwitcher />
 
                     <div className="w-px h-6 bg-border mx-2 hidden md:block" />
 
-                    <Link href="/sign-in">
-                        <Button variant="ghost" className="rounded-full font-semibold">Sign In</Button>
-                    </Link>
-                    <Link href="/sign-up">
-                        <Button className="rounded-full px-6 font-bold shadow-lg shadow-primary/20">Get Started</Button>
-                    </Link>
+                    <form action={async () => {
+                        'use server';
+                        const { startDemo } = await import('@/actions/demo');
+                        await startDemo();
+                    }}>
+                        <Button variant="ghost" className="rounded-full font-semibold text-muted-foreground hover:text-foreground text-sm md:text-base px-2 md:px-4">Try Demo</Button>
+                    </form>
+
+                    <div className="hidden md:block">
+                        <AuthDialog mode="signin">
+                            <Button variant="ghost" className="rounded-full font-semibold">Sign In</Button>
+                        </AuthDialog>
+                    </div>
+                    <AuthDialog mode="signup">
+                        <Button className="rounded-full px-4 md:px-6 font-bold shadow-lg shadow-primary/20 text-sm md:text-base">Get Started</Button>
+                    </AuthDialog>
                 </div>
             </header>
 
@@ -81,7 +91,7 @@ export function LandingHero() {
                         alpha is now live
                     </motion.div>
 
-                    <motion.h1 variants={fadeInUp} className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] text-foreground mb-8">
+                    <motion.h1 variants={fadeInUp} className="text-4xl md:text-6xl lg:text-8xl font-black tracking-tighter leading-[0.9] text-foreground mb-8">
                         Your <span className={`${fontSerif.className} italic font-normal text-muted-foreground`}>Corner</span> <br />
                         of the <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-indigo-500">Internet.</span>
                     </motion.h1>

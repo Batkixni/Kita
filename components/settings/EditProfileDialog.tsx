@@ -262,7 +262,7 @@ export function EditProfileDialog({ user, page, open, onOpenChange }: EditProfil
                         {/* Layout */}
                         <div className="space-y-4">
                             <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Page Layout</Label>
-                            <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-cols-4 gap-2">
                                 <button
                                     onClick={() => setLayoutMode('center')}
                                     className={cn(
