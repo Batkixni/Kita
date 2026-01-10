@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { getLinkMetadata, LinkMetadata } from "@/actions/metadata";
+import { getYouTubeChannelData, YouTubeChannelData } from "@/actions/youtube";
 import { cn } from "@/lib/utils";
+import { Youtube } from "lucide-react";
 
 interface LinkModuleProps {
     url: string;
@@ -18,6 +20,7 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
     theme?: any
 }) {
     const [metadata, setMetadata] = useState<LinkMetadata | null>(null);
+    const [ytData, setYtData] = useState<YouTubeChannelData | null>(null);
     const [loading, setLoading] = useState(true);
 
     // Responsive Logic: Show image if module is essentially 2x1 or larger (or 1x2)
@@ -27,9 +30,19 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
         let mounted = true;
         if (url) {
             setLoading(true);
-            getLinkMetadata(url).then(data => {
+
+            // Parallel fetch of metadata and potentially YouTube channel data
+            const isYouTube = url.includes('youtube.com/') || url.includes('youtu.be/');
+
+            const promises: Promise<any>[] = [getLinkMetadata(url)];
+            if (isYouTube) {
+                promises.push(getYouTubeChannelData(url));
+            }
+
+            Promise.all(promises).then(([meta, yt]) => {
                 if (mounted) {
-                    setMetadata(data);
+                    setMetadata(meta);
+                    if (yt) setYtData(yt);
                     setLoading(false);
                 }
             });
@@ -48,6 +61,48 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
         }
     };
 
+    // YouTube Channel Special Preview
+    if (ytData && !customTitle && !customImage) {
+        return (
+            <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleClick}
+                className={cn(
+                    "flex items-center justify-between w-full h-full p-5 bg-[#FF0000]/5 hover:bg-[#FF0000]/10 border border-red-500/10 transition-colors relative group overflow-hidden text-left",
+                    isEditable && "cursor-grab active:cursor-grabbing pointer-events-none"
+                )}
+            >
+                {/* Left: Info */}
+                <div className="flex flex-col justify-between h-full py-1 z-10 w-[35%] shrink-0 gap-2 min-w-[120px]">
+                    <div className="w-10 h-10 bg-[#FF0000] rounded-xl flex items-center justify-center shadow-lg shadow-red-500/20 shrink-0">
+                        <Youtube className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex flex-col gap-0.5 overflow-hidden">
+                        <span className="font-bold text-base leading-tight line-clamp-2">{ytData.title}</span>
+                        {w && w >= 3 && (
+                            <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider opacity-70 truncate">YouTube Channel</span>
+                        )}
+                    </div>
+                    <div className="mt-auto px-3 py-1.5 bg-[#FF0000] text-white text-xs font-bold rounded-full w-fit shadow-md shadow-red-500/20 flex items-center gap-1 group-hover:scale-105 transition-transform whitespace-nowrap">
+                        Subscribe
+                    </div>
+                </div>
+
+                {/* Right: Video Grid (4 Videos) */}
+                <div className="grid grid-cols-2 gap-2 h-full flex-1 min-w-0">
+                    {ytData.videos.slice(0, 4).map((vid) => (
+                        <div key={vid.id} className="relative w-full h-full rounded-lg overflow-hidden bg-black/10">
+                            <img src={vid.thumbnail} alt="" className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                            <div className="absolute inset-0 ring-1 ring-inset ring-black/10 rounded-lg" />
+                        </div>
+                    ))}
+                </div>
+            </a>
+        );
+    }
+
     // Fallback while loading (only if no custom data provided)
     if (loading && !customTitle && !customImage) {
         return (
@@ -61,6 +116,7 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
         );
     }
 
+    // Standard Link Card
     return (
         <a
             href={url}
