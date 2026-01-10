@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getLinkMetadata, LinkMetadata } from "@/actions/metadata";
 import { getYouTubeChannelData, YouTubeChannelData } from "@/actions/youtube";
+import { getBehanceData, BehanceData } from "@/actions/behance";
 import { cn } from "@/lib/utils";
 import { Youtube } from "lucide-react";
 
@@ -21,10 +22,14 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
 }) {
     const [metadata, setMetadata] = useState<LinkMetadata | null>(null);
     const [ytData, setYtData] = useState<YouTubeChannelData | null>(null);
+    const [behanceData, setBehanceData] = useState<BehanceData | null>(null);
     const [loading, setLoading] = useState(true);
 
     // Responsive Logic: Show image if module is essentially 2x1 or larger (or 1x2)
     const showImage = w && h && (w >= 2 || h >= 2);
+
+    const isBehance = url.includes('behance.net/');
+    const isYouTube = url.includes('youtube.com/') || url.includes('youtu.be/');
 
     useEffect(() => {
         let mounted = true;
@@ -32,23 +37,28 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
             setLoading(true);
 
             // Parallel fetch of metadata and potentially YouTube channel data
-            const isYouTube = url.includes('youtube.com/') || url.includes('youtu.be/');
-
             const promises: Promise<any>[] = [getLinkMetadata(url)];
             if (isYouTube) {
                 promises.push(getYouTubeChannelData(url));
             }
+            if (isBehance) {
+                promises.push(getBehanceData(url));
+            }
 
-            Promise.all(promises).then(([meta, yt]) => {
+            Promise.all(promises).then((results) => {
                 if (mounted) {
-                    setMetadata(meta);
-                    if (yt) setYtData(yt);
+                    setMetadata(results[0]);
+
+                    // Handle variable results position
+                    if (isYouTube && results[1]) setYtData(results[1]);
+                    if (isBehance) setBehanceData(isYouTube ? results[2] : results[1]);
+
                     setLoading(false);
                 }
             });
         }
         return () => { mounted = false; };
-    }, [url]);
+    }, [url, isYouTube, isBehance]); // Added isYouTube, isBehance to dependencies
 
     const title = customTitle || metadata?.title || url;
     const desc = customDesc || metadata?.description;
@@ -60,6 +70,93 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
             e.preventDefault();
         }
     };
+
+    // --- Behance Rich Preview (With Project Grid) ---
+    if (behanceData && !customTitle && !customImage) {
+        return (
+            <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleClick}
+                className={cn(
+                    "flex flex-col w-full h-full p-5 bg-[#0057FF]/5 hover:bg-[#0057FF]/10 border border-blue-500/10 transition-colors relative group overflow-hidden text-left",
+                    isEditable && "cursor-grab active:cursor-grabbing pointer-events-none"
+                )}
+            >
+                {/* Header Row */}
+                <div className="flex items-start justify-between w-full shrink-0">
+                    <div className="w-10 h-10 bg-[#0057FF] rounded-xl flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg shadow-blue-500/20">
+                        Bē
+                    </div>
+                    <div className="bg-[#0057FF] text-white text-xs font-bold rounded-full px-3 py-1.5 shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform flex items-center gap-1">
+                        Follow <span className="opacity-80 font-normal">|</span> {behanceData.followers}
+                    </div>
+                </div>
+
+                {/* Name */}
+                <div className="mt-3 mb-4 shrink-0">
+                    <span className="font-bold text-lg text-foreground leading-none">{behanceData.displayName}</span>
+                    {w && w >= 3 && (
+                        <p className="text-xs text-muted-foreground font-medium mt-0.5">Behance Portfolio</p>
+                    )}
+                </div>
+
+                {/* Grid (6 Items) */}
+                <div className="grid grid-cols-3 gap-2 flex-1 w-full min-h-0">
+                    {behanceData.projects.slice(0, 6).map((p) => (
+                        <div key={p.id} className="relative w-full h-full rounded-md overflow-hidden bg-black/5 aspect-square">
+                            <img src={p.thumbnail} alt={p.title} className="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                    ))}
+                </div>
+            </a>
+        );
+    }
+
+    // --- Behance Fallback (Scraping Failed, Use Metadata) ---
+    if (isBehance && metadata && !customTitle && !customImage) {
+        const displayName = metadata.title ? metadata.title.split(' on Behance')[0] : 'Behance User';
+        return (
+            <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleClick}
+                className={cn(
+                    "flex flex-col w-full h-full p-5 bg-[#0057FF]/5 hover:bg-[#0057FF]/10 border border-blue-500/10 transition-colors relative group overflow-hidden text-left justify-between",
+                    isEditable && "cursor-grab active:cursor-grabbing pointer-events-none"
+                )}
+            >
+                {/* Header */}
+                <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 bg-[#0057FF] rounded-xl flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg shadow-blue-500/20">Bē</div>
+                    </div>
+                    <div className="bg-[#0057FF]/10 text-[#0057FF] text-xs font-bold rounded-full px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity border border-blue-500/20">
+                        View Profile
+                    </div>
+                </div>
+
+                {/* Content */}
+                <div className="flex flex-col gap-1 mt-3">
+                    <span className="font-bold text-xl leading-tight text-foreground line-clamp-2">{displayName}</span>
+                    <span className="text-xs text-muted-foreground font-medium line-clamp-2">{metadata.description || 'Behance Portfolio'}</span>
+                </div>
+
+                {/* Big Preview (Likely Avatar/Cover) */}
+                {metadata.image ? (
+                    <div className="w-full aspect-[2/1] mt-4 rounded-lg overflow-hidden relative bg-black/10 flex-1 min-h-0">
+                        <img src={metadata.image} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity group-hover:scale-105 duration-500" />
+                    </div>
+                ) : (
+                    <div className="w-full h-12 mt-4 bg-[#0057FF] text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-lg shadow-blue-500/20 shrink-0">
+                        View Full Portfolio
+                    </div>
+                )}
+            </a>
+        );
+    }
 
     // YouTube Channel Special Preview
     if (ytData && !customTitle && !customImage) {
