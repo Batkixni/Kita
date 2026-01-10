@@ -167,7 +167,8 @@ const processShortcodes = (text: string, w?: number) => {
         }
 
         if (type === 'profile') {
-            const { name = 'Name', badges = '', desc = 'Description', link = '#', linkText = 'View Profile', socials = '' } = args;
+            const { name = 'Name', badges = '', bio = '', desc = '', link = '#', linkText = 'View Profile', socials = '' } = args;
+            const contentBio = bio || desc || 'Description';
             const badgeList = badges.split(',').map(b => b.trim()).filter(Boolean);
             const badgeHtml = badgeList.map(b => {
                 let content = b;
@@ -205,7 +206,7 @@ const processShortcodes = (text: string, w?: number) => {
             }).join('');
 
 
-            return `<div class="flex flex-col h-full justify-between p-5 relative overflow-hidden group bg-background/50 rounded-3xl border border-border/50"><div class="absolute -top-20 -right-20 w-48 h-48 bg-primary/20 blur-3xl rounded-full pointer-events-none transition-all duration-500 group-hover:bg-primary/30"></div><div class="absolute -bottom-20 -left-20 w-48 h-48 bg-accent/20 blur-3xl rounded-full pointer-events-none transition-all duration-500 group-hover:bg-accent/30"></div><div class="relative z-10 flex flex-col gap-4"><div class="flex justify-between items-start"><h1 class="text-4xl font-black text-foreground tracking-tight leading-none">${name}</h1><div class="flex gap-1 flex-wrap justify-end max-w-[40%]">${badgeHtml}</div></div><p class="text-sm text-muted-foreground leading-relaxed font-medium m-0 line-clamp-3">${desc}</p><div class="flex gap-2 mt-1">${socialHtml}</div></div><div class="relative z-10 mt-auto pt-4 border-t border-border/50 flex justify-between items-center"><span class="text-[10px] text-muted-foreground font-bold tracking-widest uppercase">Portfolio</span><a href="${link}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-xs font-bold text-foreground hover:text-primary transition-colors no-underline group/link">${linkText} <span class="ml-1 transition-transform group-hover/link:translate-x-1">→</span></a></div></div>`;
+            return `<div class="flex flex-col h-full justify-between p-5 relative overflow-hidden group bg-background/50 rounded-3xl border border-border/50"><div class="absolute -top-20 -right-20 w-48 h-48 bg-primary/20 blur-3xl rounded-full pointer-events-none transition-all duration-500 group-hover:bg-primary/30"></div><div class="absolute -bottom-20 -left-20 w-48 h-48 bg-accent/20 blur-3xl rounded-full pointer-events-none transition-all duration-500 group-hover:bg-accent/30"></div><div class="relative z-10 flex flex-col gap-4"><div class="flex justify-between items-start"><h1 class="text-4xl font-black text-foreground tracking-tight leading-none">${name}</h1><div class="flex gap-1 flex-wrap justify-end max-w-[40%]">${badgeHtml}</div></div><p class="text-sm text-muted-foreground leading-relaxed font-medium m-0 line-clamp-3">${contentBio}</p><div class="flex gap-2 mt-1">${socialHtml}</div></div><div class="relative z-10 mt-auto pt-4 border-t border-border/50 flex justify-between items-center"><span class="text-[10px] text-muted-foreground font-bold tracking-widest uppercase">Portfolio</span><a href="${link}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-xs font-bold text-foreground hover:text-primary transition-colors no-underline group/link">${linkText} <span class="ml-1 transition-transform group-hover/link:translate-x-1">→</span></a></div></div>`;
         }
 
         return match;
