@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { BarChart3, Eye, Users, Smartphone } from "lucide-react";
+import { BarChart3, Eye, Users, Smartphone, X } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { createModule } from "@/actions/modules";
 import { getPageAnalytics } from "@/actions/analytics";
@@ -112,6 +112,27 @@ export function EditorToolbar({ pageId, themeConfig, onAdd }: EditorToolbarProps
                     activeTool ? "opacity-100 scale-100 translate-y-0 pointer-events-auto" : "opacity-0 scale-95 translate-y-4 pointer-events-none"
                 )}
             >
+                {activeTool && !['link', 'image', 'text', 'section-title'].includes(activeTool) && (
+                    <div className="flex items-center justify-between px-2 mb-2 pt-1 border-b border-white/5 pb-2 mx-1">
+                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                            {(activeTool === 'info-card' ? 'Info Card' :
+                                activeTool === 'project' ? 'Project List' :
+                                    activeTool === 'metric' ? 'Metric' :
+                                        activeTool === 'badge' ? 'Badge' :
+                                            activeTool === 'social' ? 'Social' :
+                                                activeTool === 'custom' ? 'Custom' : 'Module')}
+                        </span>
+                        <button
+                            onClick={() => {
+                                setActiveTool(null);
+                                setActiveData(null);
+                            }}
+                            className="p-1 hover:bg-white/10 text-muted-foreground hover:text-foreground rounded-full transition-colors"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    </div>
+                )}
                 {activeTool && renderForm()}
             </div>
 
