@@ -4,7 +4,7 @@ import { getYouTubeChannelData, YouTubeChannelData } from "@/actions/youtube";
 import { getBehanceData, BehanceData } from "@/actions/behance";
 import { getGitHubData, GitHubData } from "@/actions/github";
 import { cn } from "@/lib/utils";
-import { Youtube, Github, Play } from "lucide-react";
+import { Youtube, Github, Play, Instagram } from "lucide-react";
 
 interface LinkModuleProps {
     url: string;
@@ -301,7 +301,7 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
     const isX = safeUrl.includes('x.com/') || safeUrl.includes('twitter.com/');
 
     if (isX && !customImage) {
-        // Only use special card if we don't have a custom image overlaid
+        // ... (existing X code)
         return (
             <a
                 href={safeUrl}
@@ -337,6 +337,79 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
                         <img src={metadata.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0" />
                     </div>
                 )}
+            </a>
+        )
+    }
+
+    // --- Instagram Special Styling (Behance-like) ---
+    const isInstagram = safeUrl.includes('instagram.com/');
+
+    if (isInstagram && !customImage) {
+        // Parse type and handle username
+        const pathParts = new URL(safeUrl).pathname.split('/').filter(Boolean);
+        const isPost = pathParts.includes('p') || pathParts.includes('reel') || pathParts.includes('reels');
+        const username = !isPost ? pathParts[0] : (pathParts[0] === 'p' || pathParts[0] === 'reel' ? 'Instagram User' : pathParts[0]);
+
+        // Helper to decode HTML entities
+        const decodeHtml = (html: string) => {
+            const txt = document.createElement("textarea");
+            txt.innerHTML = html;
+            return txt.value;
+        };
+
+        const rawTitle = metadata?.title || '';
+        const rawDesc = metadata?.description || '';
+
+        // Clean title: "Name (@username) • Instagram..." -> "Name (@username)"
+        // Also decode entities
+        let cleanTitle = decodeHtml(rawTitle).split(' • Instagram')[0];
+        if (!cleanTitle && username) cleanTitle = `@${username}`;
+        if (!cleanTitle) cleanTitle = 'Instagram';
+
+        // Clean description
+        let cleanDesc = decodeHtml(rawDesc);
+        if (cleanDesc.includes('Login')) cleanDesc = '';
+
+        return (
+            <a
+                href={safeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleClick}
+                className={cn(
+                    "flex flex-col w-full h-full p-5 bg-pink-500/5 hover:bg-pink-500/10 border border-pink-500/10 transition-colors relative group overflow-hidden text-left justify-between",
+                    isEditable && "cursor-grab active:cursor-grabbing pointer-events-none"
+                )}
+            >
+                {/* Header */}
+                <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gradient-to-br from-purple-600 via-red-500 to-orange-400 rounded-lg flex items-center justify-center text-white shrink-0 shadow-lg shadow-pink-500/20">
+                            <Instagram size={18} />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Instagram</span>
+                        </div>
+                    </div>
+                    <div className="bg-primary/10 text-primary text-[10px] font-bold rounded-full px-2.5 py-1 opacity-0 group-hover:opacity-100 transition-opacity border border-primary/20">
+                        {isPost ? 'View Post' : 'Follow'}
+                    </div>
+                </div>
+
+                {/* Content */}
+                <div className="flex flex-col gap-1 mt-auto mb-3 relative z-10">
+                    <span className="font-bold text-lg leading-tight text-foreground line-clamp-2">
+                        {cleanTitle}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground font-medium line-clamp-2">
+                        {cleanDesc || (isPost ? 'View photo and videos' : 'View full profile')}
+                    </span>
+                </div>
+
+                {/* No Image Preview as requested */}
+                <div className="w-full h-8 mt-2 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 rounded-lg flex items-center justify-center font-medium text-[10px] text-pink-600/60 border border-pink-500/10 shrink-0">
+                    {isPost ? 'Open in App' : 'See Photos & Videos'}
+                </div>
             </a>
         )
     }
