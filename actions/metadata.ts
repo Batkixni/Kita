@@ -25,7 +25,11 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
             next: { revalidate: 3600 } // Cache for 1 hour
         });
 
-        if (!res.ok) throw new Error(`Failed to fetch URL: ${res.status}`);
+        if (!res.ok) {
+            // Silently fail for 404/403 to avoid console spam, just return basic URL
+            console.warn(`Link Metadata fetch failed for ${url}: ${res.status}`);
+            return { url, title: url };
+        }
 
         const html = await res.text();
         const dom = new JSDOM(html);
