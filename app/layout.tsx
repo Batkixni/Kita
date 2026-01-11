@@ -23,6 +23,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { Toaster } from "sonner";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -33,6 +35,7 @@ export default function RootLayout({
       <body className={cn(fontSans.className, "antialiased bg-background min-h-screen text-foreground flex flex-col")}>
         <ClientThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
+          <Toaster richColors position="bottom-center" />
         </ClientThemeProvider>
       </body>
     </html>

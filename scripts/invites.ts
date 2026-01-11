@@ -1,6 +1,4 @@
 
-import { db } from "../lib/db";
-import { invitations } from "../lib/schema";
 import { eq, desc } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import * as dotenv from "dotenv";
@@ -11,6 +9,30 @@ const command = process.argv[2];
 const arg = process.argv[3];
 
 async function main() {
+    // Dynamic import to ensure env vars are loaded BEFORE db connection is initialized
+    const { db } = await import("../lib/db");
+    const { invitations } = await import("../lib/schema");
+
+    const url = process.env.DATABASE_URL;
+    const token = process.env.DATABASE_AUTH_TOKEN;
+
+    let connectionType = "Unknown";
+    if (!url) {
+        connectionType = "Missing DATABASE_URL";
+    } else if (url.startsWith("file:")) {
+        connectionType = "Local File (file:...)";
+    } else if (url.includes("turso.io")) {
+        connectionType = `Remote Turso (${url})`;
+    } else {
+        connectionType = `Custom (${url})`;
+    }
+
+    if (token) {
+        connectionType += " [Auth Token Present]";
+    }
+
+    console.log("Using Database:", connectionType);
+
     if (!command) {
         console.log(`
 Usage:

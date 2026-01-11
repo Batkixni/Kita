@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signUp } from "@/lib/auth-client";
 import { registerWithInvite } from "@/actions/invite";
+import { toast } from "sonner";
 
 interface AuthDialogProps {
     mode?: "signin" | "signup";
@@ -55,11 +56,12 @@ export function AuthDialog({ mode = "signin", children }: AuthDialogProps) {
             fetchOptions: {
                 onSuccess: () => {
                     setIsOpen(false);
+                    toast.success("Welcome back!");
                     router.push(`/${signInEmail.split('@')[0]}`); // Fallback redirect
                     router.refresh();
                 },
                 onError: (ctx: any) => {
-                    alert(ctx.error.message);
+                    toast.error(ctx.error.message || "Failed to sign in");
                     setIsSignInLoading(false);
                 }
             }
@@ -74,7 +76,7 @@ export function AuthDialog({ mode = "signin", children }: AuthDialogProps) {
             if (enableInvite) {
                 // Server-side registration with invite check
                 if (!inviteCode) {
-                    alert("Invite code is required.");
+                    toast.error("Invite code is required.");
                     setIsSignUpLoading(false);
                     return;
                 }
@@ -86,6 +88,8 @@ export function AuthDialog({ mode = "signin", children }: AuthDialogProps) {
                     password: signUpPassword,
                     inviteCode
                 });
+
+                toast.success("Account created successfully!");
 
                 // Auto-login after successful invite registration
                 await signIn.email({
@@ -99,7 +103,7 @@ export function AuthDialog({ mode = "signin", children }: AuthDialogProps) {
                         },
                         onError: (ctx: any) => {
                             // Should not happen if registration worked, but handle just in case
-                            alert("Registration successful, but sign-in failed. Please sign in manually.");
+                            toast.error("Registration successful, but sign-in failed. Please sign in manually.");
                             setIsSignUpLoading(false);
                             setActiveTab("signin");
                         }
@@ -117,18 +121,19 @@ export function AuthDialog({ mode = "signin", children }: AuthDialogProps) {
                     fetchOptions: {
                         onSuccess: () => {
                             setIsOpen(false);
+                            toast.success("Welcome to Kita!");
                             router.push(`/${signUpUsername}`);
                             router.refresh();
                         },
                         onError: (ctx: any) => {
-                            alert(ctx.error.message);
+                            toast.error(ctx.error.message || "Failed to sign up");
                             setIsSignUpLoading(false);
                         }
                     }
                 } as any);
             }
         } catch (error: any) {
-            alert(error.message || "Something went wrong.");
+            toast.error(error.message || "Something went wrong.");
             setIsSignUpLoading(false);
         }
     };
