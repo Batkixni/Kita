@@ -11,6 +11,8 @@ Welcome to **Kita**. It's basically the coolest way to build your own personal p
 
 Whether you're a developer, designer, or just an aesthetic enjoyer, Kita lets you flex your projects, socials, and whatever else defines *you*.
 
+![preview](https://files.catbox.moe/ek7a2i.png)
+
 ---
 
 ## 🔥 Features that Slap
