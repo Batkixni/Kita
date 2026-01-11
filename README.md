@@ -3,6 +3,9 @@
 
 ![Kita Banner](public/og-image.png)
 
+[![Watch on GitHub](https://img.shields.io/github/watchers/Batkixni/kita.svg?style=social)](https://github.com/Batkixni/Kita/watchers)  
+[![Star on GitHub](https://img.shields.io/github/stars/Batkixni/kita.svg?style=social)](https://github.com/Batkixni/Kita/stargazers)
+
 [English](#english) | [正體中文](#chinese)
 
 ## English
@@ -10,6 +13,8 @@
 Welcome to **Kita**. It's basically the coolest way to build your own personal page. Forget those basic link trees; we're talking full-on grid layouts, drag-and-drop vibes, and modules that actually do stuff. It's giving *main character energy*. 💅
 
 Whether you're a developer, designer, or just an aesthetic enjoyer, Kita lets you flex your projects, socials, and whatever else defines *you*.
+
+![preview](https://files.catbox.moe/ek7a2i.png)
 
 ---
 
