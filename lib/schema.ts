@@ -94,6 +94,13 @@ export const modulesRelations = relations(modules, ({ one }) => ({
   }),
 }));
 
+export const invitationsRelations = relations(invitations, ({ one }) => ({
+  user: one(users, {
+    fields: [invitations.usedBy],
+    references: [users.id],
+  }),
+}));
+
 export const analytics = sqliteTable("analytics", {
   id: text("id").primaryKey(),
   pageId: text("page_id").notNull().references(() => pages.id),

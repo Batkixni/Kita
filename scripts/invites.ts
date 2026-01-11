@@ -1,6 +1,6 @@
 
-import { db } from "@/lib/db";
-import { invitations } from "@/lib/schema";
+import { db } from "../lib/db";
+import { invitations } from "../lib/schema";
 import { eq, desc } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import * as dotenv from "dotenv";
