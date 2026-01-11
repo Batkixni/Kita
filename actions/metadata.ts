@@ -1,7 +1,5 @@
 'use server';
 
-import { JSDOM } from 'jsdom';
-
 export interface LinkMetadata {
     title?: string;
     description?: string;
@@ -27,21 +25,29 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
 
         if (!res.ok) {
             // Silently fail for 404/403 to avoid console spam, just return basic URL
-            console.warn(`Link Metadata fetch failed for ${url}: ${res.status}`);
+            // console.warn(`Link Metadata fetch failed for ${url}: ${res.status}`);
             return { url, title: url };
         }
 
         const html = await res.text();
-        const dom = new JSDOM(html);
-        const doc = dom.window.document;
 
-        const getMeta = (prop: string) =>
-            doc.querySelector(`meta[property="${prop}"]`)?.getAttribute('content') ||
-            doc.querySelector(`meta[name="${prop}"]`)?.getAttribute('content');
+        // Regex Extraction (Faster than JSDOM)
+        const getMetaContent = (prop: string) => {
+            const regex = new RegExp(`<meta\\s+(?:property|name)=["']${prop}["']\\s+content=["'](.*?)["']`, 'i');
+            const match = html.match(regex);
+            return match ? match[1] : null;
+        };
 
-        const title = getMeta('og:title') || getMeta('twitter:title') || doc.title;
-        const description = getMeta('og:description') || getMeta('twitter:description') || getMeta('description');
-        const image = getMeta('og:image') || getMeta('twitter:image');
+        const getTitle = () => {
+            const ogTitle = getMetaContent('og:title') || getMetaContent('twitter:title');
+            if (ogTitle) return ogTitle;
+            const titleMatch = html.match(/<title>(.*?)<\/title>/i);
+            return titleMatch ? titleMatch[1] : null;
+        };
+
+        const title = getTitle();
+        const description = getMetaContent('og:description') || getMetaContent('twitter:description') || getMetaContent('description');
+        const image = getMetaContent('og:image') || getMetaContent('twitter:image');
 
         return {
             title: title || '',
