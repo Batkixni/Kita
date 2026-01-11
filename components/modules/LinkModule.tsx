@@ -27,7 +27,21 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
     const [ghData, setGhData] = useState<GitHubData | null>(null);
     const [loading, setLoading] = useState(false); // OPTIMISTIC LOADING: Start false to show URL immediately
 
-    // ... (rest of code)
+    // Helper to ensure URL has protocol (prevents new URL() crash)
+    const ensureProtocol = (str: string) => {
+        if (!str) return "";
+        if (str.startsWith("http://") || str.startsWith("https://")) return str;
+        return `https://${str}`;
+    };
+
+    const safeUrl = ensureProtocol(url);
+
+    // Responsive Logic: Show image if module is essentially 2x1 or larger (or 1x2)
+    const showImage = w && h && (w >= 2 || h >= 2);
+
+    const isBehance = safeUrl.includes('behance.net/');
+    const isYouTube = safeUrl.includes('youtube.com/') || safeUrl.includes('youtu.be/');
+    const isGitHub = safeUrl.includes('github.com/');
 
     useEffect(() => {
         let mounted = true;
