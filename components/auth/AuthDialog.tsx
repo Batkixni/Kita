@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signUp } from "@/lib/auth-client";
+import { registerWithInvite } from "@/actions/invite";
 
 interface AuthDialogProps {
     mode?: "signin" | "signup";
@@ -40,8 +41,10 @@ export function AuthDialog({ mode = "signin", children }: AuthDialogProps) {
     const [signUpPassword, setSignUpPassword] = useState("");
     const [signUpName, setSignUpName] = useState("");
     const [signUpUsername, setSignUpUsername] = useState("");
+    const [inviteCode, setInviteCode] = useState(""); // Add Invite Code State
     const [isSignUpLoading, setIsSignUpLoading] = useState(false);
 
+    const enableInvite = process.env.NEXT_PUBLIC_ENABLE_INVITE_SYSTEM === 'true';
 
     const handleSignIn = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -52,7 +55,7 @@ export function AuthDialog({ mode = "signin", children }: AuthDialogProps) {
             fetchOptions: {
                 onSuccess: () => {
                     setIsOpen(false);
-                    router.push(`/${signInEmail.split('@')[0]}`); // Fallback redirect if not username aware immediately, or just refresh
+                    router.push(`/${signInEmail.split('@')[0]}`); // Fallback redirect
                     router.refresh();
                 },
                 onError: (ctx: any) => {
@@ -66,24 +69,68 @@ export function AuthDialog({ mode = "signin", children }: AuthDialogProps) {
     const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSignUpLoading(true);
-        await signUp.email({
-            email: signUpEmail,
-            password: signUpPassword,
-            name: signUpName,
-            username: signUpUsername,
-            image: "",
-            fetchOptions: {
-                onSuccess: () => {
-                    setIsOpen(false);
-                    router.push(`/${signUpUsername}`);
-                    router.refresh();
-                },
-                onError: (ctx: any) => {
-                    alert(ctx.error.message);
+
+        try {
+            if (enableInvite) {
+                // Server-side registration with invite check
+                if (!inviteCode) {
+                    alert("Invite code is required.");
                     setIsSignUpLoading(false);
+                    return;
                 }
+
+                await registerWithInvite({
+                    name: signUpName,
+                    username: signUpUsername,
+                    email: signUpEmail,
+                    password: signUpPassword,
+                    inviteCode
+                });
+
+                // Auto-login after successful invite registration
+                await signIn.email({
+                    email: signUpEmail,
+                    password: signUpPassword,
+                    fetchOptions: {
+                        onSuccess: () => {
+                            setIsOpen(false);
+                            router.push(`/${signUpUsername}`);
+                            router.refresh();
+                        },
+                        onError: (ctx: any) => {
+                            // Should not happen if registration worked, but handle just in case
+                            alert("Registration successful, but sign-in failed. Please sign in manually.");
+                            setIsSignUpLoading(false);
+                            setActiveTab("signin");
+                        }
+                    }
+                });
+
+            } else {
+                // Standard Better Auth Registration
+                await signUp.email({
+                    email: signUpEmail,
+                    password: signUpPassword,
+                    name: signUpName,
+                    username: signUpUsername,
+                    image: "",
+                    fetchOptions: {
+                        onSuccess: () => {
+                            setIsOpen(false);
+                            router.push(`/${signUpUsername}`);
+                            router.refresh();
+                        },
+                        onError: (ctx: any) => {
+                            alert(ctx.error.message);
+                            setIsSignUpLoading(false);
+                        }
+                    }
+                } as any);
             }
-        } as any);
+        } catch (error: any) {
+            alert(error.message || "Something went wrong.");
+            setIsSignUpLoading(false);
+        }
     };
 
     return (
@@ -139,6 +186,23 @@ export function AuthDialog({ mode = "signin", children }: AuthDialogProps) {
                                 <Label htmlFor="su-password">Password</Label>
                                 <Input id="su-password" type="password" value={signUpPassword} onChange={e => setSignUpPassword(e.target.value)} required />
                             </div>
+
+                            {/* Invite Code Field */}
+                            {process.env.NEXT_PUBLIC_ENABLE_INVITE_SYSTEM === 'true' && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="su-invite">Invite Code</Label>
+                                    <Input
+                                        id="su-invite"
+                                        value={inviteCode}
+                                        onChange={e => setInviteCode(e.target.value)}
+                                        required
+                                        placeholder="Enter your invite code"
+                                        className="border-primary/20 focus:border-primary"
+                                    />
+                                    <p className="text-[10px] text-muted-foreground">Registration is currently invite-only.</p>
+                                </div>
+                            )}
+
                             <Button type="submit" className="w-full" disabled={isSignUpLoading}>
                                 {isSignUpLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign Up"}
                             </Button>

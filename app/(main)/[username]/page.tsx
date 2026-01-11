@@ -17,11 +17,20 @@ import { type Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
     const { username } = await params;
-    // We could fetch user here for title, but simplicity:
+
+    // Fetch user to get display name and update time
+    const user = await db.query.users.findFirst({
+        where: eq(users.username, username),
+        columns: { name: true, username: true, updatedAt: true }
+    });
+
+    const title = user?.name || username;
+    const v = user?.updatedAt ? new Date(user.updatedAt).getTime() : Date.now();
+
     return {
-        title: `${username} | Kita`,
+        title: title,
         openGraph: {
-            images: [`/api/og?username=${username}`],
+            images: [`/api/og?username=${username}&v=${v}`],
         },
     };
 }

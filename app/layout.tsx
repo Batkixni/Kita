@@ -9,6 +9,7 @@ import { ClientThemeProvider } from "@/components/providers/ClientThemeProvider"
 const fontSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://kita.sorai.tw'),
   title: {
     default: "Kita | Your Corner of the Internet",
     template: "%s | Kita"

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const moduleSchema = z.object({
     pageId: z.string().uuid().optional(),
-    type: z.enum(['text', 'image', 'link', 'custom', 'video', 'section_title']),
+    type: z.enum(['text', 'image', 'link', 'custom', 'video', 'section-title', 'project', 'metric', 'badge', 'info-card', 'social']),
     x: z.number().int().min(0),
     y: z.number().int().min(0),
     w: z.number().int().min(1).max(12),
