@@ -13,8 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-
-type ToolType = 'text' | 'link' | 'image' | 'section-title' | 'project' | 'metric' | 'badge' | 'custom' | 'info-card' | 'social' | 'spotify-playlist' | null;
+import { ToolType } from "../types";
 
 interface ModuleDef {
     id: string;

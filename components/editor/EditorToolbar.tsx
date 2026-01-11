@@ -10,14 +10,13 @@ import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { ProjectForm, ImageForm, LinkForm, TextForm, MetricForm, BadgeForm, SectionForm, CustomForm, InfoCardForm, SocialForm, SpotifyPlaylistForm } from "./ModuleForms";
 import { ModuleToolbar, CustomCodeButton } from "@/components/editor/modules/ModuleToolbar";
+import { ToolType } from "./types";
 
 interface EditorToolbarProps {
     pageId: string;
     themeConfig?: any;
     onAdd?: (type: string, content: any, w: number, h: number) => void;
 }
-
-type ToolType = 'text' | 'link' | 'image' | 'section-title' | 'project' | 'metric' | 'badge' | 'custom' | 'info-card' | 'social' | 'spotify-playlist' | null;
 
 export function EditorToolbar({ pageId, themeConfig, onAdd }: EditorToolbarProps) {
     const router = useRouter();

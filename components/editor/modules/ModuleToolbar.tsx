@@ -2,7 +2,7 @@ import { Link as LinkIcon, Image as ImageIcon, Type, Heading, Code } from "lucid
 import { cn } from "@/lib/utils";
 import { ModulePicker } from "./ModulePicker";
 
-type ToolType = 'text' | 'link' | 'image' | 'section-title' | 'project' | 'metric' | 'badge' | 'custom' | 'info-card' | 'social' | null;
+import { ToolType } from "../types";
 
 interface ModuleToolbarProps {
     activeTool: ToolType;
