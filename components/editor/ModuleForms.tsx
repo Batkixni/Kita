@@ -110,7 +110,7 @@ export function ProjectForm({ onAdd, isLoading, initialData }: FormProps) {
                         />
                     </div>
                     <div className="space-y-1">
-                        <Label className="text-xs">Thumbnail (Optional)</Label>
+                        <Label className="text-xs">Thumbnail (16:9 Recommended)</Label>
                         <div className="h-24">
                             <ImageUpload
                                 value={projects[activeIndex].image}
@@ -125,7 +125,120 @@ export function ProjectForm({ onAdd, isLoading, initialData }: FormProps) {
             <div className="flex justify-between items-center pt-2">
                 <span className="text-[10px] text-muted-foreground">{projects.length} project{projects.length > 1 ? 's' : ''}</span>
                 <Button size="sm" onClick={handleSubmit} disabled={isLoading || projects.some(p => !p.title)}>
-                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : initialData ? "Save All Changes" : "Create List"}
+                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : initialData ? "Save Changes" : "Create List"}
+                </Button>
+            </div>
+        </div>
+    );
+}
+
+export function ProjectCardForm({ onAdd, isLoading, initialData }: FormProps) {
+    // Default to at least one empty project if none provided
+    // Structure: { projects: [ { title, desc, link, image } ] }
+    const initialProjects = initialData?.projects || [{ title: "", desc: "", link: "", image: "" }];
+    const [projects, setProjects] = useState<any[]>(initialProjects);
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    const updateProject = (index: number, field: string, value: string) => {
+        const newProjects = [...projects];
+        newProjects[index] = { ...newProjects[index], [field]: value };
+        setProjects(newProjects);
+    };
+
+    const addProject = () => {
+        setProjects([...projects, { title: "", desc: "", link: "", image: "" }]);
+        setActiveIndex(projects.length);
+    };
+
+    const removeProject = (index: number) => {
+        const newProjects = projects.filter((_, i) => i !== index);
+        setProjects(newProjects.length ? newProjects : [{ title: "", desc: "", link: "", image: "" }]);
+        setActiveIndex(0);
+    };
+
+    const handleSubmit = () => {
+        if (projects.some(p => !p.title)) return; // Simple validation: all must have titles
+
+        // Save as 'project-card' type with structured content
+        onAdd('project-card', { projects }, 4, 3);
+    };
+
+    return (
+        <div className="w-[340px] p-1 flex flex-col gap-3">
+            <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 snap-x">
+                {projects.map((p, i) => (
+                    <button
+                        key={i}
+                        onClick={() => setActiveIndex(i)}
+                        className={`flex-shrink-0 snap-start px-3 py-1 text-xs rounded-full border transition-all ${activeIndex === i ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-border text-muted-foreground hover:border-primary/50'}`}
+                    >
+                        {p.title || `Project ${i + 1}`}
+                    </button>
+                ))}
+                <button
+                    onClick={addProject}
+                    className="flex-shrink-0 px-2 py-1 text-xs rounded-full border border-dashed border-muted-foreground/50 text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+                    title="Add another project"
+                >
+                    +
+                </button>
+            </div>
+
+            {projects[activeIndex] && (
+                <div className="space-y-3 border p-3 rounded-xl bg-secondary/20 relative animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <div className="absolute top-2 right-2">
+                        {projects.length > 1 && (
+                            <button onClick={() => removeProject(activeIndex)} className="text-muted-foreground hover:text-destructive transition-colors">
+                                <span className="sr-only">Delete</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="space-y-1">
+                        <Label className="text-xs">Project Title</Label>
+                        <Input
+                            value={projects[activeIndex].title}
+                            onChange={e => updateProject(activeIndex, 'title', e.target.value)}
+                            placeholder="My Cool Project"
+                            className="h-8 text-xs"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-xs">Description</Label>
+                        <Textarea
+                            value={projects[activeIndex].desc}
+                            onChange={e => updateProject(activeIndex, 'desc', e.target.value)}
+                            placeholder="Short description..."
+                            className="h-16 text-xs resize-none"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-xs">Link (Optional)</Label>
+                        <Input
+                            value={projects[activeIndex].link}
+                            onChange={e => updateProject(activeIndex, 'link', e.target.value)}
+                            placeholder="https://..."
+                            className="h-8 text-xs"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-xs">Thumbnail (16:9 Recommended)</Label>
+                        <div className="h-24">
+                            <ImageUpload
+                                value={projects[activeIndex].image}
+                                onChange={(val) => updateProject(activeIndex, 'image', val)}
+                                className="h-full"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="flex justify-between items-center pt-2">
+                <span className="text-[10px] text-muted-foreground">{projects.length} project{projects.length > 1 ? 's' : ''}</span>
+                <Button size="sm" onClick={handleSubmit} disabled={isLoading || projects.some(p => !p.title)}>
+                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : initialData ? "Save Changes" : "Create Card"}
                 </Button>
             </div>
         </div>

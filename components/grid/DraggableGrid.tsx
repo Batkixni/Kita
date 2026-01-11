@@ -12,6 +12,7 @@ import { CustomModule } from "../modules/CustomModule";
 import { EditModuleDialog } from "../editor/EditModuleDialog";
 import { ModuleResizeToolbar } from "../editor/ModuleResizeToolbar";
 import { SpotifyPlaylistModule } from "../modules/more/SpotifyPlaylistModule";
+import { ProjectCardModule } from "../modules/ProjectCardModule";
 import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import 'react-grid-layout/css/styles.css';
@@ -120,6 +121,8 @@ const ModuleRenderer = ({ item, isEditable, theme }: { item: any, isEditable: bo
             return <CustomModule content={item.content?.text} isEditable={isEditable} w={item.w} h={item.h} />;
         case 'spotify-playlist':
             return <SpotifyPlaylistModule url={item.content?.url} w={item.w} h={item.h} theme={theme} isEditable={isEditable} />;
+        case 'project-card':
+            return <ProjectCardModule projects={item.content?.projects} />;
         default:
             return <div className="p-4 rounded-xl bg-red-50 text-red-500">Unknown module</div>;
     }

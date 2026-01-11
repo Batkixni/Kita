@@ -10,4 +10,5 @@ export type ToolType =
     | 'info-card'
     | 'social'
     | 'spotify-playlist'
+    | 'project-card'
     | null;

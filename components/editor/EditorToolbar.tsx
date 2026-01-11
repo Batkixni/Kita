@@ -8,7 +8,7 @@ import { getPageAnalytics } from "@/actions/analytics";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { ProjectForm, ImageForm, LinkForm, TextForm, MetricForm, BadgeForm, SectionForm, CustomForm, InfoCardForm, SocialForm, SpotifyPlaylistForm } from "./ModuleForms";
+import { ProjectForm, ImageForm, LinkForm, TextForm, MetricForm, BadgeForm, SectionForm, CustomForm, InfoCardForm, SocialForm, SpotifyPlaylistForm, ProjectCardForm } from "./ModuleForms";
 import { ModuleToolbar, CustomCodeButton } from "@/components/editor/modules/ModuleToolbar";
 import { ToolType } from "./types";
 
@@ -89,6 +89,7 @@ export function EditorToolbar({ pageId, themeConfig, onAdd }: EditorToolbarProps
             case 'custom': return <CustomForm {...props} />;
             case 'info-card': return <InfoCardForm {...props} />;
             case 'social': return <SocialForm {...props} />;
+            case 'project-card': return <ProjectCardForm {...props} />;
             case 'spotify-playlist': return <SpotifyPlaylistForm {...props} />;
             default: return null;
         }
