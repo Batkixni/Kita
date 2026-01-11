@@ -138,6 +138,18 @@ export function EditModuleDialog({ module, open, onOpenChange, themeConfig, onSa
         }
     }
 
+    if (module.type === 'project-card') {
+        const { ProjectCardForm } = require('./ModuleForms');
+        EditForm = ProjectCardForm;
+        initialData = { projects: module.content?.projects };
+    }
+
+    if (module.type === 'spotify-playlist') {
+        const { SpotifyPlaylistForm } = require('./ModuleForms');
+        EditForm = SpotifyPlaylistForm;
+        initialData = { url: module.content?.url };
+    }
+
     // Wrapper for Forms to call onSave
     const handleFormSave = async (type: string, content: any) => {
         setIsLoading(true);

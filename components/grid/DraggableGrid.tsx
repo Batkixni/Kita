@@ -122,7 +122,7 @@ const ModuleRenderer = ({ item, isEditable, theme }: { item: any, isEditable: bo
         case 'spotify-playlist':
             return <SpotifyPlaylistModule url={item.content?.url} w={item.w} h={item.h} theme={theme} isEditable={isEditable} />;
         case 'project-card':
-            return <ProjectCardModule projects={item.content?.projects} />;
+            return <ProjectCardModule projects={item.content?.projects} theme={theme} w={item.w} h={item.h} />;
         default:
             return <div className="p-4 rounded-xl bg-red-50 text-red-500">Unknown module</div>;
     }
@@ -396,7 +396,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
                                                 e.stopPropagation();
                                                 setDeleteModuleId(item.id);
                                             }}
-                                            className="p-2 bg-secondary/80 hover:bg-destructive/20 hover:text-destructive rounded-full shadow-sm backdrop-blur-sm cursor-pointer text-muted-foreground transition-colors"
+                                            className="p-2 bg-black/20 hover:bg-red-500/20 hover:text-red-500 rounded-full shadow-sm backdrop-blur-md cursor-pointer text-white/70 transition-all active:scale-95 ring-1 ring-white/10"
                                             title="Delete Module"
                                         >
                                             <Trash2 className="w-4 h-4" />
@@ -408,7 +408,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
                                                 e.stopPropagation();
                                                 setEditingModule(item);
                                             }}
-                                            className="p-2 bg-secondary/80 hover:bg-secondary rounded-full shadow-sm backdrop-blur-sm cursor-pointer text-foreground transition-colors"
+                                            className="p-2 bg-black/20 hover:bg-white/20 rounded-full shadow-sm backdrop-blur-md cursor-pointer text-white/70 hover:text-white transition-all active:scale-95 ring-1 ring-white/10"
                                             title="Edit Module"
                                         >
                                             <Pencil className="w-4 h-4" />
@@ -441,7 +441,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
             )}
 
             <AlertDialog open={!!deleteModuleId} onOpenChange={(open) => !open && setDeleteModuleId(null)}>
-                <AlertDialogContent>
+                <AlertDialogContent className="border-none bg-background/80 backdrop-blur-xl shadow-2xl rounded-3xl ring-1 ring-white/10">
                     <AlertDialogHeader>
                         <AlertDialogTitle>Delete this module?</AlertDialogTitle>
                         <AlertDialogDescription>
@@ -449,7 +449,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="bg-transparent border border-white/10 text-muted-foreground hover:bg-white/5 hover:text-foreground">Cancel</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={async (e) => {
                                 e.preventDefault();
@@ -463,7 +463,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
                                 }
                                 setDeleteModuleId(null);
                             }}
-                            className="bg-red-600 focus:ring-red-600 text-white hover:bg-red-700"
+                            className="bg-red-500/80 hover:bg-red-500 text-white backdrop-blur-sm shadow-lg shadow-red-500/20 border-0"
                         >
                             Delete
                         </AlertDialogAction>
