@@ -45,29 +45,47 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
 
     useEffect(() => {
         let mounted = true;
+
+        // Reset states on URL change
         if (safeUrl) {
             setLoading(true);
+            setMetadata(null);
+            setYtData(null);
+            setBehanceData(null);
+            setGhData(null);
 
-            // Parallel fetch of metadata and potentially YouTube/Behance/GitHub data
-            const promises: Promise<any>[] = [getLinkMetadata(safeUrl)];
-            if (isYouTube) promises.push(getYouTubeChannelData(safeUrl));
-            if (isBehance) promises.push(getBehanceData(safeUrl));
-            if (isGitHub) promises.push(getGitHubData(safeUrl));
-
-            Promise.all(promises).then((results) => {
+            // 1. Fetch Basic Metadata (Should be fast)
+            getLinkMetadata(safeUrl).then(data => {
                 if (mounted) {
-                    setMetadata(results[0]);
-
-                    // Handle variable results position
-                    let index = 1;
-                    if (isYouTube) setYtData(results[index++]);
-                    if (isBehance) setBehanceData(results[index++]);
-                    if (isGitHub) setGhData(results[index++]);
-
+                    setMetadata(data);
+                    // Only turn off loading if we are NOT expecting rich data, or if we want to show basic data immediately
+                    // Actually, we can just show whatever we have. 
+                    // Let's keep loading true only if we have NOTHING to show yet? 
+                    // Or maybe just don't block?
                     setLoading(false);
                 }
             });
+
+            // 2. Fetch Rich Data Independently (Don't block basic metadata)
+            if (isYouTube) {
+                getYouTubeChannelData(safeUrl).then(data => {
+                    if (mounted && data) setYtData(data);
+                });
+            }
+
+            if (isBehance) {
+                getBehanceData(safeUrl).then(data => {
+                    if (mounted && data) setBehanceData(data);
+                });
+            }
+
+            if (isGitHub) {
+                getGitHubData(safeUrl).then(data => {
+                    if (mounted && data) setGhData(data);
+                });
+            }
         }
+
         return () => { mounted = false; };
     }, [safeUrl, isYouTube, isBehance, isGitHub]);
 
