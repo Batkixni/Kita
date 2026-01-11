@@ -81,13 +81,19 @@ export function AuthDialog({ mode = "signin", children }: AuthDialogProps) {
                     return;
                 }
 
-                await registerWithInvite({
+                const res = await registerWithInvite({
                     name: signUpName,
                     username: signUpUsername,
                     email: signUpEmail,
                     password: signUpPassword,
                     inviteCode
                 });
+
+                if (!res.success) {
+                    toast.error(res.error || "Registration failed");
+                    setIsSignUpLoading(false);
+                    return;
+                }
 
                 toast.success("Account created successfully!");
 
