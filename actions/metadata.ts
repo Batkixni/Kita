@@ -18,12 +18,14 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
 
         const res = await fetch(url, {
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36', // Imitate real browser
+                'User-Agent': 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)', // Facebook's bot is frequently whitelisted
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5'
             },
             next: { revalidate: 3600 } // Cache for 1 hour
         });
 
-        if (!res.ok) throw new Error('Failed to fetch URL');
+        if (!res.ok) throw new Error(`Failed to fetch URL: ${res.status}`);
 
         const html = await res.text();
         const dom = new JSDOM(html);
@@ -33,9 +35,9 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
             doc.querySelector(`meta[property="${prop}"]`)?.getAttribute('content') ||
             doc.querySelector(`meta[name="${prop}"]`)?.getAttribute('content');
 
-        const title = getMeta('og:title') || doc.title;
-        const description = getMeta('og:description') || getMeta('description');
-        const image = getMeta('og:image');
+        const title = getMeta('og:title') || getMeta('twitter:title') || doc.title;
+        const description = getMeta('og:description') || getMeta('twitter:description') || getMeta('description');
+        const image = getMeta('og:image') || getMeta('twitter:image');
 
         return {
             title: title || '',

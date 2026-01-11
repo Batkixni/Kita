@@ -283,6 +283,50 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
         );
     }
 
+    // --- X (Twitter) Special Styling (Even if metadata fails) ---
+    const isX = safeUrl.includes('x.com/') || safeUrl.includes('twitter.com/');
+
+    if (isX && !customImage) {
+        // Only use special card if we don't have a custom image overlaid
+        return (
+            <a
+                href={safeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleClick}
+                className={cn(
+                    "flex flex-col w-full h-full bg-black/60 hover:bg-black/70 backdrop-blur-md transition-all p-5 relative group overflow-hidden text-left justify-between border border-white/10",
+                    isEditable && "cursor-grab active:cursor-grabbing pointer-events-none"
+                )}
+            >
+                <div className="flex items-center gap-2 mb-2">
+                    {/* X Logo */}
+                    <svg viewBox="0 0 24 24" aria-hidden="true" className="w-6 h-6 fill-white"><g><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></g></svg>
+                    <span className="text-[10px] font-bold text-white/50 tracking-wider">X.COM</span>
+                </div>
+
+                <div className="mt-auto">
+                    {/* If we have metadata title use it, otherwise show raw path */}
+                    <span className="font-bold text-white text-sm leading-tight line-clamp-3">
+                        {metadata?.title && metadata.title !== safeUrl
+                            ? metadata.title
+                            : safeUrl.split('.com/')[1] || 'Post'}
+                    </span>
+                    {metadata?.description && w && w >= 2 && (
+                        <p className="text-[11px] text-white/60 mt-2 line-clamp-2">{metadata.description}</p>
+                    )}
+                </div>
+
+                {/* Show Image if available (from metadata) */}
+                {metadata?.image && showImage && (
+                    <div className="absolute inset-0 w-full h-full z-0 opacity-30 group-hover:opacity-40 transition-opacity">
+                        <img src={metadata.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0" />
+                    </div>
+                )}
+            </a>
+        )
+    }
+
     // Default Link Card
     return (
         <a
