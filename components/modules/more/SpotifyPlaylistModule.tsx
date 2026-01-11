@@ -7,9 +7,10 @@ interface SpotifyPlaylistModuleProps {
     w?: number;
     h?: number;
     theme?: any;
+    isEditable?: boolean;
 }
 
-export function SpotifyPlaylistModule({ url, w, h, theme }: SpotifyPlaylistModuleProps) {
+export function SpotifyPlaylistModule({ url, w, h, theme, isEditable }: SpotifyPlaylistModuleProps) {
     const [metadata, setMetadata] = useState<LinkMetadata | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -53,6 +54,9 @@ export function SpotifyPlaylistModule({ url, w, h, theme }: SpotifyPlaylistModul
             href={url}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(e) => {
+                if (isEditable) e.preventDefault();
+            }}
             className="block w-full h-full relative group overflow-hidden bg-[#121212] hover:bg-[#181818] transition-colors border border-white/5 shadow-xl"
             style={{ borderRadius }}
         >

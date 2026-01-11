@@ -13,9 +13,10 @@ interface ModuleResizeToolbarProps {
         w: number;
         h: number;
     };
+    onDeleteClick?: () => void;
 }
 
-export function ModuleResizeToolbar({ module }: ModuleResizeToolbarProps) {
+export function ModuleResizeToolbar({ module, onDeleteClick }: ModuleResizeToolbarProps) {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleResize = async (w: number, h: number) => {
@@ -30,6 +31,10 @@ export function ModuleResizeToolbar({ module }: ModuleResizeToolbarProps) {
     };
 
     const handleDelete = async () => {
+        if (onDeleteClick) {
+            onDeleteClick();
+            return;
+        }
         if (!confirm("Delete this module?")) return;
         setIsLoading(true);
         try {

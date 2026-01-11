@@ -16,6 +16,16 @@ import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 
 // Custom WidthProvider
@@ -109,7 +119,7 @@ const ModuleRenderer = ({ item, isEditable, theme }: { item: any, isEditable: bo
         case 'custom':
             return <CustomModule content={item.content?.text} isEditable={isEditable} w={item.w} h={item.h} />;
         case 'spotify-playlist':
-            return <SpotifyPlaylistModule url={item.content?.url} w={item.w} h={item.h} theme={theme} />;
+            return <SpotifyPlaylistModule url={item.content?.url} w={item.w} h={item.h} theme={theme} isEditable={isEditable} />;
         default:
             return <div className="p-4 rounded-xl bg-red-50 text-red-500">Unknown module</div>;
     }
@@ -117,6 +127,7 @@ const ModuleRenderer = ({ item, isEditable, theme }: { item: any, isEditable: bo
 
 export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDelete, onUpdateContent, theme }: DraggableGridProps) {
     const [editingModule, setEditingModule] = useState<any>(null);
+    const [deleteModuleId, setDeleteModuleId] = useState<string | null>(null);
     const [width, setWidth] = useState(1200);
     const containerRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
@@ -210,10 +221,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
                                             onClick={async (e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
-                                                if (onDelete) {
-                                                    await onDelete(item.id);
-                                                    router.refresh();
-                                                }
+                                                setDeleteModuleId(item.id);
                                             }}
                                             className="p-2 bg-secondary/80 hover:bg-destructive/20 hover:text-destructive rounded-full shadow-sm backdrop-blur-sm cursor-pointer text-muted-foreground transition-colors"
                                             title="Delete Module"
@@ -236,7 +244,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
                                 )}
                                 <ModuleRenderer item={item} isEditable={isEditable} theme={theme} />
                             </GridItem>
-                            {isEditable && item.type !== 'section-title' && <ModuleResizeToolbar module={item} />}
+                            {isEditable && item.type !== 'section-title' && <ModuleResizeToolbar module={item} onDeleteClick={() => setDeleteModuleId(item.id)} />}
                         </div>
                     </div>
                 ))}
@@ -258,6 +266,37 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
                     }}
                 />
             )}
+
+            <AlertDialog open={!!deleteModuleId} onOpenChange={(open) => !open && setDeleteModuleId(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete this module?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently remove the module from your page.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={async (e) => {
+                                e.preventDefault();
+                                if (deleteModuleId && onDelete) {
+                                    try {
+                                        await onDelete(deleteModuleId);
+                                        router.refresh();
+                                    } catch (error) {
+                                        console.error("Failed to delete", error);
+                                    }
+                                }
+                                setDeleteModuleId(null);
+                            }}
+                            className="bg-red-600 focus:ring-red-600 text-white hover:bg-red-700"
+                        >
+                            Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
