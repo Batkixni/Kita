@@ -3,8 +3,8 @@
 
 ![Kita Banner](public/og-image.png)
 
-[![Watch on GitHub](https://img.shields.io/github/watchers/Batkixni/Kita.svg?style=social)](https://github.com/Batkixni/Kita/watchers)  
-[![Star on GitHub](https://img.shields.io/github/stars/Batkixni/Kita.svg?style=social)](https://github.com/Batkixni/Kita/stargazers)
+[![Watch on GitHub](https://img.shields.io/github/watchers/Batkixni/kita.svg?style=social)](https://github.com/Batkixni/Kita/watchers)  
+[![Star on GitHub](https://img.shields.io/github/stars/Batkixni/kita.svg?style=social)](https://github.com/Batkixni/Kita/stargazers)
 
 [English](#english) | [正體中文](#chinese)
 
