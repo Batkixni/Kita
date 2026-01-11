@@ -1,209 +1,237 @@
-# Kita
-
-[English](#english) | [中文](#chinese)
+# ✧ KITA ✧
+### *Your Corner of the Internet, But Make It Aesthetic.* ✨
 
 ![Kita Banner](public/og-image.png)
 
+[English](#english) | [正體中文](#chinese)
+
 ## English
 
-**Kita** is a modern, personalized page builder inspired by Bento.me. It allows you to create a beautiful, grid-based profile to showcase your links, thoughts, and portfolio.
+Welcome to **Kita**. It's basically the coolest way to build your own personal page. Forget those basic link trees; we're talking full-on grid layouts, drag-and-drop vibes, and modules that actually do stuff. It's giving *main character energy*. 💅
 
-### Features
-
--   **Bento Grid Layout**: Flexible, drag-and-drop grid system powered by `react-grid-layout`.
--   **Theming**: One-click theme switching with Dark/Light mode support.
--   **Modules**: Rich content modules including Text, Images, Links, and Custom Markdown.
--   **Instant**: Built on Next.js 15 for blazing fast performance.
--   **Customizable**: Adjust colors, border radius, and typography.
--   **Demo Mode**: Try it out without signing up at `/demo`.
--   **Invite System**: Optional closed-alpha invitation system with CLI management tools.
-
-### Tech Stack
-
--   **Framework**: Next.js 15 (App Router)
--   **Styling**: Tailwind CSS, Shadcn UI
--   **Database**: SQLite (via Turso/LibSQL), Drizzle ORM
--   **Auth**: Better Auth
--   **Deployment**: Vercel / Docker ready
-
-### Getting Started
-
-1.  **Clone the repository**:
-    ```bash
-    git clone https://github.com/yourusername/kita.git
-    cd kita
-    ```
-
-2.  **Install dependencies**:
-    ```bash
-    npm install
-    ```
-
-3.  **Environment Setup**:
-    Create a `.env.local` file in the root directory (see `.env.example`):
-    ```env
-    # Database (Defaults to local file)
-    DATABASE_URL="file:local.db"
-    
-    # Auth
-    BETTER_AUTH_SECRET="your-secret-base64-string"
-    BETTER_AUTH_URL="http://localhost:3000"
-    
-    # Invite System (Optional, defaults to false if unset)
-    NEXT_PUBLIC_ENABLE_INVITE_SYSTEM=true 
-    ```
-
-4.  **Run Development Server**:
-    The development command strictly checks and pushes database schema changes automatically.
-    ```bash
-    npm run dev
-    ```
-    *Note: If using `file:local.db`, the database file will be created automatically on first run.*
-
-### Database Configuration
-
-**Local (Default)**
-Uses a local SQLite file. Safe for development but not recommended for serverless deployment.
-```env
-DATABASE_URL="file:local.db"
-```
-
-**Remote (Turso)**
-Uses LibSQL/Turso for production-grade database hosting.
-```env
-DATABASE_URL="libsql://your-db.turso.io"
-DATABASE_AUTH_TOKEN="your-auth-token"
-```
-
-### Invite System Management
-
-If `NEXT_PUBLIC_ENABLE_INVITE_SYSTEM=true` is set, new users will require an invite code to register.
-
-**Manage invites via CLI:**
-```bash
-# List all invites
-npx tsx scripts/invites.ts list
-
-# Create a specific code
-npx tsx scripts/invites.ts create MY-CODE-123
-
-# Generate a random code
-npx tsx scripts/invites.ts generate
-
-# Delete a code
-npx tsx scripts/invites.ts delete MY-CODE-123
-```
-
-**Manage via GUI:**
-You can also use Drizzle Studio to manage invites and other data directly:
-```bash
-npx drizzle-kit studio
-```
-
-### License
-
-MIT License.
+Whether you're a developer, designer, or just an aesthetic enjoyer, Kita lets you flex your projects, socials, and whatever else defines *you*.
 
 ---
 
-<a id="chinese"></a>
+## 🔥 Features that Slap
 
-## 中文 (Chinese)
+*   **Grid Layout System**: Drag, drop, resize. Treat your page like a bento box. 🍱
+*   **Rich Modules**:
+    *   **Link Cards**: Auto-scrapes metadata (Title, Image, Icon) so your links don't look crusty.
+    *   **X/Twitter Embeds**: Special dark-mode cards for your hot takes.
+    *   **YouTube**: Channel previews that update automatically.
+*   **Themes**: Switch between light/dark or make your own, also support bunch of color schemes from [shadcn/studio](https://shadcnstudio.com/).
+*   **Invite System**: Keep it exclusive. No normies allowed (unless you give them a code). 🤫
 
-**Kita** 是一個現代化、受 Bento.me 啟發的個人頁面建構工具。它讓您可以輕鬆創建精美的網格狀個人主頁，展示您的連結、想法和作品集。
+---
 
-### 功能特色
+## 🚀 How to Deploy (IRL)
 
--   **Bento 網格佈局**：基於 `react-grid-layout` 的靈活拖放式網格系統。
--   **多樣化主題**：一鍵切換多種配色主題，並完全支援深色/淺色模式 (Dark/Light Mode)。
--   **豐富模組**：包含文字、圖片、連結以及自定義 Markdown 模組。
--   **極速體驗**：基於 Next.js 15 構建，效能極佳。
--   **高度客製化**：可調整顏色、圓角和字型設定。
--   **試用模式**：無需註冊即可在 `/demo` 體驗編輯器。
--   **邀請制度**：可選的封閉測試邀請系統，附帶命令行管理工具。
+Want this live? Bet. The easiest way is **Zeabur** + **Turso**.
 
-### 技術棧
+### 1. Database (Turso)
+1.  Go to [Turso.tech](https://turso.tech/) and make a DB.
+2.  Get your `DATABASE_URL` and `DATABASE_AUTH_TOKEN`.
 
--   **框架**: Next.js 15 (App Router)
--   **樣式**: Tailwind CSS, Shadcn UI
--   **資料庫**: SQLite (使用 Turso/LibSQL), Drizzle ORM
--   **認證**: Better Auth
--   **部署**: 支援 Vercel / Docker
-
-### 快速開始
-
-1.  **複製專案**:
+### 2. The Code (Zeabur)
+1.  Fork this repo.
+2.  Import to Zeabur.
+3.  Add these Environment Variables:
     ```bash
-    git clone https://github.com/yourusername/kita.git
+    DATABASE_URL="libsql://your-db.turso.io"
+    DATABASE_AUTH_TOKEN="your-secret-token"
+    BETTER_AUTH_SECRET="smash-some-keys-make-it-long"
+    BETTER_AUTH_URL="https://your-site.zeabur.app" # Your real domain
+    NEXT_PUBLIC_ENABLE_INVITE_SYSTEM="true" # Set to false if you want open signups
+    ```
+4.  Hit **Deploy**.
+5.  *Vibe check passed.* ✅
+
+---
+
+## 💻 Running Locally (For the Builders)
+
+Wanna mess with the code? Say less.
+
+1.  **Clone it:**
+    ```bash
+    git clone https://github.com/your-username/kita.git
     cd kita
     ```
 
-2.  **安裝依賴**:
+2.  **Install deps:**
+    ```bash
+    pnpm install
+    ```
+
+    or
+
     ```bash
     npm install
     ```
 
-3.  **環境設定**:
-    在根目錄建立 `.env.local` 檔案 (參考 `.env.example`)：
-    ```env
-    # 資料庫 (預設使用本地檔案)
-    DATABASE_URL="file:local.db"
-    
-    # 認證
-    BETTER_AUTH_SECRET="您的隨機密鑰"
-    BETTER_AUTH_URL="http://localhost:3000"
-    
-    # 邀請系統 (選填，若需要設為 true)
-    NEXT_PUBLIC_ENABLE_INVITE_SYSTEM=true 
+3.  **Setup Env:**
+    Copy `.env.example` to `.env.local` and fill it out.
+    *   For local dev, just leave `DATABASE_URL=file:local.db` and we'll handle the rest.
+
+4.  **Launch:**
+    ```bash
+    pnpm run dev
     ```
 
-4.  **啟動開發伺服器**:
-    啟動指令會自動同步資料庫架構 (Schema)，無需手動遷移。
     ```bash
     npm run dev
     ```
-    *注意：如果是第一次運行，系統會自動生成 `local.db` 檔案。*
+    Open `http://localhost:3000` and start cooking. 🍳
 
-### 資料庫設定
+---
 
-**本地 (預設)**
-使用本地 SQLite 檔案，適合開發環境。
-```env
-DATABASE_URL="file:local.db"
-```
+## 🤝 Invite System
 
-**遠端 (Turso)**
-使用 LibSQL/Turso 雲端資料庫，適合生產環境部署。
-```env
-DATABASE_URL="libsql://your-db.turso.io"
-DATABASE_AUTH_TOKEN="your-auth-token"
-```
+Need to let the homies in? We got some scripts for that.
 
-### 邀請系統管理
-
-如果設定了 `NEXT_PUBLIC_ENABLE_INVITE_SYSTEM=true`，新用戶註冊時將需要填寫邀請碼。
-
-**使用 CLI 管理邀請碼：**
 ```bash
-# 查看所有邀請碼
+# List all codes
 npx tsx scripts/invites.ts list
 
-# 創建特定邀請碼
-npx tsx scripts/invites.ts create VIP888
-
-# 生成隨機邀請碼
+# Make a new code
 npx tsx scripts/invites.ts generate
-
-# 刪除邀請碼
-npx tsx scripts/invites.ts delete VIP888
 ```
+---
 
-**使用圖形介面 (GUI)：**
-您也可以使用 Drizzle Studio 直接管理資料庫中的邀請碼：
+## 🛠️ The Stack 
+
+*   **Framework:** [Next.js 15 (App Router)](https://nextjs.org/) 
+*   **Language:** [TypeScript](https://www.typescriptlang.org/) 
+*   **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) + [Shadcn UI](https://ui.shadcn.com/) 
+*   **Database:** [Turso (LibSQL)](https://turso.tech/) + [Drizzle ORM](https://orm.drizzle.team/) 
+*   **Auth:** [Better Auth](https://better-auth.com/) 
+*   **Drag & Drop:** `react-grid-layout` 
+
+---
+
+## 📜 License
+
+**GPL-3.0**
+If you use this code, you gotta keep it open source. Don't be that guy who closes it up. Share the love. ❤️
+
+---
+
+*Made with love by Bax. issues are open for bug reports and feature requests.* 🤙
+
+---
+
+## Chinese
+
+歡迎來到 **Kita**。這基本上是建立你自己的專屬頁面最酷的方式。忘掉那些陽春的 Link Tree 吧；我們搞的是全網格佈局、拖放操作，以及真正有功能的模組。整個就是讓你有種主角光環的感覺！💅
+
+無論你是開發者、設計師，還是單純的美學愛好者，Kita 都能讓你展示你的專案、社群媒體，以及任何定義*你*的東西。
+
+---
+
+## 🔥 超讚的功能
+
+*   **網格佈局系統**：拖曳、放置、調整大小。把你的頁面當成便當盒來擺。🍱
+*   **豐富模組**：
+    *   **連結卡片**：自動抓取網頁數據（標題、圖片、圖示），讓你的連結看起來不會很醜。
+    *   **X/Twitter 嵌入**：專為你的推文設計的深色模式卡片。
+    *   **YouTube**：會自動更新的頻道預覽。
+*   **主題**：切換亮色/深色模式或自定義，也支援來自 [shadcn/studio](https://shadcnstudio.com/) 的各種配色方案。
+*   **邀請系統**：保持獨特性。普通人進不來（除非你給他們邀請碼）。🤫
+
+---
+
+## 🚀 如何部署 (實戰)
+
+想要上線？沒問題。最簡單的方法是 **Zeabur** + **Turso**。
+
+### 1. 資料庫 (Turso)
+1.  去 [Turso.tech](https://turso.tech/) 建立一個 DB。
+2.  取得你的 `DATABASE_URL` 和 `DATABASE_AUTH_TOKEN`。
+
+### 2. 程式碼 (Zeabur)
+1.  Fork 這個 repo。
+2.  匯入到 Zeabur。
+3.  加入這些環境變數：
+    ```bash
+    DATABASE_URL="libsql://your-db.turso.io"
+    DATABASE_AUTH_TOKEN="your-secret-token"
+    BETTER_AUTH_SECRET="隨便打一些字讓它變很長"
+    BETTER_AUTH_URL="https://your-site.zeabur.app" # 你的真實域名
+    NEXT_PUBLIC_ENABLE_INVITE_SYSTEM="true" # 如果你想開放註冊就設為 false
+    ```
+4.  點擊 **Deploy**。
+5.  *Vibe check passed.* ✅
+
+---
+
+## 💻 本地執行 (給開發者)
+
+想要改代碼？沒問題。
+
+1.  **Clone 專案:**
+    ```bash
+    git clone https://github.com/your-username/kita.git
+    cd kita
+    ```
+
+2.  **安裝依賴:**
+    ```bash
+    pnpm install
+    ```
+
+    或
+
+    ```bash
+    npm install
+    ```
+
+3.  **設定環境變數:**
+    複製 `.env.example` 到 `.env.local` 並填寫。
+    *   本地開發的話，只要保留 `DATABASE_URL=file:local.db`，剩下的我們來處理。
+
+4.  **啟動:**
+    ```bash
+    pnpm run dev
+    ```
+
+    ```bash
+    npm run dev
+    ```
+    打開 `http://localhost:3000` 開始動工。🍳
+
+---
+
+## 🤝 邀請系統
+
+需要讓朋友進來嗎？我們有幾個簡單的腳本可以使用。
+
 ```bash
-npx drizzle-kit studio
+# 列出所有代碼
+npx tsx scripts/invites.ts list
+
+# 產生新代碼
+npx tsx scripts/invites.ts generate
 ```
+---
 
-### 授權
+## 🛠️ 技術堆疊
 
-MIT License.
+*   **框架:** [Next.js 15 (App Router)](https://nextjs.org/)
+*   **語言:** [TypeScript](https://www.typescriptlang.org/)
+*   **樣式:** [Tailwind CSS v4](https://tailwindcss.com/) + [Shadcn UI](https://ui.shadcn.com/)
+*   **資料庫:** [Turso (LibSQL)](https://turso.tech/) + [Drizzle ORM](https://orm.drizzle.team/)
+*   **驗證:** [Better Auth](https://better-auth.com/)
+*   **拖放:** `react-grid-layout`
+
+---
+
+## 📜 授權
+
+**GPL-3.0**
+如果你使用這段代碼，你必須保持開源。分享這份愛。❤️
+
+---
+
+*由 Bax 用愛製作。歡迎提交 issue 回報錯誤或請求功能。* 🤙
+
