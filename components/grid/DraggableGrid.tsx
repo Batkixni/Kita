@@ -167,17 +167,110 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
         return a.x - b.x;
     });
 
-    const layout = sortedItems.map(item => ({
-        i: item.id,
-        x: item.x,
-        y: item.y,
-        w: item.w || 2,
-        h: item.h || 2,
-        minW: 1,
-        minH: 1,
-        isDraggable: isEditable,
-        isResizable: isEditable && item.type !== 'section-title',
-    }));
+    // Determine if we are in mobile mode (xs or xxs)
+    const isMobile = width < 768; // sm breakpoint
+    const prevIsMobileRef = useRef(isMobile);
+
+    useEffect(() => {
+        prevIsMobileRef.current = isMobile;
+    }, [isMobile]);
+
+    // Calculate layout based on current mode
+    const layout = sortedItems.map(item => {
+        // Check if item has SPECIFIC mobile layout saved
+        const hasMobileLayout = item.mobileX !== null && item.mobileX !== undefined;
+        const useMobile = isMobile && hasMobileLayout;
+
+        if (useMobile) {
+            return {
+                i: item.id,
+                x: item.mobileX,
+                y: item.mobileY,
+                w: item.mobileW || item.w || 2,
+                h: item.mobileH || item.h || 2,
+                minW: 1,
+                minH: 1,
+                isDraggable: isEditable,
+                isResizable: isEditable && item.type !== 'section-title',
+            };
+        } else if (isMobile && !hasMobileLayout) {
+            // Generating DEFAULT mobile layout from Desktop
+            // Desktop cols: 8 (usually). Mobile cols: 2 (xxs) or 4 (xs).
+            // We want to scale down dimensions to preserve shape/ratio roughly, 
+            // but ensuring they fit in mobile view without being 1000px tall.
+
+            // Assume desktop W/H was designed for ~8 cols.
+            // Mobile is ~2 cols. Scaling factor ~ 0.25 (or 0.5 for tablet).
+            // But usually we just want full width (w=2) or half width (w=1) on mobile.
+
+            // Heuristic:
+            // If desktop W >= 4 (half screen), mobile W = 2 (full screen on xxs).
+            // If desktop W < 4, mobile W = 1 (half screen on xxs).
+            // H should be scaled similarly to avoid elongation.
+
+            // Current Desktop W / 4 approx = Mobile W (for 2-col).
+            // But let's simplify.
+
+            let defaultMobileW = item.w >= 4 ? 2 : 2; // Default to full width on mobile (2 cols) mostly, unless tiny?
+            if (item.w <= 2) defaultMobileW = 1; // 1/2 screen
+
+            // Scale H to match aspect ratio change?
+            // Desktop: W=4, H=4 (Square). 
+            // Mobile: W=2. If H=4 -> Tall rectangle.
+            // Mobile Grid Cell is larger than Desktop Grid Cell?
+            // Desktop (1200px / 8) = 150px.
+            // Mobile (400px / 2) = 200px.
+            // Cells are roughly similar size (1.33x).
+            // So if Desktop H=4 (600px), Mobile H=4 (800px). 
+            // We should keep H roughly same or slightly smaller.
+
+            let defaultMobileH = item.h;
+
+            // However, if we forced Width to shrink (e.g. 8 -> 2), keeping H=8 means it becomes super tall narrow strip?
+            // No, W=8 (Full) -> W=2 (Full). Visual width is same (100%).
+            // Use original H.
+
+            // But the user screenshot shows HUGE height.
+            // Maybe they set H to something large on desktop?
+            // Or maybe my previous `item.mobileH || item.h` was actually picking up a `null` and defaulting to `2`? 
+            // No, DB defaults: null. 
+            // My code: `item.mobileH || item.h || 2`.
+            // If `item.mobileH` is null, it uses `item.h`.
+            // If `item.h` is large, it uses large.
+
+            // Let's cap the height for auto-generated mobile layout.
+            // Max height 4?
+
+            defaultMobileH = Math.min(item.h, 6);
+
+            // Also, if text module, maybe it needs height?
+
+            return {
+                i: item.id,
+                x: 0, // Let RGL pack it
+                y: Infinity, // Let RGL pack it
+                w: defaultMobileW,
+                h: defaultMobileH,
+                minW: 1,
+                minH: 1,
+                isDraggable: isEditable,
+                isResizable: isEditable && item.type !== 'section-title',
+            }
+        } else {
+            // Desktop Mode
+            return {
+                i: item.id,
+                x: item.x,
+                y: item.y,
+                w: item.w || 2,
+                h: item.h || 2,
+                minW: 1,
+                minH: 1,
+                isDraggable: isEditable,
+                isResizable: isEditable && item.type !== 'section-title',
+            };
+        }
+    });
 
     if (!ResponsiveGridLayout) {
         return <div className="p-4 text-red-500">Error: Grid layout library could not be loaded.</div>;
@@ -187,18 +280,95 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
         <div ref={containerRef} className="w-full">
             {/* @ts-ignore */}
             <ResponsiveGridLayout
+                key={isMobile ? 'mobile-grid' : 'desktop-grid'}
                 className="layout"
                 layouts={{ lg: layout, md: layout, sm: layout, xs: layout, xxs: layout }}
                 breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
                 cols={cols}
                 rowHeight={rowHeight}
                 width={width}
-                onLayoutChange={(layout: any[]) => {
-                    // Prevent saving layout changes when in mobile view (compacted columns)
-                    // We only want to persist the "Desktop" arrangement.
+                onLayoutChange={(currentLayout: any[]) => {
                     // Only save if editable (owner)
-                    if (width >= 768 && isEditable) {
-                        onLayoutChange(layout);
+                    if (isEditable) {
+                        // Check for mode switch race condition
+                        if (prevIsMobileRef.current !== isMobile) {
+                            console.log("Ignoring layout change during mode switch");
+                            return;
+                        }
+
+                        // Map the current layout back to our items structure
+                        // If isMobile, the 'x' and 'y' in currentLayout are actually mobileX and mobileY
+                        // We need to preserve the OTHER mode's coordinates from the original items.
+
+                        const updatedModules = currentLayout.map(lItem => {
+                            const originalItem = items.find(i => i.id === lItem.i);
+                            if (!originalItem) return null;
+
+                            // If we are in mobile mode, the grid 'x' is our 'mobileX'
+                            if (isMobile) {
+                                return {
+                                    ...originalItem, // Keep all other props
+                                    id: lItem.i,
+                                    // Pass original desktop coords from original item
+                                    x: originalItem.x,
+                                    y: originalItem.y,
+                                    w: originalItem.w,
+                                    h: originalItem.h,
+                                    // Update mobile coords
+                                    mobileX: lItem.x,
+                                    mobileY: lItem.y,
+                                    mobileW: lItem.w,
+                                    mobileH: lItem.h,
+                                    originalX: originalItem.x, // For page handler (legacy/safety)
+                                    originalY: originalItem.y,
+                                    originalW: originalItem.w,
+                                    originalH: originalItem.h,
+                                };
+                            } else {
+                                // Desktop mode
+                                return {
+                                    ...originalItem,
+                                    id: lItem.i,
+                                    x: lItem.x,
+                                    y: lItem.y,
+                                    w: lItem.w,
+                                    h: lItem.h,
+                                    // Preserve mobile coords
+                                    mobileX: originalItem.mobileX,
+                                    mobileY: originalItem.mobileY,
+                                    mobileW: originalItem.mobileW,
+                                    mobileH: originalItem.mobileH
+                                };
+                            }
+                        }).filter(Boolean);
+
+                        // Deep compare with current items to prevent infinite loop
+                        const hasChanges = updatedModules.some((newItem: any) => {
+                            const oldItem = items.find(i => i.id === newItem.id);
+                            if (!oldItem) return true;
+
+                            if (isMobile) {
+                                return (
+                                    newItem.mobileX !== oldItem.mobileX ||
+                                    newItem.mobileY !== oldItem.mobileY ||
+                                    newItem.mobileW !== oldItem.mobileW ||
+                                    newItem.mobileH !== oldItem.mobileH
+                                );
+                            } else {
+                                return (
+                                    newItem.x !== oldItem.x ||
+                                    newItem.y !== oldItem.y ||
+                                    newItem.w !== oldItem.w ||
+                                    newItem.h !== oldItem.h
+                                );
+                            }
+                        });
+
+                        if (hasChanges) {
+                            onLayoutChange(updatedModules as any[]);
+                        } else {
+                            // console.log("No layout changes detected, skipping update");
+                        }
                     }
                 }}
                 isDraggable={isEditable}

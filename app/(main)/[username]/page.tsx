@@ -314,9 +314,36 @@ export default async function UserPage({ params }: { params: Promise<{ username:
                         onLayoutChange={async (layout) => {
                             'use server';
                             // Bulk update all modules that moved
-                            await Promise.all(layout.map(item =>
-                                updateModulePosition(item.i, item.x, item.y, item.w, item.h)
-                            ));
+                            await Promise.all(layout.map(item => {
+                                // If item handles mobile logic, it will have mobileX/Y etc or originalX/Y properties mixed in by DraggableGrid
+                                // If desktop mode: item.x/y/w/h are the new desktop values. item.mobileX/Y are preserved.
+                                // If mobile mode: item.x/y/w/h (from RGL) are ignored/remapped?
+                                // Wait, DraggableGrid mapping:
+                                // Mobile Mode: returns { ...lItem, originalX, mobileX... }
+                                // Desktop Mode: returns { ...lItem, mobileX... }
+
+                                // We need to extract the correct values to pass to updateModulePosition(id, x, y, w, h, mx, my, mw, mh)
+
+                                let desktopX = item.x;
+                                let desktopY = item.y;
+                                let desktopW = item.w;
+                                let desktopH = item.h;
+
+                                if (item.originalX !== undefined) {
+                                    // This means we are in mobile mode, and x/y in 'item' are actually the grid's mobile positions (if we want to use them directly via item.x) or we use the explicit mobileX we added.
+                                    // BUT: updateModulePosition requires desktop coords as first args.
+                                    desktopX = item.originalX;
+                                    desktopY = item.originalY;
+                                    desktopW = item.originalW;
+                                    desktopH = item.originalH;
+                                }
+
+                                return updateModulePosition(
+                                    item.id,
+                                    desktopX, desktopY, desktopW, desktopH,
+                                    item.mobileX, item.mobileY, item.mobileW, item.mobileH
+                                );
+                            }));
                         }}
                         onDelete={async (id) => {
                             'use server';

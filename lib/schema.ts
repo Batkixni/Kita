@@ -66,6 +66,10 @@ export const modules = sqliteTable("module", {
   y: integer("y").notNull(),
   w: integer("w").notNull(),
   h: integer("h").notNull(),
+  mobileX: integer("mobile_x"),
+  mobileY: integer("mobile_y"),
+  mobileW: integer("mobile_w"),
+  mobileH: integer("mobile_h"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });

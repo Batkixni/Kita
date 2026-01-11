@@ -16,6 +16,10 @@ export const updateModulePosSchema = z.object({
     y: z.number().int().min(0),
     w: z.number().int().min(1).max(12),
     h: z.number().int().min(1).max(12),
+    mobileX: z.number().int().min(0).nullable().optional(),
+    mobileY: z.number().int().min(0).nullable().optional(),
+    mobileW: z.number().int().min(1).max(12).nullable().optional(),
+    mobileH: z.number().int().min(1).max(12).nullable().optional(),
 });
 
 export const profileSchema = z.object({
