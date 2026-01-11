@@ -14,7 +14,7 @@ export function Footer() {
 
                 {/* Subtext */}
                 <p className="text-xs text-muted-foreground/50 text-center max-w-lg leading-relaxed">
-                    kita 2025, made with &lt;3
+                    Kita 2025, Made with &lt;3
                 </p>
 
                 {/* Badge */}
