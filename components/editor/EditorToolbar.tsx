@@ -8,7 +8,7 @@ import { getPageAnalytics } from "@/actions/analytics";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { ProjectForm, ImageForm, LinkForm, TextForm, MetricForm, BadgeForm, SectionForm, CustomForm, InfoCardForm, SocialForm } from "./ModuleForms";
+import { ProjectForm, ImageForm, LinkForm, TextForm, MetricForm, BadgeForm, SectionForm, CustomForm, InfoCardForm, SocialForm, SpotifyPlaylistForm } from "./ModuleForms";
 import { ModuleToolbar, CustomCodeButton } from "@/components/editor/modules/ModuleToolbar";
 
 interface EditorToolbarProps {
@@ -17,7 +17,7 @@ interface EditorToolbarProps {
     onAdd?: (type: string, content: any, w: number, h: number) => void;
 }
 
-type ToolType = 'text' | 'link' | 'image' | 'section-title' | 'project' | 'metric' | 'badge' | 'custom' | 'info-card' | 'social' | null;
+type ToolType = 'text' | 'link' | 'image' | 'section-title' | 'project' | 'metric' | 'badge' | 'custom' | 'info-card' | 'social' | 'spotify-playlist' | null;
 
 export function EditorToolbar({ pageId, themeConfig, onAdd }: EditorToolbarProps) {
     const router = useRouter();
@@ -90,6 +90,7 @@ export function EditorToolbar({ pageId, themeConfig, onAdd }: EditorToolbarProps
             case 'custom': return <CustomForm {...props} />;
             case 'info-card': return <InfoCardForm {...props} />;
             case 'social': return <SocialForm {...props} />;
+            case 'spotify-playlist': return <SpotifyPlaylistForm {...props} />;
             default: return null;
         }
     };
@@ -120,7 +121,8 @@ export function EditorToolbar({ pageId, themeConfig, onAdd }: EditorToolbarProps
                                     activeTool === 'metric' ? 'Metric' :
                                         activeTool === 'badge' ? 'Badge' :
                                             activeTool === 'social' ? 'Social' :
-                                                activeTool === 'custom' ? 'Custom' : 'Module')}
+                                                activeTool === 'spotify-playlist' ? 'Spotify Playlist' :
+                                                    activeTool === 'custom' ? 'Custom' : 'Module')}
                         </span>
                         <button
                             onClick={() => {

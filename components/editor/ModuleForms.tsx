@@ -490,3 +490,27 @@ export function SocialForm({ onAdd, isLoading, initialData }: FormProps) {
         </div>
     );
 }
+export function SpotifyPlaylistForm({ onAdd, isLoading, initialData }: FormProps) {
+    const [url, setUrl] = useState(initialData?.url || "");
+
+    const handleSubmit = () => {
+        if (!url) return;
+        onAdd('spotify-playlist', { url }, 4, 3); // Default 4x3 size for better list view
+    };
+
+    return (
+        <div className="w-[300px] flex items-center gap-2">
+            <Input
+                value={url}
+                onChange={e => setUrl(e.target.value)}
+                placeholder="Spotify Playlist/Album URL..."
+                className="h-9 text-xs flex-1 border-border focus-visible:ring-ring bg-muted text-foreground"
+                onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+                autoFocus
+            />
+            <Button size="sm" onClick={handleSubmit} disabled={isLoading || !url} className="h-9 w-9 p-0 shrink-0 rounded-xl bg-[#1DB954] hover:bg-[#1DB954]/90">
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowUp className="w-4 h-4" />}
+            </Button>
+        </div>
+    );
+}

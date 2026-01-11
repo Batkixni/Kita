@@ -4,7 +4,7 @@ import { getYouTubeChannelData, YouTubeChannelData } from "@/actions/youtube";
 import { getBehanceData, BehanceData } from "@/actions/behance";
 import { getGitHubData, GitHubData } from "@/actions/github";
 import { cn } from "@/lib/utils";
-import { Youtube, Github, Play, Instagram } from "lucide-react";
+import { Youtube, Github, Play, Instagram, Music } from "lucide-react";
 
 interface LinkModuleProps {
     url: string;
@@ -409,6 +409,71 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
                 {/* No Image Preview as requested */}
                 <div className="w-full h-8 mt-2 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 rounded-lg flex items-center justify-center font-medium text-[10px] text-pink-600/60 border border-pink-500/10 shrink-0">
                     {isPost ? 'Open in App' : 'See Photos & Videos'}
+                </div>
+            </a>
+        )
+    }
+
+    // --- Spotify Profile Styling ---
+    const isSpotify = safeUrl.includes('open.spotify.com/user') || safeUrl.includes('open.spotify.com/artist');
+
+    if (isSpotify && !customImage) {
+        // Parse username/artist name fallback
+        const pathParts = new URL(safeUrl).pathname.split('/').filter(Boolean);
+        const type = pathParts.includes('artist') ? 'artist' : 'user';
+        const rawId = pathParts[pathParts.length - 1];
+
+        // Helper to decode HTML entities (reusing the one from Instagram, strictly for this block scope if needed, or relying on metadata)
+        const decodeHtml = (html: string) => {
+            const txt = document.createElement("textarea");
+            txt.innerHTML = html;
+            return txt.value;
+        };
+
+        const cleanTitle = metadata?.title ? decodeHtml(metadata.title).split(' | Spotify')[0] : (type === 'artist' ? 'Spotify Artist' : 'Spotify User');
+        const cleanDesc = metadata?.description ? decodeHtml(metadata.description) : (type === 'artist' ? 'Artist on Spotify' : 'User on Spotify');
+
+        return (
+            <a
+                href={safeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleClick}
+                className={cn(
+                    "flex flex-col w-full h-full p-5 bg-[#1DB954]/5 hover:bg-[#1DB954]/10 border border-[#1DB954]/10 transition-colors relative group overflow-hidden text-left justify-between",
+                    isEditable && "cursor-grab active:cursor-grabbing pointer-events-none"
+                )}
+            >
+                {/* Header */}
+                <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-[#1DB954] rounded-full flex items-center justify-center text-black shrink-0 shadow-lg shadow-[#1DB954]/20">
+                            <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 14.82 1.08.54.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.24z" />
+                            </svg>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Spotify</span>
+                        </div>
+                    </div>
+                    <div className="bg-[#1DB954]/10 text-[#1DB954] text-[10px] font-bold rounded-full px-2.5 py-1 opacity-0 group-hover:opacity-100 transition-opacity border border-[#1DB954]/20">
+                        Listen
+                    </div>
+                </div>
+
+                {/* Content */}
+                <div className="flex flex-col gap-1 mt-auto mb-3 relative z-10">
+                    <span className="font-bold text-lg leading-tight text-foreground line-clamp-2">
+                        {cleanTitle}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground font-medium line-clamp-1">
+                        {cleanDesc}
+                    </span>
+                </div>
+
+                {/* Decorative Elements */}
+                <div className="w-full h-8 mt-2 bg-[#1DB954]/10 rounded-lg flex items-center justify-center font-medium text-[10px] text-[#1DB954] border border-[#1DB954]/10 shrink-0">
+                    Listen on Spotify
                 </div>
             </a>
         )

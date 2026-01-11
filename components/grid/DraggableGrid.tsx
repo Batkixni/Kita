@@ -11,6 +11,7 @@ import { SectionTitleModule } from "../modules/SectionTitleModule";
 import { CustomModule } from "../modules/CustomModule";
 import { EditModuleDialog } from "../editor/EditModuleDialog";
 import { ModuleResizeToolbar } from "../editor/ModuleResizeToolbar";
+import { SpotifyPlaylistModule } from "../modules/more/SpotifyPlaylistModule";
 import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import 'react-grid-layout/css/styles.css';
@@ -107,6 +108,8 @@ const ModuleRenderer = ({ item, isEditable, theme }: { item: any, isEditable: bo
             return <SectionTitleModule title={item.content?.text} />;
         case 'custom':
             return <CustomModule content={item.content?.text} isEditable={isEditable} w={item.w} h={item.h} />;
+        case 'spotify-playlist':
+            return <SpotifyPlaylistModule url={item.content?.url} w={item.w} h={item.h} theme={theme} />;
         default:
             return <div className="p-4 rounded-xl bg-red-50 text-red-500">Unknown module</div>;
     }
@@ -199,7 +202,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
                             className="relative group z-10 hover:z-50 h-full animate-blur-in opacity-0"
                             style={{ animationDelay: `${(index * 100) + 300}ms`, animationFillMode: 'forwards' }}
                         >
-                            <GridItem className="h-full" transparent={item.type === 'section-title'} radius={theme?.radius}>
+                            <GridItem className="h-full" transparent={item.type === 'section-title' || item.type === 'spotify-playlist'} radius={theme?.radius}>
                                 {isEditable && (
                                     <div className="absolute top-2 right-2 z-50 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
