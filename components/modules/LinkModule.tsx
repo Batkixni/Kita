@@ -27,23 +27,32 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
     const [ghData, setGhData] = useState<GitHubData | null>(null);
     const [loading, setLoading] = useState(true);
 
+    // Helper to ensure URL has protocol (prevents new URL() crash)
+    const ensureProtocol = (str: string) => {
+        if (!str) return "";
+        if (str.startsWith("http://") || str.startsWith("https://")) return str;
+        return `https://${str}`;
+    };
+
+    const safeUrl = ensureProtocol(url);
+
     // Responsive Logic: Show image if module is essentially 2x1 or larger (or 1x2)
     const showImage = w && h && (w >= 2 || h >= 2);
 
-    const isBehance = url.includes('behance.net/');
-    const isYouTube = url.includes('youtube.com/') || url.includes('youtu.be/');
-    const isGitHub = url.includes('github.com/');
+    const isBehance = safeUrl.includes('behance.net/');
+    const isYouTube = safeUrl.includes('youtube.com/') || safeUrl.includes('youtu.be/');
+    const isGitHub = safeUrl.includes('github.com/');
 
     useEffect(() => {
         let mounted = true;
-        if (url) {
+        if (safeUrl) {
             setLoading(true);
 
             // Parallel fetch of metadata and potentially YouTube/Behance/GitHub data
-            const promises: Promise<any>[] = [getLinkMetadata(url)];
-            if (isYouTube) promises.push(getYouTubeChannelData(url));
-            if (isBehance) promises.push(getBehanceData(url));
-            if (isGitHub) promises.push(getGitHubData(url));
+            const promises: Promise<any>[] = [getLinkMetadata(safeUrl)];
+            if (isYouTube) promises.push(getYouTubeChannelData(safeUrl));
+            if (isBehance) promises.push(getBehanceData(safeUrl));
+            if (isGitHub) promises.push(getGitHubData(safeUrl));
 
             Promise.all(promises).then((results) => {
                 if (mounted) {
@@ -60,12 +69,12 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
             });
         }
         return () => { mounted = false; };
-    }, [url, isYouTube, isBehance, isGitHub]);
+    }, [safeUrl, isYouTube, isBehance, isGitHub]);
 
-    const title = customTitle || metadata?.title || url;
+    const title = customTitle || metadata?.title || safeUrl;
     const desc = customDesc || metadata?.description;
     const image = customImage || metadata?.image;
-    const favicon = customFavicon || `https://www.google.com/s2/favicons?domain=${url}&sz=32`;
+    const favicon = customFavicon || `https://www.google.com/s2/favicons?domain=${safeUrl}&sz=32`;
 
     const handleClick = (e: React.MouseEvent) => {
         if (isEditable) {
@@ -290,7 +299,7 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
             <div className="flex items-center gap-2 w-full z-10 relative">
                 <img src={favicon} alt="" className="w-5 h-5 rounded-sm object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
                 <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground truncate flex-1 opacity-70">
-                    {new URL(url).hostname.replace('www.', '')}
+                    {new URL(safeUrl).hostname.replace('www.', '')}
                 </span>
                 {/* Hover Icon */}
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity -mr-1">
