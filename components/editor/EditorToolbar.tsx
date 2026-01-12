@@ -1,7 +1,8 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { BarChart3, Eye, Users, Smartphone, X } from "lucide-react";
+import { BarChart3, Eye, Users, Smartphone, X, Share, Check } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { createModule } from "@/actions/modules";
 import { getPageAnalytics } from "@/actions/analytics";
@@ -138,22 +139,10 @@ export function EditorToolbar({ pageId, themeConfig, onAdd }: EditorToolbarProps
                 {activeTool && renderForm()}
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 max-w-full">
                 {/* Main Toolbar */}
-                <div className="bg-popover/50 backdrop-blur-2xl p-2 pl-4 rounded-full shadow-2xl flex items-center gap-2 ring-1 ring-border/5 overflow-x-auto max-w-full no-scrollbar">
-                    <Button
-                        onClick={() => {
-                            navigator.clipboard.writeText(window.location.href);
-                            const btn = document.getElementById('share-btn-text');
-                            if (btn) btn.innerText = "Copied!";
-                            setTimeout(() => {
-                                if (btn) btn.innerText = "Share my Kita";
-                            }, 2000);
-                        }}
-                        className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6 shadow-md transition-all active:scale-95"
-                    >
-                        <span id="share-btn-text">Share my Kita</span>
-                    </Button>
+                <div className="bg-popover/50 backdrop-blur-2xl p-2 pl-4 rounded-full shadow-2xl flex items-center gap-2 ring-1 ring-border/5 overflow-x-auto max-w-full no-scrollbar shrink min-w-0">
+                    <ShareButton />
 
                     <Button
                         variant="ghost"
@@ -171,8 +160,8 @@ export function EditorToolbar({ pageId, themeConfig, onAdd }: EditorToolbarProps
 
 
 
-                {/* Mobile Preview Toggle */}
-                <div className="bg-popover/50 backdrop-blur-2xl p-2 rounded-full shadow-2xl flex items-center ring-1 ring-border/5">
+                {/* Mobile Preview Toggle - Hidden on Mobile */}
+                <div className="bg-popover/50 backdrop-blur-2xl p-2 rounded-full shadow-2xl items-center ring-1 ring-border/5 shrink-0 hidden sm:flex">
                     <MobilePreviewToggle />
                 </div>
             </div>
@@ -260,4 +249,76 @@ function ToolbarButton({ icon: Icon, active, onClick, label }: { icon: any, acti
             )}
         </button>
     )
+}
+
+function ShareButton() {
+    const [isCopied, setIsCopied] = useState(false);
+
+    const handleShare = async () => {
+        try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(window.location.href);
+                setIsCopied(true);
+                setTimeout(() => setIsCopied(false), 2000);
+            } else {
+                // Flashback support or manual copy
+                const textArea = document.createElement("textarea");
+                textArea.value = window.location.href;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    setIsCopied(true);
+                    setTimeout(() => setIsCopied(false), 2000);
+                } catch (err) {
+                    console.error('Fallback: Oops, unable to copy', err);
+                }
+                document.body.removeChild(textArea);
+            }
+        } catch (err) {
+            console.error('Failed to copy: ', err);
+        }
+    };
+
+    return (
+        <Button
+            onClick={handleShare}
+            className={cn(
+                "rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-md transition-all active:scale-95 flex items-center justify-center overflow-hidden p-0 gap-0",
+                "h-10 w-10 hover:w-auto hover:px-4 group relative" // Default circle, expand on hover
+            )}
+        >
+            <div className="flex items-center justify-center w-6 h-6 shrink-0 relative">
+                <AnimatePresence mode="wait">
+                    {isCopied ? (
+                        <motion.div
+                            key="check"
+                            initial={{ scale: 0, rotate: -90 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            exit={{ scale: 0, rotate: 90 }}
+                            className="absolute inset-0 flex items-center justify-center"
+                        >
+                            <Check className="w-4 h-4" />
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="share"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0 }}
+                            className="absolute inset-0 flex items-center justify-center"
+                        >
+                            <Share className="w-4 h-4" />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+
+            <div className="max-w-0 group-hover:max-w-[200px] transition-all duration-300 ease-in-out whitespace-nowrap overflow-hidden">
+                <span className="pl-2 text-sm">
+                    {isCopied ? "Copied!" : "Share"}
+                </span>
+            </div>
+        </Button>
+    );
 }

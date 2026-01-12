@@ -12,7 +12,7 @@ interface ModuleToolbarProps {
 export function ModuleToolbar({ activeTool, onToggle }: ModuleToolbarProps) {
     return (
         <>
-            <div className="w-px h-8 bg-border/50 mx-2" />
+            <div className="w-px h-8 bg-border/50 mx-1 sm:mx-2" />
 
             {/* Core Essentials */}
             <div className="flex items-center gap-1">
@@ -46,7 +46,7 @@ function ToolbarButton({ icon: Icon, active, onClick, label }: { icon: any, acti
         <button
             onClick={onClick}
             className={cn(
-                "p-3 rounded-full transition-all duration-200 group relative outline-none",
+                "p-2 sm:p-3 rounded-full transition-all duration-200 group relative outline-none",
                 active ? "bg-accent text-accent-foreground scale-110" : "hover:bg-muted text-muted-foreground hover:text-foreground"
             )}
             title={label}
