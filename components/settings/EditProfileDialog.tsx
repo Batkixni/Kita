@@ -160,226 +160,228 @@ export function EditProfileDialog({ user, page, open, onOpenChange }: EditProfil
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className={cn("sm:max-w-[425px]", previewCssClass)}>
-                <DialogHeader>
+            <DialogContent className={cn("flex flex-col p-0 gap-0 max-h-[75dvh] w-[95vw] max-w-[calc(100vw-2rem)] sm:max-w-[425px] overflow-hidden", previewCssClass)}>
+                <DialogHeader className="p-6 pb-2 shrink-0">
                     <DialogTitle>Edit Profile & Design</DialogTitle>
                 </DialogHeader>
 
-                <Tabs defaultValue="profile" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 rounded-xl">
-                        <TabsTrigger value="profile"><User className="w-4 h-4 mr-2" /> Profile</TabsTrigger>
-                        <TabsTrigger value="design"><Palette className="w-4 h-4 mr-2" /> Design</TabsTrigger>
-                    </TabsList>
+                <div className="flex-1 overflow-y-auto min-h-0 p-6 pt-2">
+                    <Tabs defaultValue="profile" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 rounded-xl">
+                            <TabsTrigger value="profile"><User className="w-4 h-4 mr-2" /> Profile</TabsTrigger>
+                            <TabsTrigger value="design"><Palette className="w-4 h-4 mr-2" /> Design</TabsTrigger>
+                        </TabsList>
 
-                    <TabsContent value="profile" className="space-y-4 py-4">
-                        <div className="space-y-2">
-                            <Label>Display Name</Label>
-                            <Input value={name} onChange={e => setName(e.target.value)} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Bio / Description</Label>
-                            <Textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="Tell us about yourself..." />
-                        </div>
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                                <Label>Social Links</Label>
-                                <span className="text-[10px] text-muted-foreground">comma separated URLs</span>
-                            </div>
-                            <Input
-                                value={socials}
-                                onChange={e => setSocials(e.target.value)}
-                                placeholder="twitter.com/user, github.com/user"
-                                className="font-mono text-xs"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Avatar Image</Label>
-                            <ImageUpload value={image} onChange={setImage} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Avatar Shape</Label>
-                            <div className="flex gap-2 p-1 bg-muted rounded-xl border border-border w-fit">
-                                {[
-                                    { id: 'full', label: 'Circle', class: 'rounded-full' },
-                                    { id: 'xl', label: 'Squircle', class: 'rounded-xl' },
-                                    { id: 'lg', label: 'Rounded', class: 'rounded-lg' },
-                                    { id: 'none', label: 'Square', class: 'rounded-none' }
-                                ].map(s => (
-                                    <button
-                                        key={s.id}
-                                        onClick={() => setAvatarRadius(s.id)}
-                                        className={cn(
-                                            "px-3 py-1.5 text-[10px] font-medium transition-all rounded-lg flex items-center gap-2",
-                                            avatarRadius === s.id
-                                                ? "bg-background text-foreground shadow-sm ring-1 ring-border"
-                                                : "text-muted-foreground hover:text-foreground hover:bg-background/50"
-                                        )}
-                                    >
-                                        <div className={cn("w-3 h-3 bg-current opacity-50", s.class)} />
-                                        {s.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </TabsContent>
-
-                    <TabsContent value="design" className="space-y-6 py-4">
-
-                        {/* Theme Settings */}
-                        <div className="grid grid-cols-2 gap-4">
+                        <TabsContent value="profile" className="space-y-4 py-4">
                             <div className="space-y-2">
-                                <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Theme Mode</Label>
-                                <Select value={mode} onValueChange={(v: 'light' | 'dark') => handleModeChange(v)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select mode" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="light">Light Mode</SelectItem>
-                                        <SelectItem value="dark">Dark Mode</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <Label>Display Name</Label>
+                                <Input value={name} onChange={e => setName(e.target.value)} />
                             </div>
-
                             <div className="space-y-2">
-                                <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Color Scheme</Label>
-                                <Select value={colorScheme} onValueChange={handleSchemeChange}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select scheme" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {availableSchemes.map(scheme => (
-                                            <SelectItem key={scheme.id} value={scheme.id}>
-                                                {scheme.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <Label>Bio / Description</Label>
+                                <Textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="Tell us about yourself..." />
                             </div>
-                        </div>
-
-                        <div className="h-px bg-border w-full" />
-
-                        {/* Layout */}
-                        <div className="space-y-4">
-                            <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Page Layout</Label>
-                            <div className="grid grid-cols-4 gap-2">
-                                <button
-                                    onClick={() => setLayoutMode('center')}
-                                    className={cn(
-                                        "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all",
-                                        layoutMode === 'center'
-                                            ? "border-foreground bg-muted text-foreground"
-                                            : "border-border text-muted-foreground hover:bg-muted/50"
-                                    )}
-                                >
-                                    <div className="flex flex-col gap-1 w-8 h-8 opacity-50">
-                                        <div className="w-full h-3 bg-current rounded-[1px]" />
-                                        <div className="w-full h-full bg-current rounded-[1px]" />
-                                    </div>
-                                    <span className="text-[10px] font-medium">Center</span>
-                                </button>
-                                <button
-                                    onClick={() => setLayoutMode('left')}
-                                    className={cn(
-                                        "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all",
-                                        layoutMode === 'left'
-                                            ? "border-foreground bg-muted text-foreground"
-                                            : "border-border text-muted-foreground hover:bg-muted/50"
-                                    )}
-                                >
-                                    <div className="flex gap-1 w-8 h-8 opacity-50">
-                                        <div className="w-1/3 h-full bg-current rounded-[1px]" />
-                                        <div className="w-2/3 h-full bg-current rounded-[1px]" />
-                                    </div>
-                                    <span className="text-[10px] font-medium">Right Stack</span>
-                                </button>
-                                <button
-                                    onClick={() => setLayoutMode('right')}
-                                    className={cn(
-                                        "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all",
-                                        layoutMode === 'right'
-                                            ? "border-foreground bg-muted text-foreground"
-                                            : "border-border text-muted-foreground hover:bg-muted/50"
-                                    )}
-                                >
-                                    <div className="flex gap-1 w-8 h-8 opacity-50">
-                                        <div className="w-2/3 h-full bg-current rounded-[1px]" />
-                                        <div className="w-1/3 h-full bg-current rounded-[1px]" />
-                                    </div>
-                                    <span className="text-[10px] font-medium">Left Stack</span>
-                                </button>
-                                <button
-                                    onClick={() => setLayoutMode('minimal')}
-                                    className={cn(
-                                        "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all",
-                                        layoutMode === 'minimal'
-                                            ? "border-foreground bg-muted text-foreground"
-                                            : "border-border text-muted-foreground hover:bg-muted/50"
-                                    )}
-                                >
-                                    <div className="flex flex-col gap-1 w-8 h-8 opacity-50 justify-center">
-                                        <div className="w-full h-1 bg-current rounded-[1px]" />
-                                        <div className="w-full h-1 bg-current rounded-[1px]" />
-                                        <div className="w-full h-1 bg-current rounded-[1px]" />
-                                    </div>
-                                    <span className="text-[10px] font-medium">Modules Only</span>
-                                </button>
-                            </div>
-                        </div>
-
-
-
-                        <div className="h-px bg-border w-full" />
-
-                        {/* Customization */}
-                        <div className="space-y-4">
-                            <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Customization</Label>
-
                             <div className="space-y-2">
-                                <Label>Background Color</Label>
-                                <div className="flex gap-2">
-                                    <div className="relative w-10 h-10 overflow-hidden rounded-lg border border-border shadow-sm">
-                                        <Input
-                                            type="color"
-                                            value={bgColor || ""}
-                                            onChange={e => setBgColor(e.target.value)}
-                                            className="heading-font absolute -top-2 -left-2 w-16 h-16 p-0 border-0 cursor-pointer"
-                                        />
-                                    </div>
-                                    <Input
-                                        value={bgColor || ""}
-                                        onChange={e => setBgColor(e.target.value)}
-                                        className="flex-1 font-mono text-xs uppercase"
-                                        placeholder="Inherit (CSS Variable)"
-                                    />
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                                    <Label>Social Links</Label>
+                                    <span className="text-[10px] text-muted-foreground">comma separated URLs</span>
                                 </div>
+                                <Input
+                                    value={socials}
+                                    onChange={e => setSocials(e.target.value)}
+                                    placeholder="twitter.com/user, github.com/user"
+                                    className="font-mono text-xs"
+                                />
                             </div>
-
                             <div className="space-y-2">
-                                <Label>Corner Radius</Label>
-                                <div className="flex gap-2 p-1 bg-muted rounded-xl border border-border">
-                                    {['none', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'].map(r => (
+                                <Label>Avatar Image</Label>
+                                <ImageUpload value={image} onChange={setImage} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Avatar Shape</Label>
+                                <div className="flex flex-wrap gap-2 p-1 bg-muted rounded-xl border border-border w-full sm:w-fit">
+                                    {[
+                                        { id: 'full', label: 'Circle', class: 'rounded-full' },
+                                        { id: 'xl', label: 'Squircle', class: 'rounded-xl' },
+                                        { id: 'lg', label: 'Rounded', class: 'rounded-lg' },
+                                        { id: 'none', label: 'Square', class: 'rounded-none' }
+                                    ].map(s => (
                                         <button
-                                            key={r}
-                                            onClick={() => setRadius(r)}
+                                            key={s.id}
+                                            onClick={() => setAvatarRadius(s.id)}
                                             className={cn(
-                                                "flex-1 h-8 text-[10px] font-medium transition-all rounded-lg",
-                                                radius === r
+                                                "flex-1 min-w-[30%] sm:min-w-0 px-3 py-1.5 text-[10px] font-medium transition-all rounded-lg flex items-center justify-center gap-2",
+                                                avatarRadius === s.id
                                                     ? "bg-background text-foreground shadow-sm ring-1 ring-border"
                                                     : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                                             )}
-                                            title={`Radius: ${r}`}
                                         >
-                                            {r === 'none' ? '0' : r === 'xl' ? 'xl' : r.replace('xl', '')}
+                                            <div className={cn("w-3 h-3 bg-current opacity-50", s.class)} />
+                                            {s.label}
                                         </button>
                                     ))}
                                 </div>
                             </div>
-                        </div>
-                    </TabsContent>
-                </Tabs>
+                        </TabsContent>
 
-                <DialogFooter>
+                        <TabsContent value="design" className="space-y-6 py-4">
+
+                            {/* Theme Settings */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Theme Mode</Label>
+                                    <Select value={mode} onValueChange={(v: 'light' | 'dark') => handleModeChange(v)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select mode" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="light">Light Mode</SelectItem>
+                                            <SelectItem value="dark">Dark Mode</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Color Scheme</Label>
+                                    <Select value={colorScheme} onValueChange={handleSchemeChange}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select scheme" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {availableSchemes.map(scheme => (
+                                                <SelectItem key={scheme.id} value={scheme.id}>
+                                                    {scheme.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            <div className="h-px bg-border w-full" />
+
+                            {/* Layout */}
+                            <div className="space-y-4">
+                                <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Page Layout</Label>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                    <button
+                                        onClick={() => setLayoutMode('center')}
+                                        className={cn(
+                                            "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all",
+                                            layoutMode === 'center'
+                                                ? "border-foreground bg-muted text-foreground"
+                                                : "border-border text-muted-foreground hover:bg-muted/50"
+                                        )}
+                                    >
+                                        <div className="flex flex-col gap-1 w-8 h-8 opacity-50">
+                                            <div className="w-full h-3 bg-current rounded-[1px]" />
+                                            <div className="w-full h-full bg-current rounded-[1px]" />
+                                        </div>
+                                        <span className="text-[10px] font-medium">Center</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setLayoutMode('left')}
+                                        className={cn(
+                                            "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all",
+                                            layoutMode === 'left'
+                                                ? "border-foreground bg-muted text-foreground"
+                                                : "border-border text-muted-foreground hover:bg-muted/50"
+                                        )}
+                                    >
+                                        <div className="flex gap-1 w-8 h-8 opacity-50">
+                                            <div className="w-1/3 h-full bg-current rounded-[1px]" />
+                                            <div className="w-2/3 h-full bg-current rounded-[1px]" />
+                                        </div>
+                                        <span className="text-[10px] font-medium">Right Stack</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setLayoutMode('right')}
+                                        className={cn(
+                                            "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all",
+                                            layoutMode === 'right'
+                                                ? "border-foreground bg-muted text-foreground"
+                                                : "border-border text-muted-foreground hover:bg-muted/50"
+                                        )}
+                                    >
+                                        <div className="flex gap-1 w-8 h-8 opacity-50">
+                                            <div className="w-2/3 h-full bg-current rounded-[1px]" />
+                                            <div className="w-1/3 h-full bg-current rounded-[1px]" />
+                                        </div>
+                                        <span className="text-[10px] font-medium">Left Stack</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setLayoutMode('minimal')}
+                                        className={cn(
+                                            "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all",
+                                            layoutMode === 'minimal'
+                                                ? "border-foreground bg-muted text-foreground"
+                                                : "border-border text-muted-foreground hover:bg-muted/50"
+                                        )}
+                                    >
+                                        <div className="flex flex-col gap-1 w-8 h-8 opacity-50 justify-center">
+                                            <div className="w-full h-1 bg-current rounded-[1px]" />
+                                            <div className="w-full h-1 bg-current rounded-[1px]" />
+                                            <div className="w-full h-1 bg-current rounded-[1px]" />
+                                        </div>
+                                        <span className="text-[10px] font-medium">Modules Only</span>
+                                    </button>
+                                </div>
+                            </div>
+
+
+
+                            <div className="h-px bg-border w-full" />
+
+                            {/* Customization */}
+                            <div className="space-y-4">
+                                <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Customization</Label>
+
+                                <div className="space-y-2">
+                                    <Label>Background Color</Label>
+                                    <div className="flex gap-2">
+                                        <div className="relative w-10 h-10 overflow-hidden rounded-lg border border-border shadow-sm shrink-0">
+                                            <Input
+                                                type="color"
+                                                value={bgColor || ""}
+                                                onChange={e => setBgColor(e.target.value)}
+                                                className="heading-font absolute -top-2 -left-2 w-16 h-16 p-0 border-0 cursor-pointer"
+                                            />
+                                        </div>
+                                        <Input
+                                            value={bgColor || ""}
+                                            onChange={e => setBgColor(e.target.value)}
+                                            className="flex-1 font-mono text-xs uppercase"
+                                            placeholder="Inherit (CSS Variable)"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>Corner Radius</Label>
+                                    <div className="flex flex-wrap gap-2 p-1 bg-muted rounded-xl border border-border">
+                                        {['none', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'].map(r => (
+                                            <button
+                                                key={r}
+                                                onClick={() => setRadius(r)}
+                                                className={cn(
+                                                    "flex-1 min-w-[2.5rem] h-8 text-[10px] font-medium transition-all rounded-lg",
+                                                    radius === r
+                                                        ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+                                                        : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                                                )}
+                                                title={`Radius: ${r}`}
+                                            >
+                                                {r === 'none' ? '0' : r === 'xl' ? 'xl' : r.replace('xl', '')}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </TabsContent>
+                    </Tabs>
+                </div>
+
+                <DialogFooter className="p-6 pt-2 shrink-0">
                     <Button onClick={handleSave} disabled={isLoading}>
                         {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Changes"}
                     </Button>
