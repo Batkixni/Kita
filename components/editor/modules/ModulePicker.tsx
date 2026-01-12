@@ -155,14 +155,27 @@ export function ModulePicker({ onSelect }: ModulePickerProps) {
             type: 'project-card' as ToolType,
             previewColor: 'bg-zinc-900 border border-zinc-800',
             previewContent: (
-                <div className="flex flex-col w-full h-full rounded-lg overflow-hidden border border-zinc-800">
-                    <div className="w-full h-1/2 bg-zinc-800/50 flex items-center justify-center">
-                        <div className="w-8 h-6 bg-zinc-700 rounded-sm" />
+                <div className="flex w-full h-full bg-[#1A1919] text-[#E8DCC8] overflow-hidden">
+                    <div className="flex-1 p-3 flex flex-col justify-between relative z-10">
+                        <div className="flex flex-col gap-0.5">
+                            <span className="text-[6px] opacity-60">+</span>
+                            <span className="text-[11px] leading-[0.85] font-black uppercase tracking-tight">
+                                Studio<br />Sorai
+                            </span>
+                        </div>
+                        <div className="w-4 h-4 rounded-full bg-[#E8DCC8] flex items-center justify-center">
+                            <svg className="w-2 h-2 text-[#1A1919]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                <path d="M7 17L17 7M17 7H7M17 7V17" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                        </div>
                     </div>
-                    <div className="p-2 flex flex-col gap-1.5">
-                        <div className="w-16 h-2 bg-zinc-400 rounded-full" />
-                        <div className="w-24 h-1.5 bg-zinc-600 rounded-full" />
-                        <div className="mt-1 w-full h-4 bg-zinc-800 rounded border border-zinc-700" />
+                    <div className="w-[55%] h-full bg-zinc-800 relative">
+                        <div className="absolute inset-0 bg-gradient-to-br from-zinc-700 to-zinc-900" />
+                        <div className="absolute inset-0 flex items-center justify-center text-[40px] font-black text-white/5 overflow-hidden select-none">
+                            UDIO
+                        </div>
+                        {/* Abstract shapes to match the vibe */}
+                        <div className="absolute top-2 right-[-20%] w-full h-full bg-white/10 rounded-xl transform -rotate-12 backdrop-blur-sm" />
                     </div>
                 </div>
             )

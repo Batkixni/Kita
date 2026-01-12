@@ -194,7 +194,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
                 minW: 1,
                 minH: 1,
                 isDraggable: isEditable,
-                isResizable: isEditable && item.type !== 'section-title',
+                isResizable: isEditable,
             };
         } else if (isMobile && !hasMobileLayout) {
             // Generating DEFAULT mobile layout from Desktop
@@ -257,7 +257,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
                 minW: 1,
                 minH: 1,
                 isDraggable: isEditable,
-                isResizable: isEditable && item.type !== 'section-title',
+                isResizable: isEditable,
             }
         } else {
             // Desktop Mode
@@ -270,7 +270,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
                 minW: 1,
                 minH: 1,
                 isDraggable: isEditable,
-                isResizable: isEditable && item.type !== 'section-title',
+                isResizable: isEditable,
             };
         }
     });
@@ -417,7 +417,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
                                 )}
                                 <ModuleRenderer item={item} isEditable={isEditable} theme={theme} />
                             </GridItem>
-                            {isEditable && item.type !== 'section-title' && <ModuleResizeToolbar module={item} onDeleteClick={() => setDeleteModuleId(item.id)} />}
+                            {isEditable && <ModuleResizeToolbar module={item} onDeleteClick={() => setDeleteModuleId(item.id)} />}
                         </div>
                     </div>
                 ))}
