@@ -310,7 +310,7 @@ export default async function UserPage({ params }: { params: Promise<{ username:
                     <DraggableGrid
                         items={pageModules as any[]}
                         isEditable={isOwner}
-                        theme={page?.themeConfig}
+                        theme={{ ...(page?.themeConfig || {}), isDarkMode }}
                         onLayoutChange={async (layout) => {
                             'use server';
                             // Bulk update all modules that moved

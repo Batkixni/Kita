@@ -17,6 +17,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
+import { cn } from "@/lib/utils";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -441,7 +442,7 @@ export function DraggableGrid({ items, isEditable = false, onLayoutChange, onDel
             )}
 
             <AlertDialog open={!!deleteModuleId} onOpenChange={(open) => !open && setDeleteModuleId(null)}>
-                <AlertDialogContent className="border-none bg-background/80 backdrop-blur-xl shadow-2xl rounded-3xl ring-1 ring-white/10">
+                <AlertDialogContent className={cn(theme?.cssClass, (theme?.isDarkMode || theme?.cssClass?.includes('dark')) ? 'dark' : '')}>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Delete this module?</AlertDialogTitle>
                         <AlertDialogDescription>

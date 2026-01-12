@@ -1,67 +1,48 @@
 .theme-catppuccin {
-    --radius: 0.625rem;
-    --background: hsl(229 18.64% 23.14%);
-    /* base */
-    --foreground: hsl(227 70.15% 86.86%);
-    /* text */
-    --card: hsl(229 18.64% 23.14%);
-    /* base */
-    --card-foreground: hsl(227 70.15% 86.86%);
-    /* text */
-    --popover: hsl(229 18.64% 23.14%);
-    /* base */
-    --popover-foreground: hsl(227 70.15% 86.86%);
-    /* text */
-    --primary: hsl(222 74.24% 74.12%);
-    /* accent - Blue */
-    --primary-foreground: hsl(229 18.64% 23.14%);
-    /* base */
-    --secondary: hsl(230 15.58% 30.20%);
-    /* surface0 */
-    --secondary-foreground: hsl(227 70.15% 86.86%);
-    /* text */
-    --muted: hsl(230 15.58% 30.20%);
-    /* surface0 */
-    --muted-foreground: hsl(227 43.69% 79.80%);
-    /* subtext1 */
-    --accent: hsl(230 15.58% 30.20%);
-    /* surface0 */
-    --accent-foreground: hsl(227 70.15% 86.86%);
-    /* text */
-    --destructive: hsl(359 67.79% 70.78%);
-    /* red */
-    --border: hsl(227 14.74% 37.25%);
-    /* surface1 */
-    --input: hsl(227 14.74% 37.25%);
-    /* surface1 */
-    --ring: hsl(227 70.15% 86.86%);
-    /* text */
-    --chart-1: hsl(341 18.43% 40.00%);
-    /* red */
-    --chart-2: hsl(191 18.43% 39.22%);
-    /* teal */
-    --chart-3: hsl(224 23.53% 43.53%);
-    /* blue */
-    --chart-4: hsl(31 9.41% 43.53%);
-    /* yellow */
-    --chart-5: hsl(126 9.41% 41.18%);
-    /* green */
-    --sidebar: hsl(229 18.82% 21.96%);
-    /* mantle */
-    --sidebar-foreground: hsl(227 70.15% 86.86%);
-    /* text */
-    --sidebar-primary: hsl(222 74.24% 74.12%);
-    /* accent - Blue */
-    --sidebar-primary-foreground: hsl(229 18.64% 23.14%);
-    /* base */
-    --sidebar-accent: hsl(229 18.64% 23.14%);
-    /* surface0 */
-    --sidebar-accent-foreground: hsl(227 70.15% 86.86%);
-    /* text */
-    --sidebar-border: hsl(227 14.74% 37.25%);
-    /* surface1 */
-    --sidebar-ring: hsl(227 14.74% 37.25%);
-    /* surface1 */
+    --background: oklch(0.9578 0.0058 264.5321);
+    --foreground: oklch(0.4355 0.0430 279.3250);
+    --card: oklch(0.9335 0.0087 264.5206);
+    --card-foreground: oklch(0.4355 0.0430 279.3250);
+    --popover: oklch(0.9578 0.0058 264.5321);
+    --popover-foreground: oklch(0.4355 0.0430 279.3250);
+    --primary: oklch(0.5547 0.2503 297.0156);
+    --primary-foreground: oklch(0.98 0.002 264.5321);
+    --secondary: oklch(0.9060 0.0117 264.5071);
+    --secondary-foreground: oklch(0.4355 0.0430 279.3250);
+    --muted: oklch(0.9335 0.0087 264.5206);
+    --muted-foreground: oklch(0.5 0.02 279.3250);
+    --accent: oklch(0.5586 0.2255 262.0866);
+    --accent-foreground: oklch(0.98 0.002 264.5321);
+    --destructive: oklch(0.5505 0.2155 19.8095);
+    --destructive-foreground: oklch(0.98 0.002 264.5321);
+    --border: oklch(0.9060 0.0117 264.5071);
+    --input: oklch(0.9060 0.0117 264.5071);
+    --ring: oklch(0.5547 0.2503 297.0156);
+    --chart-1: oklch(0.5547 0.2503 297.0156);
+    --chart-2: oklch(0.5586 0.2255 262.0866);
+    --chart-3: oklch(0.6250 0.1772 140.4448);
+    --chart-4: oklch(0.6023 0.0981 201.1047);
+    --chart-5: oklch(0.5505 0.2155 19.8095);
+    --sidebar: oklch(0.9335 0.0087 264.5206);
+    --sidebar-foreground: oklch(0.4355 0.0430 279.3250);
+    --sidebar-primary: oklch(0.5547 0.2503 297.0156);
+    --sidebar-primary-foreground: oklch(0.98 0.002 264.5321);
+    --sidebar-accent: oklch(0.9060 0.0117 264.5071);
+    --sidebar-accent-foreground: oklch(0.4355 0.0430 279.3250);
+    --sidebar-border: oklch(0.9060 0.0117 264.5071);
+    --sidebar-ring: oklch(0.5547 0.2503 297.0156);
+    --header: oklch(0.9578 0.0058 264.5321);
+    --header-foreground: oklch(0.4355 0.0430 279.3250);
+    --footer: oklch(0.9578 0.0058 264.5321);
+    --footer-foreground: oklch(0.4355 0.0430 279.3250);
+    --code: oklch(0.98 0.002 264.5321);
+    --code-foreground: oklch(0.5547 0.2503 297.0156);
+    --code-highlight: oklch(0.9335 0.0087 264.5206);
+    --code-number: oklch(0.6023 0.0981 201.1047);
+    --code-selection: oklch(0.9060 0.0117 264.5071);
+    --code-border: oklch(0.9060 0.0117 264.5071);
+    --radius: 0.75rem;
+
 }
 
 .theme-catppuccin.dark {

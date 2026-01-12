@@ -52,7 +52,7 @@ export function LandingHero() {
                     <div className="w-10 h-10 bg-primary/20 text-primary border border-primary/20 rounded-xl flex items-center justify-center">
                         <div className="w-4 h-4 bg-current rounded-sm" />
                     </div>
-                    kita
+                    Kita
                 </div>
                 <div className="flex items-center gap-2 md:gap-4">
                     <LandingModeToggle />

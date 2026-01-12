@@ -110,6 +110,8 @@
 @import "./themes/spotify.css";
 @import "./themes/sunset.css";
 @import "./themes/catppuccin.css";
+@import "./themes/desert.css";
+@import "./themes/starbuck.css";
 
 @theme inline {
   --color-background: var(--background);
