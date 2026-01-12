@@ -18,16 +18,21 @@ async function getSession() {
 // Helper: Verify User Owns Page
 async function verifyPageOwnership(pageId: string) {
     const session = await getSession();
-    // console.log("verifyPageOwnership session:", session?.user?.id);
+
+    // DEMO BYPASS: Check if page is demo page
+    const page = await db.query.pages.findFirst({
+        where: eq(pages.id, pageId),
+        columns: { userId: true, slug: true }
+    });
+
+    if (page && (page.slug === 'demo' || page.userId === 'demo-user-id')) {
+        return session || { user: { id: 'demo-user-id' } }; // Return dummy session if needed
+    }
+
     if (!session?.user) {
         console.error("verifyPageOwnership: No session found");
         throw new Error("Unauthorized");
     }
-
-    const page = await db.query.pages.findFirst({
-        where: eq(pages.id, pageId),
-        columns: { userId: true }
-    });
 
     if (!page || page.userId !== session.user.id) {
         throw new Error("Forbidden");
@@ -38,20 +43,25 @@ async function verifyPageOwnership(pageId: string) {
 // Helper: Verify User Owns Module (via Page)
 async function verifyModuleOwnership(moduleId: string) {
     const session = await getSession();
-    // console.log("verifyModuleOwnership session:", session?.user?.id);
-    if (!session?.user) {
-        console.error("verifyModuleOwnership: No session found. Headers cookie:", (await headers()).get('cookie'));
-        throw new Error("Unauthorized");
-    }
 
     const module = await db.query.modules.findFirst({
         where: eq(modules.id, moduleId),
         with: {
             page: {
-                columns: { userId: true }
+                columns: { userId: true, slug: true }
             }
         }
     });
+
+    // DEMO BYPASS
+    if (module?.page && (module.page.slug === 'demo' || module.page.userId === 'demo-user-id')) {
+        return { session: session || { user: { id: 'demo-user-id' } }, module };
+    }
+
+    if (!session?.user) {
+        console.error("verifyModuleOwnership: No session found. Headers cookie:", (await headers()).get('cookie'));
+        throw new Error("Unauthorized");
+    }
 
     // @ts-ignore - Relation defines page exists
     if (!module || !module.page || module.page.userId !== session.user.id) {
