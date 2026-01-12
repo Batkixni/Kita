@@ -26,7 +26,7 @@ async function verifyPageOwnership(pageId: string) {
     });
 
     if (page && (page.slug === 'demo' || page.userId === 'demo-user-id')) {
-        return session || { user: { id: 'demo-user-id' } }; // Return dummy session if needed
+        return session || { user: { id: 'demo-user-id', username: 'demo' } }; // Return dummy session if needed
     }
 
     if (!session?.user) {
@@ -55,7 +55,7 @@ async function verifyModuleOwnership(moduleId: string) {
 
     // DEMO BYPASS
     if (module?.page && (module.page.slug === 'demo' || module.page.userId === 'demo-user-id')) {
-        return { session: session || { user: { id: 'demo-user-id' } }, module };
+        return { session: session || { user: { id: 'demo-user-id', username: 'demo' } }, module };
     }
 
     if (!session?.user) {
