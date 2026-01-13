@@ -105,7 +105,7 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
 
         return (
             <a
-                href={url}
+                href={safeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleClick}
@@ -149,7 +149,7 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
         const displayName = metadata.title ? metadata.title.split(' on Behance')[0] : 'Behance User';
         return (
             <a
-                href={url}
+                href={safeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleClick}
@@ -198,7 +198,7 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
 
         return (
             <a
-                href={url}
+                href={safeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleClick}
@@ -260,7 +260,7 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
     if (ytData && !customTitle && !customImage) {
         return (
             <a
-                href={url}
+                href={safeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleClick}
@@ -482,7 +482,7 @@ export function LinkModule({ url, w, h, customTitle, customDesc, customImage, cu
     // Default Link Card
     return (
         <a
-            href={url}
+            href={safeUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleClick}
