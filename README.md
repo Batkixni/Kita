@@ -6,8 +6,8 @@
 
 [![License]](LICENSE)
 
-![React](https://img.shields.io/badge/React-CA9360?logo=bun&logoColor=white)
-![NextJS](https://img.shields.io/badge/nextjs-232323?logo=bun&logoColor=white)
+![React](https://img.shields.io/badge/React-020202?logo=react&logoColor=white)
+![NextJS](https://img.shields.io/badge/NextJs-232323?logo=nextjs&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-232323?logo=tailwind-css&logoColor=white)
 ![shadcnui](https://img.shields.io/badge/shadcnui-232323?logo=shadcnui&logoColor=white)  
 
