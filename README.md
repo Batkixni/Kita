@@ -4,6 +4,12 @@
     
 # ✧ KITA ✧
 
+[![License]](LICENSE)
+
+![React](https://img.shields.io/badge/React-CA9360?logo=bun&logoColor=white)
+![NextJS](https://img.shields.io/badge/nextjs-232323?logo=bun&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-232323?logo=tailwind-css&logoColor=white)
+![shadcnui](https://img.shields.io/badge/shadcnui-232323?logo=shadcnui&logoColor=white)  
 
 
 </div>
@@ -17,6 +23,8 @@
 
 [![Watch on GitHub](https://img.shields.io/github/watchers/Batkixni/kita.svg?style=social)](https://github.com/Batkixni/Kita/watchers)  
 [![Star on GitHub](https://img.shields.io/github/stars/Batkixni/kita.svg?style=social)](https://github.com/Batkixni/Kita/stargazers)
+
+
 
 
 [English](#english) | [正體中文](#chinese)
@@ -254,4 +262,8 @@ npx tsx scripts/invites.ts generate
 ---
 
 *由 Bax 用愛製作。歡迎提交 issue 回報錯誤或請求功能。* 🤙
+
+
+[License]: https://img.shields.io/github/license/Batkixni/astro-regulus?color=0a0a0a&logo=github&logoColor=fff&style=for-the-badge
+
 
