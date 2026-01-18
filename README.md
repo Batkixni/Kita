@@ -83,7 +83,7 @@ Wanna mess with the code? Say less.
 
 1.  **Clone it:**
     ```bash
-    git clone https://github.com/your-username/kita.git
+    git clone https://github.com/Batkixni/Kita.git
     cd kita
     ```
 
@@ -199,7 +199,7 @@ If you use this code, you gotta keep it open source. Don't be that guy who close
 
 1.  **Clone 專案:**
     ```bash
-    git clone https://github.com/your-username/kita.git
+    git clone https://github.com/Batkixni/Kita.git
     cd kita
     ```
 
