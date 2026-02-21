@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 export default function SignIn() {
-    const router = useRouter();
+  const router = useRouter();
 
-    useEffect(() => {
-        router.replace("/?auth=signin");
-    }, [router]);
+  useEffect(() => {
+    router.replace("/login");
+  }, [router]);
 
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-        </div>
-    );
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+    </div>
+  );
 }
