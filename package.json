@@ -22,6 +22,7 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tabs": "^1.1.13",
+    "@react-three/fiber": "^9.5.0",
     "@types/jsdom": "^27.0.0",
     "better-auth": "^1.4.10",
     "class-variance-authority": "^0.7.1",
@@ -44,6 +45,7 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
     "tailwindcss-animate": "^1.0.7",
+    "three": "^0.183.1",
     "uuid": "^13.0.0",
     "zod": "^4.3.5"
   },
@@ -52,6 +54,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.183.1",
     "@types/uuid": "^10.0.0",
     "babel-plugin-react-compiler": "1.0.0",
     "dotenv": "^17.2.3",

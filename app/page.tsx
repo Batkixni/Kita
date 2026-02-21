@@ -1,116 +1,115 @@
-import { auth } from "@/lib/auth";
-import { Suspense } from "react";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { ArrowRight, Layers, Palette, Zap, Play } from "lucide-react";
-import Link from "next/link";
-import { LandingHero } from "@/components/landing/LandingHero";
-import { UniqueLinkSection } from "@/components/landing/UniqueLinkSection";
-import { Playfair_Display } from "next/font/google";
-import { Footer } from "@/components/layout/Footer";
+"use client";
 
-const fontSerif = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400", "900"],
-  style: ["normal", "italic"],
-});
+import Image from "next/image";
+import { PixelDyeBackground } from "@/components/backgrounds/PixelDyeBackground";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
-export default async function Home() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (session?.user?.username) {
-    redirect(`/${session.user.username}`);
-  }
-
+export default function Home() {
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <Suspense fallback={<div className="min-h-screen bg-background" />}>
-        <LandingHero />
-      </Suspense>
+    <>
+      <PixelDyeBackground />
 
-      <UniqueLinkSection />
-
-      {/* Features / Info Section */}
-      <section className="py-32 px-4 container mx-auto relative z-10 bg-background">
-        <div className="max-w-4xl mx-auto text-center space-y-24">
-          <div className="space-y-6">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
-              Crafted for those who{" "}
-              <span
-                className={`${fontSerif.className} italic font-normal text-muted-foreground`}
-              >
-                care
-              </span>
-              .
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              We stripped away the clutter to give you the essential building
-              blocks. <br />A platform designed to let your personality shine
-              through, not overpower it.
-            </p>
+      {/* Main container - 70% width on desktop */}
+      <main
+        className="main-container"
+        style={{
+          position: "relative",
+          zIndex: 10,
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          paddingTop: "8rem",
+          paddingLeft: "1.5rem",
+          paddingRight: "1.5rem",
+          margin: "0 auto",
+          width: "100%",
+          maxWidth: "100%",
+          backgroundColor: "transparent",
+          color: "black",
+          transition: "background-color 0.3s, color 0.3s",
+        }}
+      >
+        <div style={{ width: "100%", maxWidth: "320px" }}>
+          {/* Logo - switches between black and white versions */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "1rem",
+              marginBottom: "2rem",
+            }}
+          >
+            <div className="logo-light">
+              <Image
+                src="/logo/Logotype_3.png"
+                alt="STUDIO SORAI"
+                width={320}
+                height={80}
+                style={{ width: "180px", height: "auto" }}
+                priority
+              />
+            </div>
+            <div className="logo-dark" style={{ display: "none" }}>
+              <Image
+                src="/logo/Logotype_3_W.png"
+                alt="STUDIO SORAI"
+                width={320}
+                height={80}
+                style={{ width: "180px", height: "auto" }}
+                priority
+              />
+            </div>
+            <ThemeToggle />
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 text-left">
-            <div className="p-8 rounded-[32px] bg-secondary/20 border border-border/50 hover:bg-secondary/40 transition-colors">
-              <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
-                <Layers className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Bento Grid</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                The most flexible drag-and-drop grid system. Arrange your
-                content exactly how you want it, pixel perfect.
-              </p>
-            </div>
-            <div className="p-8 rounded-[32px] bg-secondary/20 border border-border/50 hover:bg-secondary/40 transition-colors">
-              <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6">
-                <Palette className="w-6 h-6 text-blue-500" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Theming</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Deep customization without the headache. Control colors, radius,
-                and typography with a single click.
-              </p>
-            </div>
-            <div className="p-8 rounded-[32px] bg-secondary/20 border border-border/50 hover:bg-secondary/40 transition-colors">
-              <div className="w-12 h-12 bg-green-500/10 rounded-2xl flex items-center justify-center mb-6">
-                <Zap className="w-6 h-6 text-green-500" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Instant</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Built on modern edge infrastructure. Your page loads instantly,
-                anywhere in the world.
-              </p>
-            </div>
-          </div>
-
-          <div className="pt-20 flex flex-col items-center">
-            <h2
-              className={`text-8xl font-normal mb-12 ${fontSerif.className} italic text-primary`}
+          <p style={{ fontSize: "14px", lineHeight: "1.6", opacity: 0.7 }}>
+            indie creative studio.
+            <br />
+            focused on esport broadcast and event visual.
+            <br />
+            contact: hello@bax.visual
+            <br />
+            <br />
+            <a
+              href="mailto:hello@bax.visual"
+              style={{
+                opacity: 0.5,
+                textDecoration: "none",
+                transition: "opacity 0.2s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.5")}
             >
-              Ready?
-            </h2>
-
-            <div className="flex flex-col sm:flex-row gap-4 items-center">
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 h-14 px-8 rounded-full bg-primary text-primary-foreground font-bold text-lg hover:translate-y-[-2px] hover:shadow-lg hover:shadow-primary/25 transition-all"
-              >
-                Claim Username <ArrowRight className="w-5 h-5" />
-              </Link>
-
-              <Link
-                href="/demo"
-                className="inline-flex items-center gap-2 h-14 px-8 rounded-full bg-secondary text-secondary-foreground font-bold text-lg border border-border hover:bg-secondary/80 transition-colors"
-              >
-                <Play className="w-4 h-4 fill-current" /> Try Demo
-              </Link>
-            </div>
-          </div>
+              get in touch
+            </a>{" "}
+            if you want to collaborate.
+          </p>
         </div>
-      </section>
-      <Footer />
-    </main>
+      </main>
+
+      {/* CSS for responsive width and dark mode */}
+      <style jsx global>{`
+        @media (min-width: 1024px) {
+          .main-container {
+            width: 70% !important;
+            max-width: 70% !important;
+          }
+        }
+
+        /* Dark mode styles */
+        html.dark .main-container {
+          color: #f5f5f5 !important;
+        }
+
+        html.dark .logo-light {
+          display: none !important;
+        }
+
+        html.dark .logo-dark {
+          display: block !important;
+        }
+      `}</style>
+    </>
   );
 }
