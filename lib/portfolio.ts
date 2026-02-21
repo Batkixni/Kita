@@ -8,31 +8,33 @@ export interface PortfolioItem {
 
 export const portfolioItems: PortfolioItem[] = [
   {
-    id: "project-1",
-    title: "Project One",
-    credit: "Client: Riot Games",
-    thumbnail: "/portfolio/project-1.jpg",
-    href: "/work/project-1",
+    id: "project-3",
+    title: "LAN DOWN UNDER 2025",
+    credit: "Visual Direction",
+    thumbnail: "/portfolio/cb5oud.jpg",
+    href: "https://bax.vision/work/visual/lan-down-under-2025",
   },
   {
     id: "project-2",
-    title: "Project Two",
-    credit: "Client: Blizzard",
-    thumbnail: "/portfolio/project-2.jpg",
-    href: "/work/project-2",
+    title: "Orient Elite Clash 2025",
+    credit: "Visual Direction",
+    thumbnail: "/portfolio/q71lx4.jpg",
+    href: "https://bax.vision/work/visual/orient-elite-clash-2025",
   },
+
   {
-    id: "project-3",
-    title: "Project Three",
-    credit: "Client: Valve",
-    thumbnail: "/portfolio/project-3.jpg",
-    href: "/work/project-3",
+    id: "project-1",
+    title: "Twilight Tourney 暮光邀請盃 2024 ",
+    credit: "Event Organizer, Visual Direction",
+    thumbnail: "/portfolio/2drgjd.png",
+    href: "https://bax.vision/work/visual/twilight-tourney-2024",
   },
+
   {
     id: "project-4",
-    title: "Project Four",
-    credit: "Client: Epic Games",
-    thumbnail: "/portfolio/project-4.jpg",
-    href: "/work/project-4",
+    title: "Orient Elite Clash 2024",
+    credit: "Visual Direction",
+    thumbnail: "/portfolio/nzxs41.jpg",
+    href: "https://bax.vision/work/visual/orient-elite-clash-2024",
   },
 ];

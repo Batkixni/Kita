@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description:
     "Indie Creative Studio focusing on esport broadcast and event visual creation.",
   icons: {
-    icon: "/logo/Logo_B.png",
+    icon: "/logo/Logo_Black.png",
   },
 };
 

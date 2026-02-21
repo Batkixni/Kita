@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { PixelDyeBackground } from "@/components/backgrounds/PixelDyeBackground";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { TeamSection } from "@/components/TeamSection";
+import { PortfolioGrid } from "@/components/PortfolioGrid";
 
 export default function Home() {
   return (
@@ -85,6 +87,24 @@ export default function Home() {
             </a>{" "}
             if you want to collaborate.
           </p>
+
+          <TeamSection />
+
+          <PortfolioGrid />
+
+          <footer
+            style={{
+              marginTop: "4rem",
+              paddingTop: "2rem",
+              paddingBottom: "2rem",
+              borderTop: "1px solid rgba(128, 128, 128, 0.2)",
+              fontSize: "11px",
+              opacity: 0.4,
+              textAlign: "center",
+            }}
+          >
+            © 2026 STUDIO SORAI. All rights reserved.
+          </footer>
         </div>
       </main>
 

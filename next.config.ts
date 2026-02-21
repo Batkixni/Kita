@@ -5,6 +5,13 @@ const nextConfig = {
   outputFileTracingRoot: path.join(__dirname),
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "bax.vision",
+        pathname: "/**",
+      },
+    ],
   },
   // experimental: {
   //   turbopack: false,
