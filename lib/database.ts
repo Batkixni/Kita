@@ -15,5 +15,5 @@ export function getDatabaseUrl() {
 
 export function getDatabaseAuthToken() {
   const token = process.env.DATABASE_AUTH_TOKEN?.trim();
-  return token || undefined;
+  return token ? token : undefined;
 }
