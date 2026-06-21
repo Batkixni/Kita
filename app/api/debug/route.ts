@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { sql } from 'drizzle-orm';
 
 export async function GET() {
   const envInfo = {
@@ -11,8 +10,8 @@ export async function GET() {
 
   let dbTest = 'not tested';
   try {
-    const result = await db.execute(sql`SELECT 1`);
-    dbTest = 'OK: ' + JSON.stringify(result);
+    const result = await db.query.users.findMany({ limit: 1 });
+    dbTest = 'OK: found ' + result.length + ' users';
   } catch (e: any) {
     dbTest = 'ERROR: ' + e.message;
   }

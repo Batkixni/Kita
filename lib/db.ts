@@ -3,6 +3,7 @@ import { createClient } from '@libsql/client';
 import * as schema from './schema';
 import { getDatabaseAuthToken, getDatabaseUrl } from './database';
 
+// Always create a fresh client to ensure env is read at request time
 export function createDb() {
   const client = createClient({
     url: getDatabaseUrl(),
@@ -11,19 +12,6 @@ export function createDb() {
   return drizzle(client, { schema });
 }
 
-// Singleton for backward compatibility
-let _db: ReturnType<typeof createDb> | null = null;
-
-export function getDb() {
-  if (!_db) {
-    _db = createDb();
-  }
-  return _db;
-}
-
-// Proxy for backward compatibility with `db.query.users.findFirst()` etc.
-export const db = new Proxy({} as ReturnType<typeof createDb>, {
-  get(_, prop) {
-    return (getDb() as any)[prop];
-  },
-});
+// For backward compatibility, but create fresh instance each time
+// This avoids caching stale env values from build time
+export const db = createDb();
