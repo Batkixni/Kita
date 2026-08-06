@@ -70,11 +70,11 @@ export default function Home() {
             <br />
             focused on esport broadcast and event visual.
             <br />
-            contact: hello@bax.visual
+            contact: studio@sorai.tw
             <br />
             <br />
             <a
-              href="mailto:hello@bax.visual"
+              href="mailto:studio@sorai.tw"
               style={{
                 opacity: 0.5,
                 textDecoration: "none",
