@@ -8,6 +8,13 @@ export interface PortfolioItem {
 
 export const portfolioItems: PortfolioItem[] = [
   {
+    id: "sorai-esports",
+    title: "SORAI ESPORTS",
+    credit: "Esports Media Platform",
+    thumbnail: "/portfolio/sorai-esports.png",
+    href: "https://esports.sorai.tw",
+  },
+  {
     id: "project-3",
     title: "LAN DOWN UNDER 2025",
     credit: "Visual Direction",

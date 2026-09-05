@@ -1,17 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { PixelDyeBackground } from "@/components/backgrounds/PixelDyeBackground";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { BlueSkyBackground } from "@/components/backgrounds/BlueSkyBackground";
 import { TeamSection } from "@/components/TeamSection";
 import { PortfolioGrid } from "@/components/PortfolioGrid";
 
 export default function Home() {
   return (
     <>
-      <PixelDyeBackground />
+      <BlueSkyBackground />
 
-      {/* Main container - 70% width on desktop */}
       <main
         className="main-container"
         style={{
@@ -29,11 +27,9 @@ export default function Home() {
           maxWidth: "100%",
           backgroundColor: "transparent",
           color: "black",
-          transition: "background-color 0.3s, color 0.3s",
         }}
       >
         <div style={{ width: "100%", maxWidth: "320px" }}>
-          {/* Logo - switches between black and white versions */}
           <div
             style={{
               display: "flex",
@@ -42,27 +38,14 @@ export default function Home() {
               marginBottom: "2rem",
             }}
           >
-            <div className="logo-light">
-              <Image
-                src="/logo/Logotype_3.png"
-                alt="STUDIO SORAI"
-                width={320}
-                height={80}
-                style={{ width: "180px", height: "auto" }}
-                priority
-              />
-            </div>
-            <div className="logo-dark" style={{ display: "none" }}>
-              <Image
-                src="/logo/Logotype_3_W.png"
-                alt="STUDIO SORAI"
-                width={320}
-                height={80}
-                style={{ width: "180px", height: "auto" }}
-                priority
-              />
-            </div>
-            <ThemeToggle />
+            <Image
+              src="/logo/Logotype_3.png"
+              alt="STUDIO SORAI"
+              width={320}
+              height={86}
+              style={{ width: "180px", height: "auto" }}
+              priority
+            />
           </div>
 
           <p style={{ fontSize: "14px", lineHeight: "1.6", opacity: 0.7 }}>
@@ -108,26 +91,12 @@ export default function Home() {
         </div>
       </main>
 
-      {/* CSS for responsive width and dark mode */}
       <style jsx global>{`
         @media (min-width: 1024px) {
           .main-container {
             width: 70% !important;
             max-width: 70% !important;
           }
-        }
-
-        /* Dark mode styles */
-        html.dark .main-container {
-          color: #f5f5f5 !important;
-        }
-
-        html.dark .logo-light {
-          display: none !important;
-        }
-
-        html.dark .logo-dark {
-          display: block !important;
         }
       `}</style>
     </>
