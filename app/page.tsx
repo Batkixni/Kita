@@ -26,7 +26,7 @@ export default function Home() {
           width: "100%",
           maxWidth: "100%",
           backgroundColor: "transparent",
-          color: "black",
+          color: "white",
         }}
       >
         <div style={{ width: "100%", maxWidth: "320px" }}>
@@ -39,7 +39,7 @@ export default function Home() {
             }}
           >
             <Image
-              src="/logo/Logotype_3.png"
+              src="/logo/Logotype_3_W.png"
               alt="STUDIO SORAI"
               width={320}
               height={86}
@@ -80,7 +80,7 @@ export default function Home() {
               marginTop: "4rem",
               paddingTop: "2rem",
               paddingBottom: "2rem",
-              borderTop: "1px solid rgba(128, 128, 128, 0.2)",
+              borderTop: "1px solid rgba(255, 255, 255, 0.2)",
               fontSize: "11px",
               opacity: 0.4,
               textAlign: "center",

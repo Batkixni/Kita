@@ -1,162 +1,223 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useRef, useMemo, Suspense, useEffect, useState } from "react";
+import { useRef, useMemo, Suspense } from "react";
 import * as THREE from "three";
 
 /**
- * Untitled blend / Sonorous — exact stops:
- * SILK #FFFFFF · AZURE #1D8EFF · INDIGO #306FCE · CYAN #00ECFF
- * Slow ink-like warp: the four stops knead together. Grain tile is static.
+ * Saudade Mist Ribbon Background (第一個修改版本)
+ *
+ * Setup:
+ * - Fullscreen shader plane
+ * - Vertical base gradient:
+ *   top = vec3(0.00, 0.90, 1.00) electric cyan
+ *   mid = vec3(0.35, 0.62, 1.00)
+ *   bottom = vec3(0.05, 0.22, 0.72) deep cobalt
+ * - 2.5D FBM with domain warping, horizontally stretched mist ribbons
+ * - Dual counter-drifting time offsets (0.02 and -0.012) + z breathing (0.08)
+ * - Remapped density smoothstep(0.35, 0.75, n)
+ * - Fog coloring (deep blue -> richer blue -> near-white cyan) + upper band backlight
+ * - Animated analog film grain (0.08-0.12)
  */
-const fragmentShader = `
+
+const fragmentShader = /* glsl */ `
 precision highp float;
 
-uniform vec2 resolution;
 uniform float time;
-uniform sampler2D grainMap;
+uniform vec2 resolution;
 
+// Stefan Gustavson Simplex 3D Noise
 vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }
+vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+vec4 permute(vec4 x) { return mod289(((x * 34.0) + 10.0) * x); }
 vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
-vec2 fade(vec2 t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }
 
-float cnoise(vec2 P) {
-  vec4 Pi = floor(P.xyxy) + vec4(0.0, 0.0, 1.0, 1.0);
-  vec4 Pf = fract(P.xyxy) - vec4(0.0, 0.0, 1.0, 1.0);
-  Pi = mod289(Pi);
-  vec4 ix = Pi.xzxz;
-  vec4 iy = Pi.yyww;
-  vec4 fx = Pf.xzxz;
-  vec4 fy = Pf.yyww;
-  vec4 i = permute(permute(ix) + iy);
-  vec4 gx = fract(i * (1.0 / 41.0)) * 2.0 - 1.0;
-  vec4 gy = abs(gx) - 0.5;
-  vec4 tx = floor(gx + 0.5);
-  gx = gx - tx;
-  vec2 g00 = vec2(gx.x, gy.x);
-  vec2 g10 = vec2(gx.y, gy.y);
-  vec2 g01 = vec2(gx.z, gy.z);
-  vec2 g11 = vec2(gx.w, gy.w);
-  vec4 norm = taylorInvSqrt(vec4(dot(g00, g00), dot(g01, g01), dot(g10, g10), dot(g11, g11)));
-  g00 *= norm.x; g01 *= norm.y; g10 *= norm.z; g11 *= norm.w;
-  float n00 = dot(g00, vec2(fx.x, fy.x));
-  float n10 = dot(g10, vec2(fx.y, fy.y));
-  float n01 = dot(g01, vec2(fx.z, fy.z));
-  float n11 = dot(g11, vec2(fx.w, fy.w));
-  vec2 fade_xy = fade(Pf.xy);
-  vec2 n_x = mix(vec2(n00, n01), vec2(n10, n11), fade_xy.x);
-  return 2.3 * mix(n_x.x, n_x.y, fade_xy.y);
+float snoise(vec3 v) {
+  const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);
+  const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+
+  vec3 i  = floor(v + dot(v, C.yyy));
+  vec3 x0 = v - i + dot(i, C.xxx);
+
+  vec3 g = step(x0.yzx, x0.xyz);
+  vec3 l = 1.0 - g;
+  vec3 i1 = min(g.xyz, l.zxy);
+  vec3 i2 = max(g.xyz, l.zxy);
+
+  vec3 x1 = x0 - i1 + C.xxx;
+  vec3 x2 = x0 - i2 + C.yyy;
+  vec3 x3 = x0 - D.yyy;
+
+  i = mod289(i);
+  vec4 p = permute(permute(permute(
+             i.z + vec4(0.0, i1.z, i2.z, 1.0))
+           + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+           + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+
+  float n_ = 0.142857142857;
+  vec3 ns = n_ * D.wyz - D.xzx;
+
+  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+
+  vec4 x_ = floor(j * ns.z);
+  vec4 y_ = floor(j - 7.0 * x_);
+
+  vec4 x = x_ * ns.x + ns.yyyy;
+  vec4 y = y_ * ns.x + ns.yyyy;
+  vec4 h = 1.0 - abs(x) - abs(y);
+
+  vec4 b0 = vec4(x.xy, y.xy);
+  vec4 b1 = vec4(x.zw, y.zw);
+
+  vec4 s0 = floor(b0) * 2.0 + 1.0;
+  vec4 s1 = floor(b1) * 2.0 + 1.0;
+  vec4 sh = -step(h, vec4(0.0));
+
+  vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+  vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+
+  vec3 p0 = vec3(a0.xy, h.x);
+  vec3 p1 = vec3(a0.zw, h.y);
+  vec3 p2 = vec3(a1.xy, h.z);
+  vec3 p3 = vec3(a1.zw, h.w);
+
+  vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
+  p0 *= norm.x;
+  p1 *= norm.y;
+  p2 *= norm.z;
+  p3 *= norm.w;
+
+  vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
+  m = m * m;
+  return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
 }
 
-float fbm(vec2 p) {
+// Low-octave FBM for organic domain warp
+float fbmWarp(vec3 p) {
   float v = 0.0;
-  float a = 0.5;
-  mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
-  for (int i = 0; i < 5; i++) {
-    v += a * (cnoise(p) * 0.5 + 0.5);
-    p = m * p;
-    a *= 0.5;
+  float amp = 0.55;
+  for (int i = 0; i < 3; i++) {
+    v += amp * snoise(p);
+    p = p * 2.04 + vec3(1.2, 3.4, 0.5);
+    amp *= 0.48;
   }
   return v;
 }
 
-vec3 overlay(vec3 base, vec3 blend) {
-  return mix(2.0 * base * blend, 1.0 - 2.0 * (1.0 - base) * (1.0 - blend), step(0.5, base));
+// 5-octave FBM for mist ribbons
+float fbmField(vec3 p) {
+  float v = 0.0;
+  float amp = 0.5;
+  float freq = 1.0;
+  for (int i = 0; i < 5; i++) {
+    v += amp * snoise(p * freq);
+    freq *= 2.03;
+    amp *= 0.5;
+    p.xy = vec2(p.x * 0.995 - p.y * 0.1, p.x * 0.1 + p.y * 0.995);
+  }
+  return v;
 }
 
-float blob(vec2 uv, vec2 c, vec2 scale) {
-  vec2 d = (uv - c) * scale;
-  return exp(-dot(d, d));
+// Density function with horizontal ribbon stretching, domain warp & counter-drift
+float sampleFogDensity(vec2 uv, float t) {
+  float zTime = t * 0.08;
+  float aspect = resolution.x / max(resolution.y, 1.0);
+  float aspectCorrection = aspect / (16.0 / 9.0);
+
+  // Layer 1: drifts right at +0.02
+  vec2 uv1 = uv;
+  uv1.x = (uv1.x - 0.5) * aspectCorrection + 0.5;
+  uv1.x += t * 0.02;
+  vec2 st1 = vec2(uv1.x * 0.65, uv1.y * 2.2);
+  vec2 warp1 = vec2(
+    fbmWarp(vec3(st1 * 0.85, zTime * 0.5)),
+    fbmWarp(vec3(st1 * 0.85 + vec2(5.3, 1.7), zTime * 0.5))
+  );
+  float field1 = fbmField(vec3(st1 + warp1 * 0.42, zTime));
+
+  // Layer 2: drifts left at -0.012
+  vec2 uv2 = uv;
+  uv2.x = (uv2.x - 0.5) * aspectCorrection + 0.5;
+  uv2.x -= t * 0.012;
+  vec2 st2 = vec2(uv2.x * 0.85 + 11.2, uv2.y * 2.6 + 4.7);
+  vec2 warp2 = vec2(
+    fbmWarp(vec3(st2 * 0.8 + vec2(2.1, 8.4), zTime * 0.45)),
+    fbmWarp(vec3(st2 * 0.8 + vec2(7.3, 3.2), zTime * 0.45))
+  );
+  float field2 = fbmField(vec3(st2 + warp2 * 0.38, zTime * 0.7));
+
+  float rawNoise = 0.56 * field1 + 0.44 * field2;
+  float normNoise = clamp(rawNoise * 0.5 + 0.5, 0.0, 1.0);
+  return smoothstep(0.35, 0.75, normNoise);
 }
 
-float blobR(vec2 uv, vec2 c, vec2 scale, float ang) {
-  float ca = cos(ang);
-  float sa = sin(ang);
-  vec2 p = uv - c;
-  vec2 r = vec2(ca * p.x + sa * p.y, -sa * p.x + ca * p.y) * scale;
-  return exp(-dot(r, r));
+float hash12(vec2 p) {
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.x + p3.y) * p3.z);
 }
 
 void main() {
   vec2 uv = gl_FragCoord.xy / resolution.xy;
-  float t = time * 0.08;
 
-  vec3 silk   = vec3(1.000000, 1.000000, 1.000000);
-  vec3 azure  = vec3(0.113725, 0.556863, 1.000000);
-  vec3 indigo = vec3(0.188235, 0.435294, 0.807843);
-  vec3 cyan   = vec3(0.000000, 0.925490, 1.000000);
+  // 1. Vertical base gradient:
+  // 上下兩側為深鈷藍，中間調淺營造層次漸層
+  vec3 colBottom = vec3(0.05, 0.22, 0.72);
+  vec3 colMid    = vec3(0.18, 0.46, 0.88); // 中間調淺的藍色
+  vec3 colTop    = colBottom;              // 上層與下方相同
 
-  uv += (vec2(
-    fbm(uv * 1.1 + vec2(t * 0.4, 0.0)),
-    fbm(uv * 1.1 + vec2(2.7, t * 0.3))
-  ) - 0.5) * 0.06;
+  float midBlend = smoothstep(0.0, 0.55, uv.y) * (1.0 - smoothstep(0.55, 1.0, uv.y));
+  vec3 baseGrad  = mix(colBottom, colMid, midBlend);
 
-  vec2 cA = vec2(0.78, 0.88) + 0.04 * vec2(sin(t * 0.6), cos(t * 0.5));
-  vec2 cB = vec2(0.95, 0.68) + 0.03 * vec2(cos(t * 0.4), sin(t * 0.55));
-  vec2 bA = vec2(0.38, 0.14) + 0.03 * vec2(sin(t * 0.35), cos(t * 0.4));
-  vec2 bB = vec2(0.12, 0.36) + 0.04 * vec2(cos(t * 0.45), sin(t * 0.3));
-  vec2 aA = vec2(0.22, 0.42) + 0.03 * vec2(sin(t * 0.5), cos(t * 0.35));
-  vec2 sA = vec2(0.16, 0.74) + 0.05 * vec2(sin(t * 0.42), cos(t * 0.38));
-  vec2 sB = vec2(0.46, 0.56) + 0.06 * vec2(cos(t * 0.36), sin(t * 0.44));
-  vec2 sC = vec2(0.74, 0.44) + 0.05 * vec2(sin(t * 0.48), cos(t * 0.41));
+  // 2. Cloud / fog field density
+  float density = sampleFogDensity(uv, time);
 
-  float wCyan = blob(uv, cA, vec2(2.2, 2.6)) * 1.4
-              + blob(uv, cB, vec2(2.8, 2.4)) * 0.9;
-  float wBlue = blob(uv, bA, vec2(1.8, 2.2)) * 1.5
-              + blob(uv, bB, vec2(2.4, 2.0)) * 0.8
-              + blob(uv, aA, vec2(2.6, 2.8)) * 0.55;
-  float wSilk = blob(uv, sA, vec2(3.4, 1.7)) * 1.3
-              + blobR(uv, sB, vec2(3.6, 1.35), -0.55) * 1.5
-              + blobR(uv, sC, vec2(3.2, 1.6), -0.4) * 1.1;
+  // 3. Color the fog
+  vec3 fogLow  = vec3(0.06, 0.24, 0.65); // deep blue
+  vec3 fogMid  = vec3(0.28, 0.58, 0.98); // richer blue
+  vec3 fogHigh = vec3(0.90, 0.97, 1.00); // near-white cyan mist
 
-  vec3 col = (cyan * wCyan + mix(indigo, azure, 0.35) * wBlue + silk * wSilk)
-           / (wCyan + wBlue + wSilk + 1e-4);
+  float tFogMid  = smoothstep(0.0, 0.55, density);
+  float tFogHigh = smoothstep(0.45, 1.0, density);
+  vec3 fogColor = mix(fogLow, fogMid, tFogMid);
+  fogColor = mix(fogColor, fogHigh, tFogHigh);
 
-  float g = texture2D(grainMap, gl_FragCoord.xy / 256.0).r;
-  col = mix(col, overlay(col, vec3(g)), 0.32);
+  vec3 color = mix(baseGrad, fogColor, density * 0.88);
 
-  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+  // Add a little extra white only on the upper side of each band to fake backlight
+  float eps = 0.012;
+  float densityAbove = sampleFogDensity(uv + vec2(0.0, eps), time);
+  float upperEdge = max(0.0, density - densityAbove);
+  float backlight = smoothstep(0.03, 0.25, upperEdge) * smoothstep(0.2, 0.85, density);
+  color += vec3(0.96, 0.99, 1.00) * (backlight * 0.45);
+
+  // 4. Fixed static grain (固定的噪點，不隨時間跳動)
+  vec2 grainSeed = gl_FragCoord.xy;
+  float gLuma = hash12(grainSeed) - 0.5;
+  float gChromaA = hash12(grainSeed + vec2(3.1, 7.7)) - 0.5;
+  float gChromaB = hash12(grainSeed + vec2(9.3, 2.1)) - 0.5;
+
+  vec3 grainVec = mix(vec3(gLuma), vec3(gChromaA, gLuma, gChromaB), 0.12);
+  color += grainVec * 0.095;
+
+  gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
 }
 `;
 
-const vertexShader = `
+const vertexShader = /* glsl */ `
 void main() {
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }
 `;
 
-const midGray = (() => {
-  const data = new Uint8Array([128, 128, 128, 255]);
-  const tex = new THREE.DataTexture(data, 1, 1);
-  tex.needsUpdate = true;
-  return tex;
-})();
-
-function Scene() {
+function MistRibbonScene() {
   const meshRef = useRef<THREE.Mesh>(null);
   const { viewport, size } = useThree();
-  const [grainMap, setGrainMap] = useState<THREE.Texture>(midGray);
-
-  useEffect(() => {
-    const loader = new THREE.TextureLoader();
-    loader.load("/backgrounds/film-grain.png", (tex) => {
-      tex.wrapS = THREE.RepeatWrapping;
-      tex.wrapT = THREE.RepeatWrapping;
-      tex.magFilter = THREE.NearestFilter;
-      tex.minFilter = THREE.NearestFilter;
-      tex.generateMipmaps = false;
-      tex.colorSpace = THREE.NoColorSpace;
-      tex.needsUpdate = true;
-      setGrainMap(tex);
-    });
-  }, []);
 
   const uniforms = useMemo(
     () => ({
       time: { value: 0 },
       resolution: { value: new THREE.Vector2(size.width, size.height) },
-      grainMap: { value: midGray },
     }),
     [size.width, size.height],
   );
@@ -166,7 +227,6 @@ function Scene() {
     const material = meshRef.current.material as THREE.ShaderMaterial;
     material.uniforms.time.value = state.clock.getElapsedTime();
     material.uniforms.resolution.value.set(size.width, size.height);
-    material.uniforms.grainMap.value = grainMap;
   });
 
   return (
@@ -176,6 +236,7 @@ function Scene() {
         fragmentShader={fragmentShader}
         vertexShader={vertexShader}
         uniforms={uniforms}
+        depthWrite={false}
       />
     </mesh>
   );
@@ -191,7 +252,7 @@ export function BlueSkyBackground() {
         gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
       >
         <Suspense fallback={null}>
-          <Scene />
+          <MistRibbonScene />
         </Suspense>
       </Canvas>
     </div>
