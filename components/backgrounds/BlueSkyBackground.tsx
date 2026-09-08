@@ -1,26 +1,17 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useRef, useMemo, Suspense } from "react";
+import { useRef, Suspense, useEffect, useState, type CSSProperties } from "react";
 import * as THREE from "three";
 
 /**
- * Saudade Mist Ribbon Background (第一個修改版本)
- *
- * Setup:
- * - Fullscreen shader plane
- * - Vertical base gradient:
- *   top = vec3(0.00, 0.90, 1.00) electric cyan
- *   mid = vec3(0.35, 0.62, 1.00)
- *   bottom = vec3(0.05, 0.22, 0.72) deep cobalt
- * - 2.5D FBM with domain warping, horizontally stretched mist ribbons
- * - Dual counter-drifting time offsets (0.02 and -0.012) + z breathing (0.08)
- * - Remapped density smoothstep(0.35, 0.75, n)
- * - Fog coloring (deep blue -> richer blue -> near-white cyan) + upper band backlight
- * - Animated analog film grain (0.08-0.12)
+ * Saudade Mist Ribbon Background
+ * Desktop: R3F fullscreen shader.
+ * Mobile / coarse pointer: CSS gradient fallback so scroll never freezes WebGL.
  */
 
 const fragmentShader = /* glsl */ `
+
 precision highp float;
 
 uniform float time;
@@ -213,19 +204,19 @@ void main() {
 function MistRibbonScene() {
   const meshRef = useRef<THREE.Mesh>(null);
   const { viewport, size } = useThree();
+  const uniforms = useRef({
+    time: { value: 0 },
+    resolution: { value: new THREE.Vector2(1, 1) },
+  });
 
-  const uniforms = useMemo(
-    () => ({
-      time: { value: 0 },
-      resolution: { value: new THREE.Vector2(size.width, size.height) },
-    }),
-    [size.width, size.height],
-  );
+  useEffect(() => {
+    uniforms.current.resolution.value.set(size.width, size.height);
+  }, [size.width, size.height]);
 
   useFrame((state) => {
     if (!meshRef.current) return;
     const material = meshRef.current.material as THREE.ShaderMaterial;
-    material.uniforms.time.value = state.clock.getElapsedTime();
+    material.uniforms.time.value = state.clock.elapsedTime;
     material.uniforms.resolution.value.set(size.width, size.height);
   });
 
@@ -235,21 +226,56 @@ function MistRibbonScene() {
       <shaderMaterial
         fragmentShader={fragmentShader}
         vertexShader={vertexShader}
-        uniforms={uniforms}
+        uniforms={uniforms.current}
         depthWrite={false}
       />
     </mesh>
   );
 }
 
+function usePreferCssBackground() {
+  const [preferCss, setPreferCss] = useState(true);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px), (pointer: coarse)");
+    const update = () => setPreferCss(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  return preferCss;
+}
+
+const cssFallbackStyle: CSSProperties = {
+  position: "fixed",
+  inset: 0,
+  zIndex: -1,
+  background:
+    "radial-gradient(120% 80% at 50% 35%, rgba(46, 118, 224, 0.95) 0%, rgba(13, 56, 184, 0.98) 45%, rgba(13, 56, 184, 1) 100%), linear-gradient(180deg, #0d38b8 0%, #2e76e0 50%, #0d38b8 100%)",
+  backgroundColor: "#0d38b8",
+};
+
 export function BlueSkyBackground() {
+  const preferCss = usePreferCssBackground();
+
+  if (preferCss) {
+    return <div aria-hidden style={cssFallbackStyle} />;
+  }
+
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: -1 }}>
       <Canvas
         dpr={1}
+        frameloop="always"
         camera={{ position: [0, 0, 1] }}
         style={{ width: "100%", height: "100%" }}
-        gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
+        gl={{
+          antialias: false,
+          alpha: false,
+          powerPreference: "default",
+          failIfMajorPerformanceCaveat: false,
+        }}
       >
         <Suspense fallback={null}>
           <MistRibbonScene />
