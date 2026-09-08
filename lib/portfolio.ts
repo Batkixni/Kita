@@ -15,6 +15,13 @@ export const portfolioItems: PortfolioItem[] = [
     href: "https://esports.sorai.tw",
   },
   {
+    id: "sorai-unite-zaoji",
+    title: "SORAI UNITE 造極",
+    credit: "Event Visual",
+    thumbnail: "https://i.ytimg.com/vi/z4sNKSCqdd4/maxresdefault.jpg",
+    href: "https://youtu.be/z4sNKSCqdd4",
+  },
+  {
     id: "project-3",
     title: "LAN DOWN UNDER 2025",
     credit: "Visual Direction",
