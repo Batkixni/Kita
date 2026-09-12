@@ -6,10 +6,10 @@
 
 [![License]](LICENSE)
 
-![React](https://img.shields.io/badge/React-020202?logo=react&logoColor=white)
-![NextJS](https://img.shields.io/badge/NextJS-020202?logo=next.js&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-232323?logo=tailwind-css&logoColor=white)
-![shadcnui](https://img.shields.io/badge/shadcnui-232323?logo=shadcnui&logoColor=white)  
+![React](https://www.shieldcn.dev/badge/React-020202?logo=react&logoColor=white)
+![NextJS](https://www.shieldcn.dev/badge/NextJS-020202?logo=next.js&logoColor=white)
+![Tailwind CSS](https://www.shieldcn.dev/badge/Tailwind-232323?logo=tailwind-css&logoColor=white)
+![shadcnui](https://www.shieldcn.dev/badge/shadcnui-232323?logo=shadcnui&logoColor=white)  
 
 
 </div>
